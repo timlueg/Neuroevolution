@@ -2,7 +2,8 @@
 
 \usepackage{float}
 \usepackage{placeins}
-\usepackage{german}
+\usepackage{ngerman}
+\usepackage[utf8]{inputenc}
 \begin{document}
 
 \conferenceinfo{H-BRS}{2017}
@@ -22,36 +23,52 @@ Tim L"ugger, Jan Urfei
 Aufgabe: Implementiere den HillClimb Algorithmus aus der Vorlesung und f"uhre diesen 100 Mal mit einer vorgegebenen Kostenfunktion aus.
 \end{abstract}
 
-%% ------------------------------ GENERAL NOTES ------------------------------ %%
-\section{General Notes}
+\section{Der HillClimb Algorithmus}
+Der HillClimb Algorithmus ben"otigt eine Kostenfunktion, anhand derer das Ergebnis bewertet wird, um eine möglichst optimale L"osung zu finden. Zuerst wird ein zuf"alliger Wert generiert von dem aus benachbarte Werte gewählt werden. Für diese werte wird die 'Fitness' bestimmt indem sie in die Kostenfunktion eingesetzt werden. Man wählt nun den Wert mit der größten Fitness von dem erneut Nachbarn gebildet werden. Der Algorithmus endet entweder nach einer festen Anzahl an Iterationen oder wenn sich das Ergebnis nicht mehr "andert.
 
-%% ------------------------------ REPORT STRUCTURE ------------------------------ %%
+\section{Herangehensweise}
 
-\subsection{Der HillClimb Algorithmus}
-Der HillClimb Algorithmus ben"otigt eine Kostenfunktion, anhand derer er das Ergebnis bewerten kann, um die optimale L"osung zu finden. Zu erst wird sich ein zuf"alliger Punkt ausgesucht und von diesem werden die Kosten mittels der Kostenfunktion berechnet. Als n"achstes werden benachbarte Punkte gesucht und von diesen und dem alten Punkt werden die Kosten bestimmt. Von all diesen Punkten wird das Maximum bestimmt. Dieser Punkt wird als neuer Punkt genommen von dem neue Nachbarn gebildet werden. Der Algorithmus endet entweder nach einer festen Anzahl an Iterationen oder wenn sich das Ergebnis nicht mehr "andert.
+Es wird ein zufälliger Startwert $x$ zwischen $0$ und $2$ gewählt. Als Nachbarn gilt immer $x - 0.1$ und $x + 0.1$. Diese drei Werte werden in die Funktion fit(x) (Figure \ref{fig:fit}) eingesetzt. Der x-wert mit dem größten fit(x) wird als nächster Startwert verwendet. Dieser Vorgang wird 100 mal wiederholt. Der Startwert nach der letzten Iteration ist unsere Lösung. 
 
-\subsection{Verbesserung}
-
-\section{Unser Experiment}
-\subsection{Unsere Kostenfunktion}
-\begin{figure}[ht!]
-\centering
-\includegraphics[width=\linewidth]{img/plot_fit_max.png}
-\caption{Development of average mean square error, comparing NEAT and ESP}
-\label{fig:1} 
-\end{figure}
-\subsection{Unsere Ergebnisse}
-
-
+\section{Unsere Ergebnisse}
+Die Fähigkeit dieses Verfahrens einen möglichst maximales fit(x) zu finden hängt besonders von der Wahl des zufälligen Startwertes ab, da für $x\leq1$ der Algorithmus im lokalen Maximum bei $x=0.5$ endet. Da fit(x) für alle $x>1$ streng monoton wachsend ist, steigt der gewählte x-wert 
+an, bis das Iterationslimit erreicht ist.
 
 \FloatBarrier
-\section{Conclusion}
 
+\section{plots}
+\begin{figure}[ht!]
+	\includegraphics[width=\linewidth]{img/fit}
+	\caption{Kostenfunktion: $fit(x) = (x>1).*(2.*x-2) + (x<=0.5).*8.*x + ((x>0.5).*(x<=1)).*(-8.*x + 8) $}
+	\label{fig:fit}
+\end{figure}
 
+\begin{figure}[ht!]
+\includegraphics[width=\linewidth]{img/plot_fit_max.png}
+\caption{$fit(Startwerte)$ aller Iterationen (rot), Maximum \small(blauer Kreis)}
+\label{fig:fit_max} 
+\end{figure}
+
+\FloatBarrier
 \newpage
 
+\begin{figure}[t]
+	\includegraphics[width=\linewidth]{img/plot_fit_local_max_right.png}
+	\caption{Lokales Maximum bei Startwert  $0.5 \leq x\leq1$ }
+	\label{fig:fit_local_max_right} 
+\end{figure}
 
-\bibliographystyle{abbrv}
-\bibliography{HeteroNEAT} 
+\begin{figure}[t]
+	\includegraphics[width=\linewidth]{img/plot_fit_local_max_left.png}
+	\caption{Lokales Maximum bei Startwert  $0.5 > x\leq1$ }
+	\label{fig:fit_local_max_left} 
+\end{figure}
+\begin{figure}[p]
+	\includegraphics[width=\linewidth]{img/histogram_of_100_HillClimbs.png}
+	\caption{Häufigkeitsverteilung der Maximalen x-Werte nach 100 fachem ausführen des HillClimb Algorithmus}
+	\label{fig:histogram} 
+\end{figure}
+
+
 \end{document}
 }
