@@ -19,26 +19,36 @@ Tim L"ugger, Jan Urfei
 \date{today}
 \maketitle
 \begin{abstract}
-Short summary: in \textbf{very few} sentences, describe what was asked, what you did and what the results were
+Aufgabe: Implementiere den HillClimb Algorithmus aus der Vorlesung und f"uhre diesen 100 Mal mit einer vorgegebenen Kostenfunktion aus.
 \end{abstract}
 
 %% ------------------------------ GENERAL NOTES ------------------------------ %%
 \section{General Notes}
 
 %% ------------------------------ REPORT STRUCTURE ------------------------------ %%
-\FloatBarrier
-\newpage
-\subsection{Figure}
 
+\subsection{Der HillClimb Algorithmus}
+Der HillClimb Algorithmus ben"otigt eine Kostenfunktion, anhand derer er das Ergebnis bewerten kann, um die optimale L"osung zu finden. Zu erst wird sich ein zuf"alliger Punkt ausgesucht und von diesem werden die Kosten mittels der Kostenfunktion berechnet. Als n"achstes werden benachbarte Punkte gesucht und von diesen und dem alten Punkt werden die Kosten bestimmt. Von all diesen Punkten wird das Maximum bestimmt. Dieser Punkt wird als neuer Punkt genommen von dem neue Nachbarn gebildet werden. Der Algorithmus endet entweder nach einer festen Anzahl an Iterationen oder wenn sich das Ergebnis nicht mehr "andert.
+
+\subsection{Verbesserung}
+
+\section{Unser Experiment}
+\subsection{Unsere Kostenfunktion}
 \begin{figure}[ht!]
 \centering
 \includegraphics[width=\linewidth]{img/plot_fit_max.png}
 \caption{Development of average mean square error, comparing NEAT and ESP}
 \label{fig:1} 
 \end{figure}
+\subsection{Unsere Ergebnisse}
+
+
 
 \FloatBarrier
 \section{Conclusion}
+
+
+\newpage
 
 
 \bibliographystyle{abbrv}
