@@ -1,4 +1,5 @@
 solutions=zeros(1,100);
+ysolutions=zeros(1,100);
 plotX=zeros(100,100);
 plotY=zeros(100,100);
 fit = @(x) (x>1).*(2.*x-2) + (x<=0.5).*8.*x + ((x>0.5).*(x<=1)).*(-8.*x + 8);
@@ -10,7 +11,8 @@ h1=histogram(solutions,40);
 xlabel('X Werte');
 ylabel('absolute Häufigkeit');
 figure(2);
+xSolutions=plotX(:,100)';
 boxplot(solutions);
 ax=gca;
-ax.XTickLabel = {'100 HillClimb Ergebnisse'};
+ax.XTickLabel = {'100 HillClimb Ergebnisse','XWerte'};
 ylabel('X Werte');
