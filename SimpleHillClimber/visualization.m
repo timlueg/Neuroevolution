@@ -10,7 +10,7 @@ end
 figure(1);
 h1=histogram(solutions,40);
 xlabel('X Werte');
-ylabel('absolute HÃ¤ufigkeit');
+ylabel('absolute Häufigkeit');
 
 figure(2);
 xSolutions=plotX(:,100)';
