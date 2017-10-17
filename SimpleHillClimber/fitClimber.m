@@ -22,12 +22,6 @@ for i=1:numIterations
     yValues(i) = maxfit;
 end
 
-solution=yValues(numIterations);
-figure(3);
-fplot(fit, [-0.5, 12],'c', 'lineWidth', 2)
-hold on
-plot(xValues, yValues,'--r', 'LineWidth',2)
-plot(xValues(numIterations), yValues(numIterations), 'bo', 'LineWidth',1)
-hold off
+solution=xValues(numIterations);
 
 end
