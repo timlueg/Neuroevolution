@@ -57,13 +57,10 @@ for j=1:numIterations
             population(i,floor(2.*rand()+1)) =  a + (b-a) * rand();
         end
     end
-    
+    population(1,:)
 
-   eliteDevelopment(j)= egg(population(1,:));
+    disp(egg(population(1,:)))
 end
-disp(egg(population(1,:)));
-disp(population(1,:));
-
 
 function [y] = egg(xx)
 % xx has two dimensions/columns: n x 2
