@@ -1,8 +1,4 @@
-x=-500:5:500; y=x;
-[X,Y] = ndgrid(x,y);
-Z = egg([X(:),Y(:)]);
-Z = reshape(Z,size(X,1),size(X,2));
-%surf(X,Y,Z);
+clear
 
 populationSize = 10;
 mutationRate = 0.05;
@@ -16,16 +12,33 @@ population =  a + (b-a) .* rand(populationSize, 2);
 
 newPopulation = zeros(size(population));
 
-%tournament selection
-contender(:,:,1) = population(randperm(populationSize),:);
-contender(:,:,2) = population(randperm(populationSize),:);
-contenderFitness(:,:,1) = egg(contender(:,:,1));
-contenderFitness(:,:,2) = egg(contender(:,:,2))
+%Insert elite (last entry) and remove from population
+[elite, eliteIndex] = min(egg(population));
+newPopulation(populationSize,:) = population(eliteIndex,:);
+population(eliteIndex,:) = [];
 
-[maxFitness, maxIndex] = max(contenderFitness, [], 3);
-[m,n,k] = size(contender);
-contender2d = reshape(permute(contender,[1 3 2]),[],size(contender,2),1) %converting 3D to 2D matrix row wise
-winner = contender2d((maxIndex-1) * populationSize + (1:populationSize)',:);
+%tournament selection
+numChildren = populationSize-1;
+
+contender = cat(3, population(randperm(numChildren),:), population(randperm(numChildren),:));
+contenderFitness = cat(3, egg(contender(:,:,1)), egg(contender(:,:,2)));
+
+[maxFitness, maxIndex] = min(contenderFitness, [], 3); %min over pages
+contender2d = reshape(permute(contender,[1 3 2]),[],size(contender,2),1); %converting 3D to 2D matrix row wise
+children = contender2d((maxIndex-1) * numChildren + (1:numChildren)',:);
+
+%crossover 
+if rand() < crossoverRate
+    
+end
+
+
+%mutate winners
+
+
+%newPopulation(1:numChildren, :) = 
+%egg(newPopulation)
+
 
 %todo keep elite dont mutate
 %mutate others
