@@ -1,16 +1,19 @@
 clear
 
-populationSize = 10;
-mutationRate = 0.05;
+numIterations = 1000;
+populationSize = 1000;
 crossoverRate = 0.8;
-numIterations = 100;
+mutationRate = 1/populationSize;
+mutationStrength = 1;
+
 
 %random population in interval (a,b)
 a = -512;
 b = 512;
 population =  a + (b-a) .* rand(populationSize, 2);
-
 newPopulation = zeros(size(population));
+
+for i=1:numIterations
 
 %Insert elite (last entry) and remove from population
 [elite, eliteIndex] = min(egg(population));
@@ -28,16 +31,27 @@ contender2d = reshape(permute(contender,[1 3 2]),[],size(contender,2),1); %conve
 children = contender2d((maxIndex-1) * numChildren + (1:numChildren)',:);
 
 %crossover 
-if rand() < crossoverRate
-    
+crossoverSelector = rand(numChildren,1) <= crossoverRate;
+crossoverSelected =  children(any(crossoverSelector,2),:);
+crossoverUnchanged = children(any(1 - crossoverSelector,2),:);
+crossoverSelected(:,2) = crossoverSelected(randperm(size(crossoverSelected,1)),2); %permutate 2. column
+children = cat(1, crossoverSelected, crossoverUnchanged);
+
+%mutate children 
+standardDeviation = mutationStrength;
+mutationSelector = rand(numChildren,1) <= mutationRate;
+children =  children + (repmat(mutationSelector,1,2) .* normrnd(0,standardDeviation, [numChildren,2]));
+
+%insert children
+newPopulation(1:numChildren, :) = children;
+
+population = newPopulation;
+
 end
 
-
-%mutate winners
-
-
-%newPopulation(1:numChildren, :) = 
 %egg(newPopulation)
+disp(elite)
+disp(population(eliteIndex,:));
 
 
 %todo keep elite dont mutate
