@@ -6,6 +6,7 @@ fit = @(x) (x>1).*(2.*x-2) + (x<=0.5).*8.*x + ((x>0.5).*(x<=1)).*(-8.*x + 8);
 numIterations = 100;
 dimensionen=1;
 
+neighbours = permn([0,0.1,-0.1],dimensionen);
 xValues = zeros(dimensionen,numIterations);
 yValues = zeros(dimensionen,numIterations);
 current=zeros(1,dimensionen);
@@ -17,7 +18,7 @@ for i=1:dimensionen
     current(i) = a + (b-a) .* rand();
 end
 for i=1:numIterations
-    solutionRange = [0;0.1;-0.1] + current(1,:);
+    solutionRange = neighbours + current(1,:);
     [maxfit, indexMax] = max(fit(solutionRange));
     current(1,:) = solutionRange(indexMax,:);
     
