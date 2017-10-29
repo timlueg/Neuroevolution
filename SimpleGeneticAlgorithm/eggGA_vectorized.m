@@ -53,9 +53,7 @@ end
 disp(elite)
 disp(population(eliteIndex,:));
 
-
-%todo keep elite dont mutate
-%mutate others
+%egg([522.1469,413.3025]) smaller than global minimum ???
 
 function [y] = egg(xx)
 % xx has two dimensions/columns: n x 2
