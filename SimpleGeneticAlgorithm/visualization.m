@@ -24,4 +24,4 @@ legend('Elite','Median','Worst');
 hold off;
 
 figure(2);
-boxplot(fitnessTimeline');
+boxplot(AllElite(:,numIterations));
