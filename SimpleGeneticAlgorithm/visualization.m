@@ -1,13 +1,14 @@
-[timeline,fitnessTimeline,populationSize,numIterations]=eggGa();
-AllElite=zeros(100,numIterations);
-AllMedian=zeros(100,numIterations);
-AllWorst=zeros(100,numIterations);
+%[history,fitnessHistory,populationSize,numIterations]=eggGa();
+[history,fitnessHistory,populationSize,numIterations]=eggGA_vectorized();
+AllElite=zeros(populationSize,numIterations);
+AllMedian=zeros(populationSize,numIterations);
+AllWorst=zeros(populationSize,numIterations);
 
 for i=1:100
-[timeline,fitnessTimeline,populationSize,numIterations]=eggGa();
-AllElite(i,:)=min(fitnessTimeline,[],2)';
-AllMedian(i,:)=median(fitnessTimeline,2)';
-AllWorst(i,:)=max(fitnessTimeline,[],2)';
+[history,fitnessHistory,populationSize,numIterations]=eggGa();
+AllElite(i,:)=min(fitnessHistory,[],2)';
+AllMedian(i,:)=median(fitnessHistory,2)';
+AllWorst(i,:)=max(fitnessHistory,[],2)';
 
 end
 eliteDevelopment=mean(AllElite,1);

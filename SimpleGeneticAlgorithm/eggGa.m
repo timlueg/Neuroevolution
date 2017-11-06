@@ -1,4 +1,4 @@
-function [timeline,fitnessTimeline,populationSize,numIterations] = eggGa()
+function [history,fitnessHistory,populationSize,numIterations] = eggGa()
 x=-500:5:500; y=x;
 [X,Y] = ndgrid(x,y);
 Z = egg([X(:),Y(:)]);
@@ -9,8 +9,8 @@ populationSize = 100;
 mutationRate = 0.05;
 crossoverRate = 0.8;
 numIterations = 100;
-timeline=zeros(numIterations,populationSize,2);
-fitnessTimeline=zeros(numIterations,populationSize);
+history=zeros(numIterations,populationSize,2);
+fitnessHistory=zeros(numIterations,populationSize);
 
 %random population in interval (a,b)
 a = -512;
@@ -60,9 +60,9 @@ for j=1:numIterations
             population(i,floor(2.*rand()+1)) =  a + (b-a) * rand();
         end
     end
-    fitnessTimeline(j,:)=egg(population(:,:))';
-    timeline(j,:,1)=population(:,1)';
-    timeline(j,:,2)=population(:,2)';
+    fitnessHistory(j,:)=egg(population(:,:))';
+    history(j,:,1)=population(:,1)';
+    history(j,:,2)=population(:,2)';
     eliteDevelopment(j)= egg(population(1,:));
 end
 disp(egg(population(1,:)));

@@ -1,11 +1,13 @@
-clear
-
-numIterations = 1000;
-populationSize = 1000;
+function [history,fitnessHistory,populationSize,numIterations] = eggGA_vectorized()
+numIterations = 100;
+populationSize = 100;
 crossoverRate = 0.8;
 mutationRate = 1/populationSize;
 mutationStrength = 1;
 
+%variables to store history
+history=zeros(numIterations,populationSize,2);
+fitnessHistory=zeros(numIterations,populationSize);
 
 %random population in interval (a,b)
 a = -512;
@@ -45,13 +47,24 @@ children =  children + (repmat(mutationSelector,1,2) .* normrnd(0,standardDeviat
 %insert children
 newPopulation(1:numChildren, :) = children;
 
+
+
 population = newPopulation;
+
+%save history for visualization
+fitnessHistory(i,:) = egg(population(:,:));
+history(i,:,1)=population(:,1);
+history(i,:,2)=population(:,2);
 
 end
 
 %egg(newPopulation)
 disp(elite)
 disp(population(eliteIndex,:));
+
+end
+
+
 
 %egg([522.1469,413.3025]) smaller than global minimum ???
 
