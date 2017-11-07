@@ -20,7 +20,7 @@ Tim L"ugger, Jan Urfei
 \date{today}
 \maketitle
 \begin{abstract}
-Aufgabe: Implementiere einen Genetische Algorithmus und führe diesen 100 mal mit einer vorgegebenen Kostenfunktion aus. Ziel ist es das Minimum der egg Funktion zu finden.S	
+Aufgabe: Implementiere einen Genetische Algorithmus und führe diesen 100 mal mit einer vorgegebenen Kostenfunktion aus. Ziel ist es das Minimum der Egg Funktion zu finden.
 \end{abstract}
 
 \section{Der Genetische Algorithmus}
@@ -46,8 +46,8 @@ Die Anfangspopulation wird zufällig aus Koordinatenpaaren gebildet, die innerha
 \end{figure}
 
 Das Genom mit dem besten Ergebnis (dem niedrigsten egg(Genom)) wird unverändert in die neue Population übernommen.
-Mit der restlichen Population wird eine Tournament Selection durchgeführt. Dazu wir d für jedes zu erzeugende Kind jeweils 2 Genome zufällig  ausgewählt und das mit der höheren Fitness übernommen. \newline
-Nun wird mit einer bei diesen Kindergenomen mit einer gewissen Wahrscheinlichkeit die x bzw. y werte untereinander vertauscht (Crossover).
+Mit der restlichen Population wird eine Tournament Selection durchgeführt. Dazu wird für jedes zu erzeugende Kind jeweils 2 Genome zufällig  ausgewählt und das mit der höheren Fitness übernommen. \newline
+Nun wird mit einer bei diesen Kindergenomen mit einer gewissen Wahrscheinlichkeit die x bzw. y Werte untereinander vertauscht (Crossover).
 \newline
 Anschließend werden die meisten (mutationRate) der Kindergenome noch mutiert. Es werden die x und y Werte jeweils mit einer zufällig, normal verteilten Zahl addiert. (Mutation)
 

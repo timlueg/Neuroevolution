@@ -32,5 +32,7 @@ hold off;
 figure(2);
 hold on;
 boxplot(AllElite(:,numIterations));
+ax=gca;
+ax.XTickLabel = {'100 Experiments'};
 ylabel('egg value')
 hold off;
