@@ -3,14 +3,15 @@ x=-500:5:500; y=x;
 [X,Y] = ndgrid(x,y);
 Z = egg([X(:),Y(:)]);
 Z = reshape(Z,size(X,1),size(X,2));
-%surf(X,Y,Z);
+surf(X,Y,Z);
 
 populationSize = 100;
-mutationRate = 0.05;
+mutationRate = 1;
 crossoverRate = 0.8;
 numIterations = 100;
 history=zeros(numIterations,populationSize,2);
 fitnessHistory=zeros(numIterations,populationSize);
+standardDeviation=1;
 
 %random population in interval (a,b)
 a = -512;
@@ -43,12 +44,12 @@ for j=1:numIterations
     population = newPopulation;
     
     %crossover
-    for i=2:populationSize
+    for i=1:populationSize-1
         if rand()< crossoverRate
-            contenderIndex1 = floor(populationSize * rand(1)+1);
-            contenderIndex2 = floor(populationSize * rand(1)+1);
-            newPopulation(i,1)=population(contenderIndex1,1);
-            newPopulation(i,2)=population(contenderIndex2,2);
+            contenderIndex1 = floor((populationSize-1) * rand(1)+1);
+            contenderIndex2 = floor((populationSize-1) * rand(1)+1);
+            newPopulation(i+1,1)=population(contenderIndex1,1);
+            newPopulation(i+1,2)=population(contenderIndex2,2);
         end
     end
     
@@ -57,15 +58,21 @@ for j=1:numIterations
     %mutation
     for i=2:populationSize
         if rand()<mutationRate
-            population(i,floor(2.*rand()+1)) =  a + (b-a) * rand();
+            koordinatennummer=floor(2.*rand()+1);
+            koordinatennummer=1;
+            population(i,koordinatennummer) = population(i,koordinatennummer)+ normrnd(0,standardDeviation);
+            koordinatennummer=2;
+            population(i,koordinatennummer) = population(i,koordinatennummer)+ normrnd(0,standardDeviation);
+            
         end
     end
     fitnessHistory(j,:)=egg(population(:,:))';
     history(j,:,1)=population(:,1)';
     history(j,:,2)=population(:,2)';
     eliteDevelopment(j)= egg(population(1,:));
+    
 end
-disp(egg(population(1,:)));
+disp(egg(population));
 %disp(population(1,:));
 end
 

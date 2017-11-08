@@ -1,5 +1,5 @@
 function [history,fitnessHistory,populationSize,numIterations] = eggGA_vectorized()
-numIterations = 100;
+numIterations = 400;
 populationSize = 100;
 crossoverRate = 0.8;
 mutationRate = 1/populationSize;

@@ -1,4 +1,4 @@
-[history,fitnessHistory,populationSize,numIterations]=eggGA_vectorized();
+[history,fitnessHistory,populationSize,numIterations]=eggGa();
 
 numExperiments = 100;
 AllElite=zeros(numExperiments,numIterations);
@@ -6,8 +6,8 @@ AllMedian=zeros(numExperiments,numIterations);
 AllWorst=zeros(numExperiments,numIterations);
 
 for i=1:numExperiments
-%[history,fitnessHistory,populationSize,numIterations]=eggGa();
-[history,fitnessHistory,populationSize,numIterations]=eggGA_vectorized();
+[history,fitnessHistory,populationSize,numIterations]=eggGa();
+%[history,fitnessHistory,populationSize,numIterations]=eggGA_vectorized();
 AllElite(i,:)=min(fitnessHistory,[],2)';
 AllMedian(i,:)=median(fitnessHistory,2)';
 AllWorst(i,:)=max(fitnessHistory,[],2)';
