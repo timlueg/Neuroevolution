@@ -3,20 +3,21 @@ x=-500:5:500; y=x;
 [X,Y] = ndgrid(x,y);
 Z = egg([X(:),Y(:)]);
 Z = reshape(Z,size(X,1),size(X,2));
-surf(X,Y,Z);
+%surf(X,Y,Z);
 
 populationSize = 100;
 mutationRate = 1;
 crossoverRate = 0.8;
 numIterations = 100;
-history=zeros(numIterations,populationSize,2);
+dimension=2;
+history=zeros(numIterations,populationSize,dimension);
 fitnessHistory=zeros(numIterations,populationSize);
 standardDeviation=1;
 
 %random population in interval (a,b)
 a = -512;
 b = 512;
-population =  a + (b-a) .* rand(populationSize, 2);
+population =  a + (b-a) .* rand(populationSize, dimension);
 
 newPopulation = zeros(size(population));
 eliteDevelopment=(zeros(1,numIterations));
@@ -46,10 +47,14 @@ for j=1:numIterations
     %crossover
     for i=1:populationSize-1
         if rand()< crossoverRate
-            contenderIndex1 = floor((populationSize-1) * rand(1)+1);
-            contenderIndex2 = floor((populationSize-1) * rand(1)+1);
-            newPopulation(i+1,1)=population(contenderIndex1,1);
-            newPopulation(i+1,2)=population(contenderIndex2,2);
+            contenderIndex= zeros(dimension,1);
+            for k=1:dimension
+                contenderIndex(k) = floor((populationSize-1) * rand(1)+1);
+            end
+            for k=1:dimension
+                newPopulation(i+1,k)=population(contenderIndex(k),k);
+               
+            end
         end
     end
     
@@ -57,18 +62,18 @@ for j=1:numIterations
     
     %mutation
     for i=2:populationSize
+        
         if rand()<mutationRate
-            koordinatennummer=floor(2.*rand()+1);
-            koordinatennummer=1;
-            population(i,koordinatennummer) = population(i,koordinatennummer)+ normrnd(0,standardDeviation);
-            koordinatennummer=2;
-            population(i,koordinatennummer) = population(i,koordinatennummer)+ normrnd(0,standardDeviation);
-            
+            for k=1:dimension
+                population(i,k) = population(i,k)+ normrnd(0,standardDeviation);
+            end
         end
     end
     fitnessHistory(j,:)=egg(population(:,:))';
-    history(j,:,1)=population(:,1)';
-    history(j,:,2)=population(:,2)';
+    for k=1:dimension
+        history(j,:,k)=population(:,k)';
+        
+    end
     eliteDevelopment(j)= egg(population(1,:));
     
 end
