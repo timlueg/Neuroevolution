@@ -4,7 +4,7 @@ load iceland.dat
 dataSize=x*y;
 listOfIndex=zeros(dataSize,3);
 
-learingRate = 0.2;
+learingRate = 0.06;
 numIterations = 1000;
 
 training=0.70;
@@ -38,34 +38,38 @@ testSet=listOfIndex(numTraining+numValidation+1:dataSize,:);
 testSetXY=testSet(:,1:2);
 testSetZ=testSet(:,3);
 
-meanXY=mean(trainingSetXY,1);
-trainingSetXY= trainingSetXY ./ meanXY;
-meanXY=mean(validationSetXY,1);
-validationSetXY= validationSetXY ./ meanXY;
-trainingSetZ = trainingSetZ ./ abs(max(trainingSetZ,[], 1));
+trainingSetXY= trainingSetXY ./ mean(trainingSetXY,1);
+validationSetXY= validationSetXY ./ mean(validationSetXY,1);
+testSetXY= testSetXY ./ mean(testSetXY,1);
 
-meanXY=mean(testSetXY,1);
-testSetXY= testSetXY ./ meanXY;
+
+trainingSetZ = trainingSetZ ./ abs(max(trainingSetZ,[], 1));
+validationSetZ = validationSetZ ./ abs(max(validationSetZ,[], 1));
+testSetZ = testSetZ ./ abs(max(testSetZ,[], 1));
+
 
 
 %Gewichtsmatrix
-W = rand(2,20);
-W2 = rand(20,1);
+W =randn(2,20);
+W2 =randn(20,1);
+
+trainingError=zeros(numIterations,1);
+validationError=zeros(numIterations,1);
+testError = zeros(numIterations,1);
 
 for j=1:numIterations
    
-    sumSquaredError=0;
+    
+    
     for i=1:numTraining
-        input = trainingSetXY(i,1:2);
+        input = trainingSetXY(i,:);
         netLayer1 = feedForward(input,W);
         outLayer1 = sigmoidForward(netLayer1);
         netLayer2 = feedForward(outLayer1, W2);
         outLayer2 = sigmoidForward(netLayer2);
         
         error = loss(trainingSetZ(i), outLayer2);
-        sumSquaredError = sumSquaredError + error;
-        
-        %deltak = (trainingSetZ(i) - outLayer1) .* outLayer1 .* (1 - outLayer1);
+        trainingError(j) = trainingError(j) + error;
         
         delta2 = errorDerivative(trainingSetZ(i), outLayer2) .* sigmoidBackward(outLayer2);
         dw2 = outLayer2' * delta2;
@@ -73,15 +77,37 @@ for j=1:numIterations
         delta = dw2 * W2' .* sigmoidBackward(outLayer2);
         dw1 = input' * delta;
         
-        
+        %adjust weights
         W = W - (dw1 .* learingRate);
         W2 = W2 - (dw2 .* learingRate);
     end
     
-    disp(sumSquaredError);
+    disp(trainingError(j));
     shuffleSelector = randperm(numTraining);
     trainingSetXY = trainingSetXY(shuffleSelector,:);
     trainingSetZ = trainingSetZ(shuffleSelector,:);
+    
+    %evaluate validatoin and test set error
+    for l=1:numValidation
+        %todo replace dublicate feedforewared with function call
+        input = validationSetXY(l,:);
+        netLayer1 = feedForward(input,W);
+        outLayer1 = sigmoidForward(netLayer1);
+        netLayer2 = feedForward(outLayer1, W2);
+        outLayer2 = sigmoidForward(netLayer2);
+        
+        validationError(j) = validationError(j) + loss(validationSetZ(l), outLayer2);
+        
+        %todo replace dublicate feedforewared with function call
+        nput = testSetXY(l,:);
+        netLayer1 = feedForward(input,W);
+        outLayer1 = sigmoidForward(netLayer1);
+        netLayer2 = feedForward(outLayer1, W2);
+        outLayer2 = sigmoidForward(netLayer2);
+        
+        testError(j) = testError(j) + loss(testSetZ(l), outLayer2);
+    end
+
     
 end
 
