@@ -1,10 +1,11 @@
+function [trainingError,validationError,testError]=IslandNet(learningRate)
 load iceland.dat
 [x,y]=size(iceland);
 %surf(iceland);
 dataSize=x*y;
 listOfIndex=zeros(dataSize,3);
 
-learingRate = 0.06;
+%learningRate = 0.06;
 numIterations = 1000;
 
 training=0.70;
@@ -58,7 +59,7 @@ validationError=zeros(numIterations,1);
 testError = zeros(numIterations,1);
 
 for j=1:numIterations
-   
+    
     
     
     for i=1:numTraining
@@ -78,11 +79,11 @@ for j=1:numIterations
         dw1 = input' * delta;
         
         %adjust weights
-        W = W - (dw1 .* learingRate);
-        W2 = W2 - (dw2 .* learingRate);
+        W = W - (dw1 .* learningRate);
+        W2 = W2 - (dw2 .* learningRate);
     end
     
-    disp(trainingError(j));
+    %disp(trainingError(j));
     shuffleSelector = randperm(numTraining);
     trainingSetXY = trainingSetXY(shuffleSelector,:);
     trainingSetZ = trainingSetZ(shuffleSelector,:);
@@ -107,11 +108,11 @@ for j=1:numIterations
         
         testError(j) = testError(j) + loss(testSetZ(l), outLayer2);
     end
-
+    
     
 end
 
-
+end
 function [activation]=sigmoidForward(X)
 activation= 1 ./(1+exp(-X));
 end
