@@ -48,17 +48,19 @@ Wenn das der Fall ist nimmt man sich den nächsten Trainingsdatensatz und beginn
 
 
 
-\FloatBarrier
 
 \section{Herangehensweise}
- 
+ Zuerst werden alle Höhen Daten von Island (Figure \ref{fig:island}) aufgeteilt in drei Zufällig gewählte Mengen. Dabei entsprechen 70\% aller Daten derer, die für das trainieren des Neuronalen Netzes verwendet werden. Jeweils 15\% werden dafür verwendet, um das Ergebnis zu validieren und zu testen. 
 \begin{figure}[h!]
 	\includegraphics[width=\linewidth]{img/island}
 	\caption{Höhenprofil von Island}
 	\label{fig:island}
 \end{figure}
 
-\FloatBarrier
+Unsere Netztopologie sieht im Moment so aus, dass wir zwei Neuronen auf dem Input Layer haben, die mit den X und Y Koordinaten gefüttert werden. Nach dem Input Layer haben wir ein Hidden Layer mit 20 Neuronen. Unser Output Layer besitzt nur ein Neuron, da unsere Neuronales Netz ja die Höhe von einem gewissen Punkt auf Island vorhersagen soll.
+Für den Vorwärtspass verwenden wir aktuell folgende Funktion als Aktivierungsfunktion: $\frac{1}{1+e^{-x}}$ .\\
+Da uns diese Funktion nur Werte zwischen -1 und 1 wiedergibt müssen wir unsere Höhen werte noch normalisieren. Das haben wir gemacht, indem wir jeden Wert durch das Maximum des Betrages der Höhe ($ |max(Hoehe)| $) dividieren.\\
+Als Fehler, den wir minimieren wollen verwenden wir den summed squared Error ( $ 0.5*(Soll-Output)^2 $). Wir lassen den Trainingsdatensatz eine X mal wiederholen, bis das trainiert ist. Aktuell haben wir X auf 1000 gesetzt. Nach jedem Durchlauf werden die Trainingsdaten neu angeordnet, damit die Reihenfolge der Trainingsdaten nicht das Ergebnis beeinflussen.
 
 \section{Unsere Ergebnisse}
 
