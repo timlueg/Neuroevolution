@@ -20,17 +20,43 @@ Tim L"ugger, Jan Urfei
 \date{today}
 \maketitle
 \begin{abstract}
-Aufgabe: 
+Aufgabe: Approximieren Sie Island mit einem neuronalen Netz und stellen Sie die Approximation graphisch dar. Stellen Sie den Verlauf des Fehlers über die Zeit für alle drei Sets dar und veranschaulichen Sie den Einfluss unterschiedlicher Lernraten auf den Lernprozess.
 \end{abstract}
 
 \section{Backpropagation}
+\paragraph{Neuronales Netz}
+Grundlage für Backpropagation ist ein neuronales Netz (siehe Figure \ref{fig:neuronalesNetz}). Ein Neuronales Netz besteht aus mehreren Neuronen, die in verschiedenen Schichten (Layern) angeordnet sind. Es wird generell zwischen dem ''input Layer'', den ''hidden Layer'' und dem ''output Layer'' unterschieden. Dabei besteht der input Layer aus den Neuronen die eine Eingabe in das Netz bekommen. Der Output Layer liefert nachher die Ergebnisse des Neuronalen Netzes. Alle Neuronen zwischen input und output Layer liegen auf den hidden Layern, welche beliebig viele sein können. Die Anzahl der Neuronen pro Layer ist auch beliebig. Bei dem Input Layer hängt es von der Eingabe ab und bei dem Output Layer hängt es von dem ab, was man nachher als Ergebnis haben will.\\
+Das Neuronale Netz in Figure \ref{fig:neuronalesNetz} besitzt 6 Input Neuronen, 2 Hidden Layer mit jeweils 4/3 Neuronen und ein Output Neuron.
+\begin{figure}[h!]
+	\includegraphics[width=0.6\linewidth]{img/neuronalesNetz}
+	\caption{Neuronales Netz mit zwei Hidden Layer}
+	\label{fig:neuronalesNetz}
+\end{figure}
+ \paragraph{Neuron}
+ Wie funktioniert ein Neuron? Ein Neuron kann mehrere Eingaben haben( Figure \ref{fig:Neuron}). Bei den Input Neuronen kommt diese Eingabe von außen, bei allen anderen kommt die Eingabe von dem Output von anderen Neuronen. Alle Eingaben des Neurons haben ein zugeordnetes Gewicht, welches beim Trainieren angepasst wird, aber dazu später. Alle Eingaben von einem Neuron werden jetzt gewichtet Aufsummiert und bilden die Netzeingabe für das eine Neuron. Allgemein muss noch eine Aktivierungsfunktion für alle Neuronen definiert werden, die ein Neuron erst ab einer gewissen Eingabe ''aktiv'' werfen lässt. Die Netzeingabe eines Neuron wird also in die Aktivierungsfunktion gegeben und bildet dann den Output eines Neurons.
+ 
+\begin{figure}[h!]
+	\includegraphics[width=\linewidth]{img/Neuron}
+	\caption{Ein Neuron}
+	\label{fig:Neuron}
+\end{figure}
+
+\paragraph{Backpropagation}
+Backpropagation besteht aus mehreren Phasen. Zu Erst gibt es einen sogenannten ''Forward Pass''. Dabei wird ein Wert von der Trainingsmenge in das Neuronale Netz (am Input Layer) gegeben. Es wird für jedes Layer der Output mit den aktuellen Kantengewichten berechnet. Den Output vergleicht man dann mit den Soll Wert und bildet daraus den Fehler der zwischen Output und Soll besteht. Für die Berechnung dieses Fehlers gibt es unterschiedliche Verfahren. \\
+Wenn der Fehler feststeht wird geguckt, wie sich das Ergebnis von dem vorherigen Layer zusammengesetzt hat. Es wird mathematisch gesehen der größte Gradient bestimmt. Da man bei minimal kleinen Schritten davon ausgehen kann, dass in entgegengesetzter Richtung der kleinste Gradient liegt, passt man die Kantengewichte in Richtung des negativen Gradient mit einer festgelegten Lernrate an. So geht man von Schicht zu Schicht rückwärts, bis man beim Input Layer angekommen ist.
+Wenn das der Fall ist nimmt man sich den nächsten Trainingsdatensatz und beginnt wieder von vorne. Mit dem gesamten Trainingsdatensatz trainiert man immer wieder das Neuronale Netz, bis der Fehler klein genug ist. Allerdings sollte man die Reihenfolge der Trainingsdaten zwischen den Durchläufen ändern, da das Neuronale Netz sonst auch die Reihenfolge von den Trainingsdaten lernt, was einen negativen Einfluss auf andere Daten haben kann, für die man das Netz vielleicht später verwenden will.
+
 
 
 \FloatBarrier
 
 \section{Herangehensweise}
  
-
+\begin{figure}[h!]
+	\includegraphics[width=\linewidth]{img/island}
+	\caption{Höhenprofil von Island}
+	\label{fig:island}
+\end{figure}
 
 \FloatBarrier
 
