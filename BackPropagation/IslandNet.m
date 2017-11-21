@@ -6,7 +6,7 @@ dataSize=x*y;
 listOfIndex=zeros(dataSize,3);
 
 %learningRate = 0.06;
-numIterations = 1000;
+numIterations = 200;
 
 training=0.70;
 validation=0.15;
@@ -51,8 +51,8 @@ testSetZ = testSetZ ./ abs(max(testSetZ,[], 1));
 
 
 %Gewichtsmatrix
-W =randn(2,20);
-W2 =randn(20,1);
+W =randn(2,50);
+W2 =randn(50,1);
 
 trainingError=zeros(numIterations,1);
 validationError=zeros(numIterations,1);
@@ -60,27 +60,26 @@ testError = zeros(numIterations,1);
 
 for j=1:numIterations
     
-    
-    
     for i=1:numTraining
         input = trainingSetXY(i,:);
         netLayer1 = feedForward(input,W);
         outLayer1 = sigmoidForward(netLayer1);
         netLayer2 = feedForward(outLayer1, W2);
-        outLayer2 = sigmoidForward(netLayer2);
+        %outLayer2 = sigmoidForward(netLayer2);
         
-        error = loss(trainingSetZ(i), outLayer2);
+        error = loss(trainingSetZ(i), netLayer2);
         trainingError(j) = trainingError(j) + error;
         
-        delta2 = errorDerivative(trainingSetZ(i), outLayer2) .* sigmoidBackward(outLayer2);
-        dw2 = outLayer2' * delta2;
+        delta2 = errorDerivative(trainingSetZ(i), netLayer2) .* sigmoidBackward(netLayer2);
+        %dW2 = outLayer2' * delta2;
+        dW2 = outLayer1' * delta2;
         
-        delta = dw2 * W2' .* sigmoidBackward(outLayer2);
-        dw1 = input' * delta;
+        delta = delta2 * W2' ;%.* sigmoidBackward(outLayer2);
+        dW1 = input' * delta;
         
         %adjust weights
-        W = W - (dw1 .* learningRate);
-        W2 = W2 - (dw2 .* learningRate);
+        W = W - (dW1 .* learningRate);
+        W2 = W2 - (dW2 .* learningRate);
     end
     
     %disp(trainingError(j));
@@ -100,7 +99,7 @@ for j=1:numIterations
         validationError(j) = validationError(j) + loss(validationSetZ(l), outLayer2);
         
         %todo replace dublicate feedforewared with function call
-        nput = testSetXY(l,:);
+        input = testSetXY(l,:);
         netLayer1 = feedForward(input,W);
         outLayer1 = sigmoidForward(netLayer1);
         netLayer2 = feedForward(outLayer1, W2);
@@ -109,6 +108,9 @@ for j=1:numIterations
         testError(j) = testError(j) + loss(testSetZ(l), outLayer2);
     end
     
+    if mod(j,10) == 0
+        disp(trainingError(j))
+    end
     
 end
 

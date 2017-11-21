@@ -21,7 +21,7 @@ end
 figure(2);
 hold on;
 for i=1:size(learningRates(),2)
-   plot(trainingErrors(i,:)); 
+   plot(trainingErrors(i,:), 'LineWidth', 2); 
 end
 legend('0.01','0.05','0.1','0.15','0.2','0.5');
 xlabel('Iteration');
