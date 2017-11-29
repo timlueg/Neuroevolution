@@ -6,7 +6,7 @@ dataSize=x*y;
 listOfIndex=zeros(dataSize,3);
 
 %learningRate = 0.06;
-numIterations = 200;
+numIterations = 300;
 
 training=0.70;
 validation=0.15;
@@ -62,19 +62,15 @@ for j=1:numIterations
     
     for i=1:numTraining
         input = trainingSetXY(i,:);
-        netLayer1 = feedForward(input,W);
-        outLayer1 = sigmoidForward(netLayer1);
-        netLayer2 = feedForward(outLayer1, W2);
-        %outLayer2 = sigmoidForward(netLayer2);
+        [netLayer2, outLayer1, netLayer1] = netForward(input, W, W2);
         
         error = loss(trainingSetZ(i), netLayer2);
         trainingError(j) = trainingError(j) + error;
         
         delta2 = errorDerivative(trainingSetZ(i), netLayer2) .* sigmoidBackward(netLayer2);
-        %dW2 = outLayer2' * delta2;
         dW2 = outLayer1' * delta2;
         
-        delta = delta2 * W2' ;%.* sigmoidBackward(outLayer2);
+        delta = delta2 * W2' ;
         dW1 = input' * delta;
         
         %adjust weights
@@ -89,23 +85,13 @@ for j=1:numIterations
     
     %evaluate validatoin and test set error
     for l=1:numValidation
-        %todo replace dublicate feedforewared with function call
         input = validationSetXY(l,:);
-        netLayer1 = feedForward(input,W);
-        outLayer1 = sigmoidForward(netLayer1);
-        netLayer2 = feedForward(outLayer1, W2);
-        outLayer2 = sigmoidForward(netLayer2);
+        [netLayer2, outLayer1, netLayer1] = netForward(input, W, W2);
+        validationError(j) = validationError(j) + loss(validationSetZ(l), netLayer2);
         
-        validationError(j) = validationError(j) + loss(validationSetZ(l), outLayer2);
-        
-        %todo replace dublicate feedforewared with function call
         input = testSetXY(l,:);
-        netLayer1 = feedForward(input,W);
-        outLayer1 = sigmoidForward(netLayer1);
-        netLayer2 = feedForward(outLayer1, W2);
-        outLayer2 = sigmoidForward(netLayer2);
-        
-        testError(j) = testError(j) + loss(testSetZ(l), outLayer2);
+       [netLayer2, outLayer1, netLayer1] = netForward(input, W, W2);
+        testError(j) = testError(j) + loss(testSetZ(l), netLayer2);
     end
     
     if mod(j,10) == 0
@@ -115,6 +101,13 @@ for j=1:numIterations
 end
 
 end
+
+function [netLayer2, outLayer1, netLayer1] = netForward(input, W, W2)
+        netLayer1 = feedForward(input,W);
+        outLayer1 = sigmoidForward(netLayer1);
+        netLayer2 = feedForward(outLayer1, W2);
+end
+
 function [activation]=sigmoidForward(X)
 activation= 1 ./(1+exp(-X));
 end
@@ -128,9 +121,6 @@ error=0.5* (target-out)^2;
 end
 function [dError]=errorDerivative(target,out)
 dError = -(target-out);
-end
-function[]=feedBackward(error,W)
-
 end
 function [netOut] =feedForward(input,W)
 %Zeilen

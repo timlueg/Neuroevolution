@@ -1,4 +1,4 @@
-[trainingError,validationError,testError]=IslandNet(0.1);
+[trainingError,validationError,testError]=IslandNet(0.0006);
 learningRates=[0.01,0.05,0.1,0.15,0.2,0.5];
 
 cla;
