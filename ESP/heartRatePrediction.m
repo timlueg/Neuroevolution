@@ -1,10 +1,19 @@
 load ('trainingData.mat','tdata')
 
-training_data = {tdata{1:10}};
+%todo normalize dataset
+%todo correct permutation or fiteness matrix
+
+%normalize dataset
+%for i=1:size(tdata,2)
+%    tdata{i} = mapminmax(tdata{i});
+%end
+
+train_data = {tdata{1:10}};
 test_data = {tdata{10:12}};
 
-numTraining = size(training_data,2);
+numTraining = size(train_data,2);
 numTest = size(test_data,2);
+
 
 num_inputNodes = 2;
 num_innnerNodes = 3;
@@ -58,37 +67,45 @@ for i=1:numTraining
     
     population_fitness = zeros(num_individuals_subpop, num_subpops);
     
-    numTrainingRows = size(training_data{i},1);
+    numTrainingRows = size(train_data{i},1);
     
     population_perm = population;
     population_perm_selector = zeros(num_individuals_subpop, num_subpops);
     
-    for j=1:num_subpops
-        population_perm_selector(:, j) = randperm(num_individuals_subpop);
-        population_perm(:,:,j) = population_perm(population_perm_selector(:,j), :, j);
-    end
     
     for k=1:num_nodes_insertion
         
+        for j=1:num_subpops
+        population_perm_selector(:, j) = randperm(num_individuals_subpop);
+        population_perm(:,:,j) = population_perm(population_perm_selector(:,j), :, j);
+        end
+        
         for m=1:num_individuals_subpop
             currentActivation = ones(1, num_innnerNodes + num_outputNodes);
+             weightMatrix = reshape(permute(population_perm(m,:,:),[2,1,3]),size(population_perm(m,:,:),2),[])'; %combine along 3rd dim
             for r=1:numTrainingRows
-                input = [training_data{i}(r,1),training_data{i}(r,3)];
-                weightMatrix = reshape(permute(population_perm(m,:,:),[2,1,3]),size(population_perm(m,:,:),2),[])'; %combine along 3rd dim
+                input = [train_data{i}(r,1),train_data{i}(r,3)];
                 netOut = [input, currentActivation] * weightMatrix';
+                %netOut = tanh(netOut);
                 currentActivation = netOut;
                 
                 heartrate_pred = netOut(size(currentActivation,2));
-                netFitness = fitness(training_data{i}(r,2), heartrate_pred);
+                netFitness = fitness(train_data{i}(r,2), heartrate_pred);
                 for n=1:num_subpops
                     population_fitness(population_perm_selector(m,n),n) = population_fitness(population_perm_selector(m,n),n) + netFitness;
                 end
-                disp(population_fitness)
+                
             end
             
             
         end
         
+    end
+    
+    population_fitness = population_fitness./10;
+    
+    for s=1:num_subpops
+        population_new = zeros(num_individuals_subpop, num_allNodes);
     end
     
     %calcuate fitness and do evolution here
@@ -97,7 +114,7 @@ for i=1:numTraining
 end
 
 function [error]= fitness(target,out)
-error=0.5* (target-out)^2;
+error=1/ (0.5* (target-out)^2);
 end
 
 
