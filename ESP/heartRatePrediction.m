@@ -21,13 +21,16 @@ num_outputNodes = 1;
 num_individuals_subpop = 7;
 num_nodes_insertion = 10;
 
+mutationRate = 1;
+crossoverRate = 0.08;
+numIterations = 100;
+standardDeviation=1;
+
 num_allNodes = num_innnerNodes + num_inputNodes + num_outputNodes;
 num_subpops = num_innnerNodes + num_outputNodes;
 
 %gewichteMatrix = zeros(num_allNodes,num_of_Subpop);
 population = zeros(num_individuals_subpop,num_allNodes,num_subpops);
-population_fitness = zeros(num_individuals_subpop,1,num_subpops);
-
 %zusammenstellung der Population
 for i=1:num_subpops
     for j=1:num_individuals_subpop
@@ -35,33 +38,6 @@ for i=1:num_subpops
     end
 end
 
-
-% for i=1:numTraining
-%     
-%     %population_perm = zeros(SubpopulationSize * num_nodes_insertion ,num_allNodes,num_of_Subpop);
-%     for j=1:num_nodes_insertion
-%         for k=1:num_subpops
-%             p = randperm(N);
-%             
-%             for l=1:num_individuals_subpop
-%             
-%             %population_perm(1+(j-1)*SubpopulationSize:i*SubpopulationSize,:,k) = population(p,:,k);
-%             %combine along thid dimension 
-%             %selected_weights = reshape(permute(population(p,:,k),[2,1,3]),size(population(p,:,k),2),[])';
-%             %population_shuffled
-%             %selected_individuals = 
-%             startInput = [training_data{numTraining}(1,1),training_data{numTraining}(1,3), 1, 1, 1];
-%             for m=1:size(training_data{numTraining},1)
-%                 startInput * selected_weights';
-%             end
-%             
-%             end
-% 
-% 
-%         end
-%     end
-% 
-% end
 
 for i=1:numTraining
     
@@ -76,13 +52,13 @@ for i=1:numTraining
     for k=1:num_nodes_insertion
         
         for j=1:num_subpops
-        population_perm_selector(:, j) = randperm(num_individuals_subpop);
-        population_perm(:,:,j) = population_perm(population_perm_selector(:,j), :, j);
+            population_perm_selector(:, j) = randperm(num_individuals_subpop);
+            population_perm(:,:,j) = population_perm(population_perm_selector(:,j), :, j);
         end
         
         for m=1:num_individuals_subpop
             currentActivation = ones(1, num_innnerNodes + num_outputNodes);
-             weightMatrix = reshape(permute(population_perm(m,:,:),[2,1,3]),size(population_perm(m,:,:),2),[])'; %combine along 3rd dim
+            weightMatrix = reshape(permute(population_perm(m,:,:),[2,1,3]),size(population_perm(m,:,:),2),[])'; %combine along 3rd dim
             for r=1:numTrainingRows
                 input = [train_data{i}(r,1),train_data{i}(r,3)];
                 netOut = [input, currentActivation] * weightMatrix';
@@ -104,11 +80,58 @@ for i=1:numTraining
     
     population_fitness = population_fitness./10;
     
+    
+   %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% 
+   %ab hier genetischer Algorithmus fuer die Subpopulationen.
+   %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+   
+    [elite, eliteIndex] = min(population_fitness,[],1);
     for s=1:num_subpops
         population_new = zeros(num_individuals_subpop, num_allNodes);
+        %elitism
+        population_new(1,:) = population(eliteIndex(s),:,s);
+        
+        
+        %tournament selection with 2 parents
+        for o=1:num_individuals_subpop-1
+            contenderIndex1 = floor(1 + (num_individuals_subpop-1) * rand(1));
+            contenderIndex2 = floor(1 + (num_individuals_subpop-1) * rand(1));
+            if(population_fitness(contenderIndex1,s) > population_fitness(contenderIndex2,s))
+                population_new(o+1,:)= population(contenderIndex2,:,s);
+            else
+                population_new(o+1,:)= population(contenderIndex1,:,s);
+            end
+            
+        end
+        population(:,:,s)=population_new;
+        
+        %crossover
+        for o=1:num_individuals_subpop-1
+            if rand()< crossoverRate
+                contenderIndex= zeros(num_allNodes,1);
+                for k=1:num_allNodes
+                    contenderIndex(k) = floor((num_individuals_subpop-1) * rand(1)+1);
+                end
+                for k=1:num_allNodes
+                    population_new(o+1,k)=population(contenderIndex(k),k);
+                    
+                end
+            end
+        end
+        
+        population(:,:,s)=population_new;
+        
+        %mutation
+        for o=2:num_individuals_subpop
+            
+            if rand()<mutationRate
+                for k=1:num_allNodes
+                    population(o,k,s) = population(o,k,s)+ normrnd(0,standardDeviation);
+                end
+            end
+        end
+        
     end
-    
-    %calcuate fitness and do evolution here
     
     
 end
@@ -116,31 +139,3 @@ end
 function [error]= fitness(target,out)
 error=1/ (0.5* (target-out)^2);
 end
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
