@@ -57,34 +57,42 @@ end
 for i=1:numTraining
     
     population_fitness = zeros(num_individuals_subpop, num_subpops);
-
+    
     numTrainingRows = size(training_data{i},1);
-    for r=1:numTrainingRows
+    
+    population_perm = population;
+    population_perm_selector = zeros(num_individuals_subpop, num_subpops);
+    
+    for j=1:num_subpops
+        population_perm_selector(:, j) = randperm(num_individuals_subpop);
+        population_perm(:,:,j) = population_perm(population_perm_selector(:,j), :, j);
+    end
+    
+    for k=1:num_nodes_insertion
         
-        
-        input = [training_data{i}(r,1),training_data{i}(r,3)];
-        population_perm = population;
-        population_perm_selector = zeros(num_individuals_subpop, num_subpops);
-        
-        for j=1:num_subpops
-            population_perm_selector(:, j) = randperm(num_individuals_subpop);
-            population_perm(:,:,j) = population_perm(population_perm_selector(:,j), :, j);
-        end
-        
-        for k=1:num_nodes_insertion
-            
+        for m=1:num_individuals_subpop
             currentActivation = ones(1, num_innnerNodes + num_outputNodes);
-            for m=1:num_individuals_subpop
+            for r=1:numTrainingRows
+                input = [training_data{i}(r,1),training_data{i}(r,3)];
                 weightMatrix = reshape(permute(population_perm(m,:,:),[2,1,3]),size(population_perm(m,:,:),2),[])'; %combine along 3rd dim
-                netOut = tanh([input, currentActivation] * weightMatrix');
+                netOut = [input, currentActivation] * weightMatrix';
                 currentActivation = netOut;
+                
+                heartrate_pred = netOut(size(currentActivation,2));
+                netFitness = fitness(training_data{i}(r,2), heartrate_pred);
+                for n=1:num_subpops
+                    population_fitness(population_perm_selector(m,n),n) = population_fitness(population_perm_selector(m,n),n) + netFitness;
+                end
+                disp(population_fitness)
             end
             
+            
         end
         
-         %calcuate fitness and do evolution here
-        
     end
+    
+    %calcuate fitness and do evolution here
+    
     
 end
 
