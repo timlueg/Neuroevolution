@@ -1,0 +1,46 @@
+\documentclass{hbrs-ecta-report}
+
+\usepackage{float}
+\usepackage{placeins}
+\usepackage{ngerman}
+%\usepackage[utf8]{inputenc}
+\usepackage{fontspec}
+\begin{document}
+
+\conferenceinfo{H-BRS}{2017}
+
+\title{Neuroevolution: Recurrent Neural Network}
+\subtitle{}
+
+\numberofauthors{2}
+\author{
+\alignauthor
+Tim L"ugger, Jan Urfei
+}
+
+\date{today}
+\maketitle
+\begin{abstract}
+Aufgabe:Implementieren Sie ESP. Nutzen Sie die Datei trainingData.mat um die Herzfrequenz aus der Laufgeschwindigkeit und der Zeit vorherzusagen. Lösen Sie außerdem das TwoPoleBalancing- Problem mit ESP.
+\end{abstract}
+
+\section{Recurrent Neural Network}
+Ein Rekurrentes Neuronales Netzwerk besteht aus einem vollvermaschtem Neuronalen Netz, das an gewissen Knoten einen Input bekommt, und an definierten Knoten einen Output liefert.
+Als Algorithmus liegt im Prinzip für jeden Knoten ein genetischer Algorithmus vor. Jeder Knoten hat von allen anderen Knoten Kanten, die zu ihm führen, mit einem speziellen Gewicht. Man bildet pro Knoten einen eigene Subpopulation. Ein Genom aus der Population sieht so aus, dass dort die Kantengewichte als Vektor aufgeschrieben sind. Für die Berechnung der Fitness lässt man jedes Genom aus jeder Subpopulation zufällig mehrmals mit anderen Genomen aus den anderen Populationen ein Netz bilden, durch das man dann den Trainingsdatensatz schickt. Die Fitness die sich daraus ergibt wird den teilnehmenden Knoten zugewiesen. Da jeder Knoten mehrmals daran teilnimmt bildet man nachher den Mittelwert und erhält so einen speziellen Fitnesswert für das eine Genom.\\
+Wenn das passiert ist, wird ein normaler Genetischer Algorithmus angewendet. Man behält sich die Elite in der Population und generiert sich mittels Crossover und Mutation neue Genome, die dann in die nächste Epoche mit einfließen. 
+
+
+\section{Herangehensweise}
+ 
+
+
+
+\section{Unsere Ergebnisse}
+
+
+
+
+
+
+\end{document}
+}
