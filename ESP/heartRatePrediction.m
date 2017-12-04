@@ -1,8 +1,5 @@
 load ('trainingData.mat','tdata')
 
-%todo normalize dataset
-%todo correct permutation or fiteness matrix
-
 %normalize dataset
 for i=1:size(tdata,2)
     tdata{i} = mapminmax(tdata{i}')';
@@ -18,13 +15,13 @@ numTest = size(test_data,2);
 num_inputNodes = 2;
 num_innnerNodes = 3;
 num_outputNodes = 1;
-num_individuals_subpop = 10;
+num_individuals_subpop = 7;
 num_nodes_insertion = 10;
 
 mutationRate = 0.8;
 crossoverRate = 0.1;
-numIterations = 500;
-standardDeviation=0.002;
+numIterations = 200;
+standardDeviation=0.01;
 
 num_allNodes = num_innnerNodes + num_inputNodes + num_outputNodes;
 num_subpops = num_innnerNodes + num_outputNodes;
@@ -37,6 +34,8 @@ for i=1:num_subpops
         population(j,:,i) = rand(1,num_allNodes);
     end
 end
+
+sumEliteFitness = zeros(1, numIterations);
 
 for l=1:numIterations
     
@@ -139,8 +138,9 @@ for l=1:numIterations
         
     end
     
-    disp(elite_fitness)
-    
+    disp(sum(elite_fitness));
+    sumEliteFitness(l) = sum(elite_fitness);
+   
 end
 
 function [error]= fitness(target,out)
