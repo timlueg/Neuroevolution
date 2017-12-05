@@ -1,3 +1,5 @@
+function [sumEliteFitness,sumEliteFitnessTest]= heartRatePrediction(n)
+
 load ('trainingData.mat','tdata')
 
 %normalize dataset
@@ -15,12 +17,12 @@ numTest = size(test_data,2);
 num_inputNodes = 2;
 num_innnerNodes = 3;
 num_outputNodes = 1;
-num_individuals_subpop = 7;
+num_individuals_subpop = 15;
 num_nodes_insertion = 10;
 
-mutationRate = 0.8;
+mutationRate = 0.5;
 crossoverRate = 0.1;
-numIterations = 200;
+numIterations = n;
 standardDeviation=0.01;
 
 num_allNodes = num_innnerNodes + num_inputNodes + num_outputNodes;
@@ -36,12 +38,14 @@ for i=1:num_subpops
 end
 
 sumEliteFitness = zeros(1, numIterations);
+sumEliteFitnessTest = zeros(1, numIterations);
 
 for l=1:numIterations
     
     for i=1:numTraining
         
         population_fitness = zeros(num_individuals_subpop, num_subpops);
+        population_fitness_test = zeros(num_individuals_subpop, num_subpops);
         
         numTrainingRows = size(train_data{i},1);
         
@@ -137,12 +141,49 @@ for l=1:numIterations
         
         
     end
+    %test
+    
+    for i=1:numTest
+        numTestRows = size(test_data{i},1);
+        for k=1:num_nodes_insertion
+            
+            for j=1:num_subpops
+                population_perm_selector(:, j) = randperm(num_individuals_subpop);
+                population_perm(:,:,j) = population_perm(population_perm_selector(:,j), :, j);
+            end
+            
+            for m=1:num_individuals_subpop
+                currentActivation = zeros(1, num_innnerNodes + num_outputNodes);
+                weightMatrix = reshape(permute(population_perm(m,:,:),[2,1,3]),size(population_perm(m,:,:),2),[])'; %combine along 3rd dim
+                for r=1:numTestRows
+                    input = [test_data{i}(r,1),test_data{i}(r,3)];
+                    netOut = [input, currentActivation] * weightMatrix';
+                    netOut = tanh(netOut);
+                    %disp(netOut);
+                    currentActivation = netOut;
+                    
+                    heartRateIndex = size(currentActivation,2);
+                    heartrate_pred = netOut(heartRateIndex);
+                    netFitness = fitness(test_data{i}(r,2), heartrate_pred);
+                    for n=1:num_subpops
+                        population_fitness_test(population_perm_selector(m,n),n) = population_fitness_test(population_perm_selector(m,n),n) + netFitness;
+                    end
+                    
+                end
+            end
+            
+        end
+        population_fitness_test = population_fitness_test./10;
+        population_fitness_test = population_fitness_test ./ size(tdata{i},1);
+        [elite_fitness_Test, eliteIndexTest] = min(population_fitness_test,[],1);
+    end
     
     disp(sum(elite_fitness));
     sumEliteFitness(l) = sum(elite_fitness);
-   
+    sumEliteFitnessTest(l) = sum(elite_fitness_Test);
+    
 end
-
+end
 function [error]= fitness(target,out)
 error= (0.5* (target-out)^2);
 end
