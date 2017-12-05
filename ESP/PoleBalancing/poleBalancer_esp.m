@@ -1,15 +1,15 @@
 addpath(genpath('NE-PoleBalancing'))
 
 num_inputNodes = 7;
-num_innnerNodes = 4;
+num_innnerNodes = 3;
 num_outputNodes = 1;
-num_individuals_subpop = 7;
+num_individuals_subpop = 50;
 num_nodes_insertion = 10;
 
-mutationRate = 0.8;
-crossoverRate = 0.5;
+mutationRate = 0.9;
+crossoverRate = 0.2;
 numIterations = 200;
-standardDeviation=0.02;
+standardDeviation=0.1;
 
 num_allNodes = num_innnerNodes + num_inputNodes + num_outputNodes;
 num_subpops = num_innnerNodes + num_outputNodes;
@@ -24,6 +24,10 @@ for i=1:num_subpops
 end
 
 sumEliteFitness = zeros(1, numIterations);
+sumMeanFitness = zeros(1,numIterations);
+
+num_steps_history = zeros(1, numIterations*num_subpops*num_individuals_subpop);
+loopIndex = 0;
 
 for l=1:numIterations
     
@@ -44,19 +48,22 @@ for l=1:numIterations
             currentActivation = zeros(1, num_innnerNodes + num_outputNodes);
             weightMatrix = reshape(permute(population_perm(m,:,:),[2,1,3]),size(population_perm(m,:,:),2),[])'; %combine along 3rd dim
             
-            %for r=1:100 %anzahl simulationsdurchläufe mit ausgewhaelten knoten
-                netFitness = run_poleBalancer_esp(weightMatrix, currentActivation);
-                for n=1:num_subpops
-                    population_fitness(population_perm_selector(m,n),n) = population_fitness(population_perm_selector(m,n),n) + netFitness;
-                end
-            %end
+            loopIndex = loopIndex +1;
+            [netFitness, num_steps_history(loopIndex)] = run_poleBalancer_esp(weightMatrix, currentActivation);
+            for n=1:num_subpops
+                population_fitness(population_perm_selector(m,n),n) = population_fitness(population_perm_selector(m,n),n) + netFitness;
+            end
+            
         end
         
     end
     
+    if mod(l,5) == 0
+        disp(['max Steps achieved: ' int2str(max(num_steps_history))]);
+    end
 
         
-        %population_fitness = population_fitness./10;
+        population_fitness = population_fitness./10;
         %population_fitness = population_fitness ./ size(tdata{i},1);
         
         %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -112,7 +119,8 @@ for l=1:numIterations
         end
     
     disp(sum(elite_fitness));
+    
     %disp(population_fitness);
     sumEliteFitness(l) = sum(elite_fitness);
-    
+    sumMeanFitness(l)  = sum((mean(population_fitness, 1)));
 end

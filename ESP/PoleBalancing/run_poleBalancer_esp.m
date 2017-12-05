@@ -40,7 +40,7 @@ for i=1:runs
     else
         [fitness(i), steps(i)] = twoPole_test( ind, cfg); 
     end
-    disp(['Steps achieved: ' int2str(steps(end)) ', corresponding to fitness: ' num2str(fitness(end))]);
+    %disp(['Steps achieved: ' int2str(steps(end)) ', corresponding to fitness: ' num2str(fitness(end))]);
     %disp(['Max steps was: ' int2str(max(steps))]);
 end
 % 

@@ -56,7 +56,7 @@ while ( abs(state(3)) < pi/2 && ...       % Pole #1
     end
     
     % Activate network
-    output = p.activate(ind,[bias input]);
+    [output, ind] = p.activate(ind,[bias input]);
 
     action = (-0.5+output).*2.*force;
     
