@@ -31,14 +31,7 @@ Wenn das passiert ist, wird ein normaler Genetischer Algorithmus angewendet. Man
 
 
 \section{Herangehensweise}
- Das erste was wir in unserem Algorithmus gemacht haben ist, aufzuteilen, welche Daten Trainingsdaten sind und welche Daten zum Test genommen werde. Die ersten 10 Trainingsläufe aus $train_data$ sind bei uns die Trainingsdaten. 
- Als nächstes haben wir alle Parameter die man verändern kann nach oben gezogen. Das sind einmal die Parameter über die Anzahl der Knoten des Netzwerks. Und dann noch die Parameter die für den genetischen Teil gebraucht werden, wie z.B. die Mutationsrate.\\
- Nachdem das alles festgelegt ist lassen wir zufällige Startpopulationen erzeugen. Jetzt folgen ganz viele ineinander verschachtelte Schleifen. 
- Die äußerste Schleife dient dazu den Kompletten Trainingsdurchlauf mehrmals zu wiederholen. Sie stellt sozusagen die verschiedenen Epochen dar. Die zweite Schleife sorgt dafür, dass alle Trainingsläufe durchlaufen werden.
- Da wir alle Genome mehrmals mit verschiedenen anderen Genomen an einem Netzwerk teilnehmen lassen wollen um sie nachher bewerten zu können brauchen wir noch eine Schleife, die dafür verantwortlich ist, dass jedes Genom X mal an einem Netzwerk teilnimmt. Damit auch garantiert ist, dass jeder Knoten X mal teilnimmt lassen wir jede Subpopulation permutieren und nehmen dann aus jeder Subpopulation die ersten Genome und danach die zweiten usw. Dieser Vorgang benötigt ebenfalls eine Schleife. Die letzte Schleife darin braucht man, um realisieren zu können, dass jede Messreihe aus dem Trainingslauf der Reihe nach durchgegangen wird.\\
- Unsere Gewichtsmatrix setzt sich aus einem Genom pro Subpopulation zusammen. Die Eingabe wird dann mit den aktuellen Zuständen des Netzwerkes verknüpft und dann mit der Gewichtsmatrix multipliziert. So kommt man zu dem nächsten Zustand des Netzes. Als Aktivierungsfunktion der einzelnen Neuronen verwenden wir die $tanh()$ Funktion.  \\
- Die Fitness wird nach jeder Messreihe bestimmt und zwar durch die Funktion $ 0.5 * (target-outpu)^2 $. Diese Fehler werden dann aufaddiert und den Teilnehmenden Knoten zugewiesen. Da die Trainingsläufe unterschiedlich lang sind. Teilen wir die Summe noch durch die Länge der Trainingsläufe um die Ergebnisse zu normieren. Da die Knoten ja insgesamt auch zehnmal bewertet werden teilen wir die Fitness auch noch durch 10 am Ende. Das wäre nicht zwingend notwendig, hat dann aber eine semnatisch stärkere Bedeutung. 
- Nachdem die Fitness von einem Knoten dann feststeht kommt ein genetischer Algorithmus der pro Subpopulation genauso funktioniert, wie unser Simple Genetic Algorithm aus der vorangegangenen Übung.
+ 
 
 
 
