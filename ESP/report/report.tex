@@ -44,6 +44,8 @@ Nachdem die Fitness von einem Knoten dann feststeht kommt ein genetischer Algori
 
 \section{Unsere Ergebnisse}
 
+\subsection{Heart Rate}
+
 Das Diagramm in Figure \ref{fig:Error} ist mit einer Subpopulationsgröße von 15, einer Mutationsrate von 0.5, einer Crossoverrate von 0.1 und einer Standardabweichung von 0.01 entstanden.
 Als Mutation wird jedes eingehende Kantengewich um einen normalverteilten Zufallswert erhöht. 
 Bei dem Crossover erhält das Genom, jedes Kantengewicht von einem zufällig ausgewähltem anderen Genom.
@@ -57,7 +59,26 @@ Bei dem Crossover erhält das Genom, jedes Kantengewicht von einem zufällig aus
 
 Es wird sehr stark deutlich, dass der Fehler anfangs sehr stark runter geht und dann bei ca 0.3 stagniert. Das kann auch an der Leistungssteigerung liegen, die der Proband von den Messdaten durchlaufen hat, da die Trainingsdaten ja wieder von vorne gelernt werden, wenn einmal die 10 durch sind. Auch ein Problem sind die 0 Werte am Anfang einer Messreihe, die in den unterschiedlichen Messreihen nie gleichlang sind. 
 
+\subsection{Pole Balancing} 
+Beim Pole Balancing gestaltete sich die Anwendung von ESP schwieriger. Durch das aufwendiger Training war eine Auswahl geeigneter Hyperparamter ebenfalls aufwendig.
+In Figure 2 erkennt man, dass die Fitness zwar ansteigt, aber stark schwankend ist sowie nach vielen Iterationen abflacht oder sogar abfällt. Die selbe Beobachtung konnten wir bei unterschiedlichen Hyperparametern machen.
 
+Eines der besseren Ergebnisse erreichte stabile ~200 Schritte mit Ausreißern bis <450. Figure 3
+
+Da wir wissen, dass ESP für diese Aufgabe 10000 Schritte schaffen sollte, schließen wir darauf, dass ein Fehler in unserer Implementierung vorliegt, die Hyperparameter falsch gewählt wurden und/oder die Trainingszeit nicht ausgereicht hat.
+
+
+\begin{figure}[h!]
+	\includegraphics[width=0.8\linewidth]{img/poleFitness}
+	\caption{Durchschnittliche Fitness sowie Fitness des Besten Netzes pro Iteration}
+	\label{fig:fitness}
+\end{figure}
+
+\begin{figure}[h!]
+	\includegraphics[width=0.8\linewidth]{img/poleSteps}
+	\caption{Anzahl der Schritte die nach jeder Ausführung der Simulation erreicht wurden}
+	\label{fig:steps}
+\end{figure}
 
 \end{document}
 }
