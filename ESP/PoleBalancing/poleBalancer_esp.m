@@ -1,15 +1,17 @@
 addpath(genpath('NE-PoleBalancing'))
 
+% todo slows down with many iterations
+
 num_inputNodes = 7;
-num_innnerNodes = 3;
+num_innnerNodes = 4;
 num_outputNodes = 1;
-num_individuals_subpop = 50;
+num_individuals_subpop = 24;
 num_nodes_insertion = 10;
 
 mutationRate = 0.9;
-crossoverRate = 0.2;
-numIterations = 200;
-standardDeviation=0.1;
+crossoverRate = 0.1;
+numIterations = 2000;
+standardDeviation=0.04;
 
 num_allNodes = num_innnerNodes + num_inputNodes + num_outputNodes;
 num_subpops = num_innnerNodes + num_outputNodes;
@@ -49,22 +51,19 @@ for l=1:numIterations
             weightMatrix = reshape(permute(population_perm(m,:,:),[2,1,3]),size(population_perm(m,:,:),2),[])'; %combine along 3rd dim
             
             loopIndex = loopIndex +1;
-            [netFitness, num_steps_history(loopIndex)] = run_poleBalancer_esp(weightMatrix, currentActivation);
+            [netFitness, num_steps_history(loopIndex) ] = run_poleBalancer_esp(weightMatrix, currentActivation);
             for n=1:num_subpops
-                population_fitness(population_perm_selector(m,n),n) = population_fitness(population_perm_selector(m,n),n) + netFitness;
+                population_fitness(population_perm_selector(m,n),n) = population_fitness(population_perm_selector(m,n),n) + (netFitness / num_nodes_insertion);
             end
             
         end
         
     end
     
-    if mod(l,5) == 0
+    if mod(l,10) == 0
         disp(['max Steps achieved: ' int2str(max(num_steps_history))]);
+        disp(mean(elite_fitness));
     end
-
-        
-        population_fitness = population_fitness./10;
-        %population_fitness = population_fitness ./ size(tdata{i},1);
         
         %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
         %ab hier genetischer Algorithmus fuer die Subpopulationen.
@@ -78,28 +77,29 @@ for l=1:numIterations
             
             
             %tournament selection with 2 parents
-            for o=1:num_individuals_subpop-1
-                contenderIndex1 = floor(1 + (num_individuals_subpop-1) * rand(1));
+            %todo prevent to many duplicate selections
+            for o=2:num_individuals_subpop
+                contenderIndex1 = o;%floor(1 + (num_individuals_subpop-1) * rand(1));
                 contenderIndex2 = floor(1 + (num_individuals_subpop-1) * rand(1));
                 if(population_fitness(contenderIndex1,s) < population_fitness(contenderIndex2,s))
-                    population_new(o+1,:)= population(contenderIndex2,:,s);
+                    population_new(o,:)= population(contenderIndex2,:,s);
                 else
-                    population_new(o+1,:)= population(contenderIndex1,:,s);
+                    population_new(o,:)= population(contenderIndex1,:,s);
                 end
                 
             end
             population(:,:,s)=population_new;
             
-            %crossover
-            for o=1:num_individuals_subpop-1
-                if rand()< crossoverRate
-                    contenderIndex= zeros(num_allNodes,1);
-                    for k=1:num_allNodes
-                        contenderIndex(k) = floor((num_individuals_subpop-1) * rand(1)+1);
-                    end
-                    for k=1:num_allNodes
-                        population_new(o+1,k)=population(contenderIndex(k),k);
-                        
+            % uniform corssover
+            for o=2:num_individuals_subpop-1
+                if rand() < crossoverRate
+                    for p=1:num_allNodes-1
+                        if rand < 0.5
+                            %selects 2 parents,flips nodes weight 
+                            parent1 = o;
+                            parent2 = floor(1 + (num_individuals_subpop-1) * rand(1));
+                            population_new(parent1:parent2,p) = flip(population_new(parent1:parent2,p));
+                        end
                     end
                 end
             end
@@ -107,18 +107,14 @@ for l=1:numIterations
             population(:,:,s)=population_new;
             
             %mutation
-            for o=2:num_individuals_subpop
-                
-                if rand()<mutationRate
-                    for k=1:num_allNodes
-                        population(o,k,s) = population(o,k,s)+ normrnd(0,standardDeviation);
-                    end
-                end
-            end
+            num_children = num_individuals_subpop -1; %without elite
+            mutationSelector = rand(num_children,1) <= mutationRate;
+            
+            population(2:num_individuals_subpop, :, s) = population(2:num_individuals_subpop, :, s) + (repmat(mutationSelector,1,num_allNodes) .* normrnd(0,standardDeviation, [num_children, num_allNodes]));
+
             
         end
-    
-    disp(sum(elite_fitness));
+
     
     %disp(population_fitness);
     sumEliteFitness(l) = sum(elite_fitness);
