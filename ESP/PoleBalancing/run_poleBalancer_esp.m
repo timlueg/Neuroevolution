@@ -1,7 +1,7 @@
-function [fitness, steps] = run_poleBalancer_esp(W, act)
+function [fitness, steps] = run_poleBalancer_esp(W, act, headless)
 
 %clear;
-headless = true;    % removes visualizations from the simulation
+headless = headless;    % removes visualizations from the simulation
 cfg = twoPole;        % contains the simulation configuration
 %SystemInit;         % some Matlab initialization
 
@@ -30,7 +30,7 @@ cfg.activate = @activate_recurrent;
         % the 'ind' object will be inserted into your activation function!
         [fitness, steps] = twoPole_test( ind, cfg, 'vis'); 
         figure(999);
-        semilogy(steps');
+        %semilogy(steps');
         hold on;
         semilogy(fitness');
         drawnow;

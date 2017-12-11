@@ -45,7 +45,7 @@ for l=1:numIterations
             weightMatrix = reshape(permute(population_perm(m,:,:),[2,1,3]),size(population_perm(m,:,:),2),[])'; %combine along 3rd dim
             
             loopIndex = loopIndex +1;
-            [netFitness, num_steps_history(loopIndex) ] = run_poleBalancer_esp(weightMatrix, currentActivation);
+            [netFitness, num_steps_history(loopIndex) ] = run_poleBalancer_esp(weightMatrix, currentActivation, true);
             for n=1:num_subpops
                 population_fitness(population_perm_selector(m,n),n) = population_fitness(population_perm_selector(m,n),n) + (netFitness / num_nodes_insertion);
             end
@@ -112,3 +112,7 @@ for l=1:numIterations
     sumEliteFitness(l) = sum(elite_fitness);
     sumMeanFitness(l)  = sum((mean(population_fitness, 1)));
 end
+
+%visualize pole balancing
+weightMatrixVis = reshape(permute(population(1,:,:),[2,1,3]),size(population(1,:,:),2),[])';
+run_poleBalancer_esp(weightMatrix, currentActivation, false)
