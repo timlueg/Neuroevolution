@@ -29,8 +29,8 @@ cfg.activate = @activate_recurrent;
     if ~headless
         % the 'ind' object will be inserted into your activation function!
         [fitness, steps] = twoPole_test( ind, cfg, 'vis'); 
-        %figure(999);
-        %semilogy(steps');
+        figure(999);
+        semilogy(steps');
         hold on;
         semilogy(fitness');
         drawnow;
