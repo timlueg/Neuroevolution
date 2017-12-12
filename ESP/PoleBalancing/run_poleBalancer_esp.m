@@ -19,7 +19,7 @@ cfg.activate = @activate_recurrent;
 % cfg.num_layers = 1;
 % cfg.num_hid_per_lay = 2;
 % cfg.mu_init = 0.1;
-% cfg.actFn = @tanh;
+cfg.actFn = @tanh;
 
     %% !insert your network here
     %ind = poleBalancer_esp.initialize_recurrent(cfg);
