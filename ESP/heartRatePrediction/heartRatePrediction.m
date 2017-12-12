@@ -32,9 +32,7 @@ num_subpops = num_innnerNodes + num_outputNodes;
 population = zeros(num_individuals_subpop,num_allNodes,num_subpops);
 %zusammenstellung der Population
 for i=1:num_subpops
-    for j=1:num_individuals_subpop
-        population(j,:,i) = rand(1,num_allNodes);
-    end
+     population(:,:,i) = normrnd(0, 0.5, num_individuals_subpop, num_allNodes);
 end
 
 sumEliteFitness = zeros(1, numIterations);
