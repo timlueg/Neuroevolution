@@ -71,9 +71,9 @@ for l=1:numIterations
                     heartRateIndex = size(currentActivation,2);
                     heartrate_pred = netOut(heartRateIndex);
                     netFitness = fitness(train_data{i}(r,2), heartrate_pred);
-                    for n=1:num_subpops
-                        population_fitness(population_perm_selector(m,n),n) = population_fitness(population_perm_selector(m,n),n) + netFitness;
-                    end
+
+                    index = sub2ind(size(population_fitness), population_perm_selector(m,:), 1:size(population_fitness,2));
+                    population_fitness(index) = population_fitness(index) + netFitness;
                     
                 end
                 
