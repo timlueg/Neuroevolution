@@ -32,8 +32,14 @@ for i=1:num_networks
     for j=1:num_output
         addNode(node_type_output,i);
     end
+    connections{i} = zeros(0, connection_num_fields);
+    for j=1:num_input
+       for k=1:num_output
+           addConnection(j,num_input+k,rand(1),conn_state_enabled,innov_id,i);
+       end
+    end
+
 end
-connections = zeros(0, connection_num_fields, num_networks);
 
 %array2table(nodes, 'VariableNames', node_columnNames)
 %array2table(connections, 'VariableNames', connection_columnNames)
@@ -49,9 +55,9 @@ nodes{num_net} = [nodes{num_net};  node_id, type];
 
 end
 
-function addConnection(inNodeId, outNodeId, weight, state, InnovId)
+function addConnection(inNodeId, outNodeId, weight, state, InnovId,num_net)
 global connections
-connections = [connections; inNodeId, outNodeId, weight, state, InnovId];
+connections{num_net} = [connections{num_net}; inNodeId, outNodeId, weight, state, InnovId];
 end
 
 function enableConnectionState(inNodeId, outNodeId)
