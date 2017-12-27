@@ -26,6 +26,7 @@ connections={};
 %Initialisierung
 
 for i=1:num_networks
+    aktuelleKnoten=node_id;
     nodes{i} = zeros(0, node_num_fields);
     for j=1:num_input
         addNode(node_type_sensor,i);
@@ -36,13 +37,12 @@ for i=1:num_networks
     connections{i} = zeros(0, connection_num_fields);
     for j=1:num_input
        for k=1:num_output
-           addConnection(j,num_input+k,rand(1),conn_state_enabled,innov_id,i);
+           addConnection(aktuelleKnoten+ j,aktuelleKnoten+ num_input+k,rand(1),conn_state_enabled,innov_id,i);
        end
     end
 
 end
 
-splitConnection(1,3,1);
 %Visualisierung
 array2table(nodes{1}, 'VariableNames', node_columnNames)
 array2table(connections{1}, 'VariableNames', connection_columnNames)
