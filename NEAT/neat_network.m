@@ -41,10 +41,9 @@ for i=1:num_networks
 
 end
 
-%array2table(nodes, 'VariableNames', node_columnNames)
-%array2table(connections, 'VariableNames', connection_columnNames)
+array2table(nodes{1}, 'VariableNames', node_columnNames)
+array2table(connections{1}, 'VariableNames', connection_columnNames)
 
-%addConnection(1, 2, 0.4, conn_state_disabled, 1)
 
 function addNode(type,num_net)
 global node_id
@@ -60,29 +59,29 @@ global connections
 connections{num_net} = [connections{num_net}; inNodeId, outNodeId, weight, state, InnovId];
 end
 
-function enableConnectionState(inNodeId, outNodeId)
+function enableConnectionState(inNodeId, outNodeId,num_net)
 global connections
-for i=1:size(connections,1)
-    if connections(i,1) == inNodeId && connections(i,2) == outNodeId
-        connections(i,4) = conn_state_enabled;
+for i=1:size(connections{num_net},1)
+    if connections{num_net}(i,1) == inNodeId && connections{num_net}(i,2) == outNodeId
+        connections{num_net}(i,4) = conn_state_enabled;
     end
 end
 end
 
-function disableConnectionState(inNodeId, outNodeId)
+function disableConnectionState(inNodeId, outNodeId,num_net)
 global connections
-for i=1:size(connections,1)
-    if connections(i,1) == inNodeId && connections(i,2) == outNodeId
-        connections(i,4) = conn_state_disabled;
+for i=1:size(connections{num_net},1)
+    if connections{num_net}(i,1) == inNodeId && connections{num_net}(i,2) == outNodeId
+        connections{num_net}(i,4) = 0;
     end
 end
 end
 
-function toggleConnectionState(inNodeId, outNodeId)
+function toggleConnectionState(inNodeId, outNodeId,num_net)
 global connections
-for i=1:size(connections,1)
-    if connections(i,1) == inNodeId && connections(i,2) == outNodeId
-        connections(i,4) =  mod(connections(i,4) + 1, 2);
+for i=1:size(connections{num_net},1)
+    if connections{num_net}(i,1) == inNodeId && connections{num_net}(i,2) == outNodeId
+        connections{num_net}(i,4) =  mod(connections{num_net}(i,4) + 1, 2);
     end
 end
 end
