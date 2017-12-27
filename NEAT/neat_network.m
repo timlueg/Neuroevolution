@@ -1,8 +1,8 @@
 node_num_fields = 2;
+num_networks = 5;
 global node_id
 node_id = 0;
 node_columnNames = {'id', 'type'};
-% Kodierung Knotentyp:
 node_type_sensor = 1;
 node_type_hidden = 2;
 node_type_output = 3;
@@ -10,20 +10,19 @@ node_type_output = 3;
 connection_num_fields = 5;
 innov_id = 0;
 connection_columnNames = {'InputNodeId', 'OutNodeId', 'Weight', 'State', 'InnovId'};
-%Kodierung Zustand:
-conn_state_disabled = 0;
 conn_state_enabled = 1;
 
 global nodes
 global connections
-nodes = zeros(0, node_num_fields);
-connections = zeros(0, connection_num_fields);
+
+nodes = zeros(0, node_num_fields, num_networks);
+connections = zeros(0, connection_num_fields, num_networks);
 
 array2table(nodes, 'VariableNames', node_columnNames)
 array2table(connections, 'VariableNames', connection_columnNames)
 
 addNode(node_type_sensor);
- addConnection(1, 2, 0.4, conn_state_disabled, 1)
+addConnection(1, 2, 0.4, conn_state_disabled, 1)
 
 function addNode(type)
     global node_id
