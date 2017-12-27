@@ -14,6 +14,7 @@ node_type_output = 3;
 
 %Definition der Verbindungen
 connection_num_fields = 5;
+global innov_id
 innov_id = 0;
 connection_columnNames = {'InputNodeId', 'OutNodeId', 'Weight', 'State', 'InnovId'};
 conn_state_enabled = 1;
@@ -41,6 +42,8 @@ for i=1:num_networks
 
 end
 
+splitConnection(1,3,1);
+%Visualisierung
 array2table(nodes{1}, 'VariableNames', node_columnNames)
 array2table(connections{1}, 'VariableNames', connection_columnNames)
 
@@ -84,4 +87,15 @@ for i=1:size(connections{num_net},1)
         connections{num_net}(i,4) =  mod(connections{num_net}(i,4) + 1, 2);
     end
 end
+end
+function splitConnection(inNodeId,outNodeId,num_net)
+global connections
+global node_id
+global innov_id
+addNode(2,num_net);
+disableConnectionState(inNodeId,outNodeId,num_net);
+oldweight= connections{num_net}(find(connections{num_net}(:,1)== inNodeId & connections{num_net}(:,2)== outNodeId),3);
+addConnection(inNodeId, node_id, 1, 1, innov_id,num_net);
+addConnection(node_id, outNodeId, oldweight, 1, innov_id,num_net);
+
 end
