@@ -8,7 +8,7 @@ size_connections = size(connectionList,1);
 index = find(connectionList(:,4));
 connectionList=connectionList(index,:);
 
-gewichtsmatrix = zeros(nodeList,nodeList);
+gewichtsmatrix = zeros(size_knoten,size_knoten);
 
 indexGewichtsmatrix= sub2ind(size(gewichtsmatrix),connectionList(:,1),connectionList(:,2));
 %in einer Spalte der Gewichtsmatrix stehen alle Inputgewichte des Knoten,
