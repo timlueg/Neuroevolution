@@ -1,101 +1,88 @@
 %vorgegebene Netzwerkstruktur
-num_input=2;
-num_output=2;
+num_input = 2;
+num_output = 2;
 num_networks = 5;
 
 %Definition der Knoten
-node_num_fields = 2;
-global node_id
-node_id = 0;
-node_columnNames = {'id', 'type'};
-node_type_sensor = 1;
-node_type_hidden = 2;
-node_type_output = 3;
+params.node_columnNames = {'id', 'type'};
+params.node_num_fields = size(node_columnNames,2);
+params.nodeId = 0;
+params.node_type_sensor = 1;
+params.node_type_hidden = 2;
+params.node_type_output = 3;
 
 %Definition der Verbindungen
-connection_num_fields = 5;
-global innov_id
-innov_id = 0;
-connection_columnNames = {'InputNodeId', 'OutNodeId', 'Weight', 'State', 'InnovId'};
-conn_state_enabled = 1;
+params.connection_columnNames = {'InputNodeId', 'OutNodeId', 'Weight', 'State', 'InnovId'};
+params.connection_num_fields = size(connection_columnNames,2);
+params.innovId = 0;
+params.conn_state_enabled = 1;
 
-global nodes
-global connections
-nodes={};
-connections={};
+%global nodes
+%global connections
+params.nodes = cell(1, num_networks);
+params.connections = cell(1, num_networks);
+
 %Initialisierung
-
 for i=1:num_networks
-    aktuelleKnoten=node_id;
-    nodes{i} = zeros(0, node_num_fields);
+    aktuelleKnoten= params.nodeId;
+    params.nodes{i} = zeros(0, node_num_fields);
     for j=1:num_input
-        addNode(node_type_sensor,i);
+        params = addNode(params.node_type_sensor, i, params);
     end
     for j=1:num_output
-        addNode(node_type_output,i);
+        params = addNode(params.node_type_output, i, params);
     end
-    connections{i} = zeros(0, connection_num_fields);
+    params.connections{i} = zeros(0, connection_num_fields);
     for j=1:num_input
-       for k=1:num_output
-           addConnection(aktuelleKnoten+ j,aktuelleKnoten+ num_input+k,rand(1),conn_state_enabled,innov_id,i);
-       end
+        for k=1:num_output
+            params = addConnection(aktuelleKnoten + j, aktuelleKnoten + num_input + k, rand(1), params.conn_state_enabled, params.innovId, i, params);
+        end
     end
-
+    
 end
 
 %Visualisierung
-array2table(nodes{1}, 'VariableNames', node_columnNames)
-array2table(connections{1}, 'VariableNames', connection_columnNames)
+array2table(params.nodes{1}, 'VariableNames', params.node_columnNames)
+array2table(params.connections{1}, 'VariableNames', params.connection_columnNames)
 
 
-function addNode(type,num_net)
-global node_id
-global nodes
-node_id = node_id +1;
-
-nodes{num_net} = [nodes{num_net};  node_id, type];
-
+function [params] = addNode(type, netIndex, params)
+params.nodeId = params.nodeId + 1;
+params.nodes{netIndex} = [params.nodes{netIndex};  params.nodeId, type];
 end
 
-function addConnection(inNodeId, outNodeId, weight, state, InnovId,num_net)
-global connections
-connections{num_net} = [connections{num_net}; inNodeId, outNodeId, weight, state, InnovId];
+function [params] = addConnection(inNodeId, outNodeId, weight, state, InnovId, netIndex, params)
+params.connections{netIndex} = [params.connections{netIndex}; inNodeId, outNodeId, weight, state, InnovId];
 end
 
-function enableConnectionState(inNodeId, outNodeId,num_net)
-global connections
-for i=1:size(connections{num_net},1)
-    if connections{num_net}(i,1) == inNodeId && connections{num_net}(i,2) == outNodeId
-        connections{num_net}(i,4) = conn_state_enabled;
+function [params] = enableConnectionState(inNodeId, outNodeId, netIndex, params)
+for i=1:size(params.connections{netIndex},1)
+    if params.connections{netIndex}(i,1) == inNodeId && params.connections{netIndex}(i,2) == outNodeId
+        params.connections{netIndex}(i,4) = params.conn_state_enabled;
     end
 end
 end
 
-function disableConnectionState(inNodeId, outNodeId,num_net)
-global connections
-for i=1:size(connections{num_net},1)
-    if connections{num_net}(i,1) == inNodeId && connections{num_net}(i,2) == outNodeId
-        connections{num_net}(i,4) = 0;
+function [params] = disableConnectionState(inNodeId, outNodeId, netIndex, params)
+for i=1:size(params.connections{netIndex},1)
+    if params.connections{netIndex}(i,1) == inNodeId && params.connections{netIndex}(i,2) == outNodeId
+        params.connections{netIndex}(i,4) = ~params.conn_state_enabled;
     end
 end
 end
 
-function toggleConnectionState(inNodeId, outNodeId,num_net)
-global connections
-for i=1:size(connections{num_net},1)
-    if connections{num_net}(i,1) == inNodeId && connections{num_net}(i,2) == outNodeId
-        connections{num_net}(i,4) =  mod(connections{num_net}(i,4) + 1, 2);
+function [params] = toggleConnectionState(inNodeId, outNodeId, netIndex, params)
+for i=1:size(params.connections{netIndex},1)
+    if params.connections{netIndex}(i,1) == inNodeId && params.connections{netIndex}(i,2) == outNodeId
+        params.connections{netIndex}(i,4) =  mod(params.connections{netIndex}(i,4) + 1, 2);
     end
 end
 end
-function splitConnection(inNodeId,outNodeId,num_net)
-global connections
-global node_id
-global innov_id
-addNode(2,num_net);
-disableConnectionState(inNodeId,outNodeId,num_net);
-oldweight= connections{num_net}(find(connections{num_net}(:,1)== inNodeId & connections{num_net}(:,2)== outNodeId),3);
-addConnection(inNodeId, node_id, 1, 1, innov_id,num_net);
-addConnection(node_id, outNodeId, oldweight, 1, innov_id,num_net);
 
+function [params] = splitConnection(inNodeId, outNodeId, netIndex, params)
+params = addNode(params.node_type_hidden, netIndex, params);
+params = disableConnectionState(inNodeId, outNodeId, netIndex, params);
+oldweight = params.connections{netIndex}(find(params.connections{netIndex}(:,1) == inNodeId & params.connections{netIndex}(:,2) == outNodeId), 3);
+params = addConnection(inNodeId, params.nodeId, 1, 1, params.innovId, netIndex);
+params = addConnection(params.nodeId, outNodeId, oldweight, 1, params.innovId, netIndex);
 end
