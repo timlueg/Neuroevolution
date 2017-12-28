@@ -74,7 +74,7 @@ end
 
 function [params] = disableConnection(inNodeId, outNodeId, netIndex, params)
 for i=1:size(params.connections{netIndex},1)
-    if params.connections{netIndex}(i, params.connCol_input) == inNodeId && params.connections{netIndex}(i, params.connCol_Output) == outNodeId
+    if params.connections{netIndex}(i, params.connCol_input) == inNodeId && params.connections{netIndex}(i, params.connCol_output) == outNodeId
         params.connections{netIndex}(i, params.connCol_state) = ~params.conn_state_enabled;
     end
 end
@@ -91,7 +91,7 @@ end
 function [params] = splitConnection(inNodeId, outNodeId, netIndex, params)
 params = addNode(params.node_type_hidden, netIndex, params);
 params = disableConnection(inNodeId, outNodeId, netIndex, params);
-oldweight = params.connections{netIndex}(find(params.connections{netIndex}(:,1) == inNodeId & params.connections{netIndex}(:,2) == outNodeId), 3);
-params = addConnection(inNodeId, params.nodeId, 1, params.conn_state_enabled, params.innovId, netIndex);
-params = addConnection(params.nodeId, outNodeId, oldweight, params.conn_state_enabled, params.innovId, netIndex);
+oldweight = params.connections{netIndex}(params.connections{netIndex}(:, params.connCol_input) == inNodeId & params.connections{netIndex}(:,params.connCol_output) == outNodeId, params.connCol_weight);
+params = addConnection(inNodeId, params.nodeId, 1, params.conn_state_enabled, params.innovId, netIndex, params);
+params = addConnection(params.nodeId, outNodeId, oldweight, params.conn_state_enabled, params.innovId, netIndex, params);
 end
