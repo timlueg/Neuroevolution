@@ -36,15 +36,15 @@ for i=1:num_networks
     aktuelleKnoten= params.nodeId;
     params.nodes{i} = zeros(0, params.node_num_fields);
     for j=1:num_input
-        params = addNode(params.node_type_sensor, i, params);
+        params = appendNode(params.node_type_sensor, i, params);
     end
     for j=1:num_output
-        params = addNode(params.node_type_output, i, params);
+        params = appendNode(params.node_type_output, i, params);
     end
     params.connections{i} = zeros(0, params.connection_num_fields);
     for j=1:num_input
         for k=1:num_output
-            params = addConnection(aktuelleKnoten + j, aktuelleKnoten + num_input + k, rand(1), params.conn_state_enabled, params.innovId, i, params);
+            params = addConnection(aktuelleKnoten + j, aktuelleKnoten + num_input + k, rand, params.conn_state_enabled, i, params);
         end
     end
     
@@ -54,14 +54,19 @@ end
 array2table(params.nodes{1}, 'VariableNames', params.node_columnNames)
 array2table(params.connections{1}, 'VariableNames', params.connection_columnNames)
 
+%test crossover
+mutatedparams = mutateAddNode(1, 3, 1, params);
+crossover(params.connections{1}, mutatedparams.connections{1})
 
-function [params] = addNode(type, netIndex, params)
+
+function [params] = appendNode(type, netIndex, params)
 params.nodeId = params.nodeId + 1;
 params.nodes{netIndex} = [params.nodes{netIndex};  params.nodeId, type];
 end
 
-function [params] = addConnection(inNodeId, outNodeId, weight, state, InnovId, netIndex, params)
-params.connections{netIndex} = [params.connections{netIndex}; inNodeId, outNodeId, weight, state, InnovId];
+function [params] = addConnection(inNodeId, outNodeId, weight, state, netIndex, params)
+params.innovId = params.innovId + 1;
+params.connections{netIndex} = [params.connections{netIndex}; inNodeId, outNodeId, weight, state, params.innovId];
 end
 
 function [params] = enableConnection(inNodeId, outNodeId, netIndex, params)
@@ -88,10 +93,14 @@ for i=1:size(params.connections{netIndex},1)
 end
 end
 
-function [params] = splitConnection(inNodeId, outNodeId, netIndex, params)
-params = addNode(params.node_type_hidden, netIndex, params);
+function [params] = mutateAddNode(inNodeId, outNodeId, netIndex, params)
+params = appendNode(params.node_type_hidden, netIndex, params);
 params = disableConnection(inNodeId, outNodeId, netIndex, params);
 oldweight = params.connections{netIndex}(params.connections{netIndex}(:, params.connCol_input) == inNodeId & params.connections{netIndex}(:,params.connCol_output) == outNodeId, params.connCol_weight);
-params = addConnection(inNodeId, params.nodeId, 1, params.conn_state_enabled, params.innovId, netIndex, params);
-params = addConnection(params.nodeId, outNodeId, oldweight, params.conn_state_enabled, params.innovId, netIndex, params);
+params = addConnection(inNodeId, params.nodeId, 1, params.conn_state_enabled, netIndex, params);
+params = addConnection(params.nodeId, outNodeId, oldweight, params.conn_state_enabled, netIndex, params);
+end
+
+function [offspring] = crossover(parent1, parent2)
+
 end
