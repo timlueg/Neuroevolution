@@ -1,9 +1,9 @@
-%vorgegebene Netzwerkstruktur
+%network structure
 num_input = 2;
 num_output = 2;
 num_networks = 5;
 
-%Definition der Knoten
+%node constants
 params.node_columnNames = {'id', 'type'};
 params.nodeCol_id = 1;
 params.nodeCol_type = 2;
@@ -14,7 +14,7 @@ params.node_type_sensor = 1;
 params.node_type_hidden = 2;
 params.node_type_output = 3;
 
-%Definition der Verbindungen
+%connection constants
 params.connection_columnNames = {'InputNodeId', 'OutNodeId', 'Weight', 'State', 'InnovId'};
 params.connCol_input = 1;
 params.connCol_output = 2;
@@ -26,37 +26,38 @@ params.connection_num_fields = size(params.connection_columnNames,2);
 params.innovId = 0;
 params.conn_state_enabled = 1;
 
-%global nodes
-%global connections
 params.nodes = cell(1, num_networks);
 params.connections = cell(1, num_networks);
 
-%Initialisierung
-for i=1:num_networks
-    aktuelleKnoten= params.nodeId;
-    params.nodes{i} = zeros(0, params.node_num_fields);
-    for j=1:num_input
-        params = appendNode(params.node_type_sensor, i, params);
+%Initial basic network
+aktuelleKnoten= params.nodeId;
+params.nodes{1} = zeros(0, params.node_num_fields);
+for j=1:num_input
+    params = appendNode(params.node_type_sensor, 1, params);
+end
+for j=1:num_output
+    params = appendNode(params.node_type_output, 1, params);
+end
+params.connections{1} = zeros(0, params.connection_num_fields);
+for j=1:num_input
+    for k=1:num_output
+        params = addConnection(aktuelleKnoten + j, aktuelleKnoten + num_input + k, rand, params.conn_state_enabled, 1, params);
     end
-    for j=1:num_output
-        params = appendNode(params.node_type_output, i, params);
-    end
-    params.connections{i} = zeros(0, params.connection_num_fields);
-    for j=1:num_input
-        for k=1:num_output
-            params = addConnection(aktuelleKnoten + j, aktuelleKnoten + num_input + k, rand, params.conn_state_enabled, i, params);
-        end
-    end
-    
 end
 
-%Visualisierung
+%copy network
+params.nodes(1,:) = {params.nodes{1}};
+params.connections(1,:) = {params.connections{1}};
+
+%todo mutate basic networks
+
+%display matrix example
 array2table(params.nodes{1}, 'VariableNames', params.node_columnNames)
 array2table(params.connections{1}, 'VariableNames', params.connection_columnNames)
 
 %test crossover
 mutatedparams = mutateAddNode(1, 3, 1, params);
-crossover(params.connections{1}, mutatedparams.connections{1})
+crossover(params.connections{1}, mutatedparams.connections{1}, params)
 
 
 function [params] = appendNode(type, netIndex, params)
@@ -101,6 +102,9 @@ params = addConnection(inNodeId, params.nodeId, 1, params.conn_state_enabled, ne
 params = addConnection(params.nodeId, outNodeId, oldweight, params.conn_state_enabled, netIndex, params);
 end
 
-function [offspring] = crossover(parent1, parent2)
-
+function [offspring] = crossover(parentLowerFitness, parentHigherFitness, params)
+[~, intersectParent1Idx, intersectParent2Idx] = intersect(parentLowerFitness(:, params.connCol_innovId),  parentHigherFitness(:, params.connCol_innovId));
+[~, disjointExcessIdx] = setdiff(parentHigherFitness(:, params.connCol_innovId), parentLowerFitness(:, params.connCol_innovId))
+%todo randomly inherit intersect genes
+%todo inherit all disjointExessidx of parentHigherFitness 
 end
