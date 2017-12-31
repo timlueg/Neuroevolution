@@ -8,6 +8,10 @@ params.c1 = 1;
 params.c2 = 1;
 params.c3 = 1;
 
+%spezies parameter
+params.spezies_target = 10;
+params.spezies_distance = 6;
+
 %node constants
 params.node_columnNames = {'id', 'type'};
 params.nodeCol_id = 1;
@@ -33,7 +37,7 @@ params.conn_state_enabled = 1;
 
 params.nodes = cell(1, num_networks);
 params.connections = cell(1, num_networks);
-params.spezies = cell(1,num_networks);
+params.spezies = zeros(num_networks,1);
 
 %Initial basic network
 aktuelleKnoten= params.nodeId;
@@ -64,6 +68,7 @@ array2table(params.connections{1}, 'VariableNames', params.connection_columnName
 %test crossover
 mutatedparams = mutateAddNode(1, 3, 1, params);
 crossover(params.connections{1}, mutatedparams.connections{1}, params)
+
 %test distance
 a= [1,3,0.0527,1,1;
     1,4,0.7379,0,2;
@@ -73,6 +78,9 @@ b= [1,3,0.0527,1,1;
     1,4,0.7379,0,2;
     2,3,0.29,1,3];
 distanceOf(a,b,params)
+
+%test defineSpezies
+params = defineSpecies(params);
 
 
 
@@ -209,4 +217,30 @@ avgW = W/matching_counter;
 
 distance = ((params.c1 * E)/N) + ((params.c2 * D)/ N) + params.c3 * avgW;
 
+end
+
+function [params] = defineSpecies(params)
+params.spezies(1) = 1;
+spezies_count = 1;
+
+for i=2:size(params.nodes,2)
+    
+    for j=1:i-1
+        distance = distanceOf(params.connections{i},params.connections{j},params);
+        if distance <= params.spezies_distance
+            params.spezies(i) = params.spezies(j);
+        end
+    end
+    if params.spezies(i)==0
+        spezies_count = spezies_count +1;
+        params.spezies(i) = spezies_count;
+    end
+    
+end
+if spezies_count < params.spezies_target
+    params.spezies_distance = params.spezies_distance + 0.3;
+end
+if spezies_count > params.spezies_target
+    params.spezies_distance = params.spezies_distance - 0.3;
+end
 end
