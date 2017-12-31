@@ -3,6 +3,11 @@ num_input = 2;
 num_output = 2;
 num_networks = 5;
 
+%distance parameter
+params.c1 = 1;
+params.c2 = 1;
+params.c3 = 1;
+
 %node constants
 params.node_columnNames = {'id', 'type'};
 params.nodeCol_id = 1;
@@ -106,5 +111,90 @@ function [offspring] = crossover(parentLowerFitness, parentHigherFitness, params
 [~, intersectParent1Idx, intersectParent2Idx] = intersect(parentLowerFitness(:, params.connCol_innovId),  parentHigherFitness(:, params.connCol_innovId));
 [~, disjointExcessIdx] = setdiff(parentHigherFitness(:, params.connCol_innovId), parentLowerFitness(:, params.connCol_innovId))
 %todo randomly inherit intersect genes
-%todo inherit all disjointExessidx of parentHigherFitness 
+%todo inherit all disjointExessidx of parentHigherFitness
+end
+
+function [distance] = distanceOf(connectionList1,connectionList2,params)
+size1 = size(connectionList1,1);
+size2 = size(connectionList2,1);
+
+% kleinere Liste ist Liste 1
+if size1 > size2
+    tmp = size2;
+    size2 = size1;
+    size1 = tmp;
+    tmp1 = connectionList2;
+    connectionList2 = connectionList1;
+    connectionList1 = tmp1;
+end
+
+%anhängen von Flag zum überprüfen ob vorgekommen
+connectionListe1 = [connectionList1, zeros(size1,1)];
+connectionListe2 = [connectionList2, zeros(size2,1)];
+
+% Punkt finden für die Excess genome
+maxInnovId1 = max(connectionList1(:,5));
+maxInnovId2 = max(connectionList2(:,5));
+if maxInnovId1 > maxInnovId2
+    klInnovId = maxInnovId2;
+else
+    klInnovId = maxInnovId1;
+end
+
+N = size2;
+E = 0;
+D = 0;
+W = 0;
+matching_counter = 0;
+
+%Liste1 durchgehen
+for i=1:size1
+    zeile1 = connectionListe1(i,:);
+    %gucken ob Kante der einen Liste in der anderen auftaucht.
+    for j=1:size2
+        zeile2 = connectionListe2(i,:);
+        %gleiche Kante
+        if zeile1(5) == zeile2(5)
+            matching_counter = matching_counter +1;
+            W = W + abs(zeile1(3)-zeile2(3));
+            %Flag setzen
+            connectionListe1(i,6) = 1;
+            connectionListe2(j,6) = 1;
+        end
+    end
+    if zeile1(6)==1
+        continue;
+    end
+    %disjungt oder extra
+    if zeile1(5)>klInnovId
+        E = E +1;
+        connectionListe1(i,6) = 1;
+    else
+        D = D +1;
+        connectionListe1(i,6) = 1;
+    end
+    
+end
+
+%durchgehen von denen die in der größeren Liste nicht behandelt wurden
+for i=1:size2
+    if connectionListe2(i,6)==0
+        %disjungt oder extra
+        if zeile1(5)>klInnovId
+            E = E +1;
+            connectionListe2(i,6) = 1;
+        else
+            D = D +1;
+            connectionListe2(i,6) = 1;
+        end
+    end
+end
+
+if matching_counter ==0
+    matching_counter = 1;
+end
+%gewichte mitteln
+avgW = W/matching_counter;
+
+distance = ((params.c1 * E)/N) + ((params.c2 * D)/ N) + params.c3 * avgW;
 end
