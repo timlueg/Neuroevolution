@@ -33,6 +33,7 @@ params.conn_state_enabled = 1;
 
 params.nodes = cell(1, num_networks);
 params.connections = cell(1, num_networks);
+params.spezies = cell(1,num_networks);
 
 %Initial basic network
 aktuelleKnoten= params.nodeId;
@@ -63,6 +64,16 @@ array2table(params.connections{1}, 'VariableNames', params.connection_columnName
 %test crossover
 mutatedparams = mutateAddNode(1, 3, 1, params);
 crossover(params.connections{1}, mutatedparams.connections{1}, params)
+%test distance
+a= [1,3,0.0527,1,1;
+    1,4,0.7379,0,2;
+    2,3,0.29,1,3;
+    2,4,0.422,1,4];
+b= [1,3,0.0527,1,1;
+    1,4,0.7379,0,2;
+    2,3,0.29,1,3];
+distanceOf(a,b,params)
+
 
 
 function [params] = appendNode(type, netIndex, params)
@@ -152,7 +163,7 @@ for i=1:size1
     zeile1 = connectionListe1(i,:);
     %gucken ob Kante der einen Liste in der anderen auftaucht.
     for j=1:size2
-        zeile2 = connectionListe2(i,:);
+        zeile2 = connectionListe2(j,:);
         %gleiche Kante
         if zeile1(5) == zeile2(5)
             matching_counter = matching_counter +1;
@@ -162,17 +173,17 @@ for i=1:size1
             connectionListe2(j,6) = 1;
         end
     end
-    if zeile1(6)==1
-        continue;
+    if connectionListe1(i,6)==0
+        %disjungt oder extra
+        if zeile1(5)>klInnovId
+            E = E +1;
+            connectionListe1(i,6) = 1;
+        else
+            D = D +1;
+            connectionListe1(i,6) = 1;
+        end
     end
-    %disjungt oder extra
-    if zeile1(5)>klInnovId
-        E = E +1;
-        connectionListe1(i,6) = 1;
-    else
-        D = D +1;
-        connectionListe1(i,6) = 1;
-    end
+    
     
 end
 
@@ -197,4 +208,5 @@ end
 avgW = W/matching_counter;
 
 distance = ((params.c1 * E)/N) + ((params.c2 * D)/ N) + params.c3 * avgW;
+
 end
