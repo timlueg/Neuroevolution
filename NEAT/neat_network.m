@@ -238,9 +238,9 @@ for i=2:size(params.nodes,2)
     
 end
 if spezies_count < params.spezies_target
-    params.spezies_distance = params.spezies_distance + 0.3;
+    params.spezies_distance = params.spezies_distance - 0.3;
 end
 if spezies_count > params.spezies_target
-    params.spezies_distance = params.spezies_distance - 0.3;
+    params.spezies_distance = params.spezies_distance + 0.3;
 end
 end
