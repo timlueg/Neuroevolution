@@ -255,17 +255,17 @@ end
 
 function [params] = fitnessCalculating(params)
 for i=1:params.num_network
-    currentActivation = zeros(1, size(params.nodes{i},1)- params.num_input);
+    
     weightMatrix = phenotyp(params.nodes{i},params.connections{i});
     weightMatrix = weightMatrix(:,[params.num_input+1;size(params.nodes{i},1)]);
     fehler = 0;
     
     for j=1:num_Zeitreihen
+        currentActivation = zeros(1, size(params.nodes{i},1)- params.num_input);
         for k=1:numTrainingRows
             %todo        input = [train_data{i}(k,1),train_data{i}(k,3)];
             netOut = [input, currentActivation] * weightMatrix;
             netOut = tanh(netOut);
-            %disp(netOut);
             currentActivation = netOut;
             
             heartrate_pred = netOut(3);
