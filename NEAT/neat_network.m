@@ -113,9 +113,17 @@ params.nodes{netIndex} = [params.nodes{netIndex};  params.nodeId, type];
 end
 
 function [params] = addConnection(inNodeId, outNodeId, weight, state, netIndex, params)
-%todo if connection already exists assign the same innovId
-params.innovId = params.innovId + 1;
-params.connections{netIndex} = [params.connections{netIndex}; inNodeId, outNodeId, weight, state, params.innovId];
+connections = cat(1, params.connections{:});
+[~, intersectConnectionsIndex] = intersect(connections(:, params.connCol_input:params.connCol_output), [inNodeId, outNodeId], 'rows');
+isNewInnovation = isempty(intersectConnectionsIndex);
+if(isNewInnovation)
+    params.innovId = params.innovId + 1;
+    connectionInnovId = params.innovId;
+else
+    connectionInnovId = connections(intersectConnectionsIndex, params.connCol_innovId);
+end
+
+params.connections{netIndex} = [params.connections{netIndex}; inNodeId, outNodeId, weight, state, connectionInnovId];
 end
 
 function [params] = enableConnection(inNodeId, outNodeId, netIndex, params)
