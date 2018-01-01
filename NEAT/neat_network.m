@@ -15,7 +15,7 @@ params.num_Test = size(params.test_data,2);
 %network structure
 params.num_input = 2;
 params.num_output = 1;
-num_networks = 5;
+params.num_networks = 5;
 
 %distance parameter
 params.c1 = 1;
@@ -49,10 +49,10 @@ params.connection_num_fields = size(params.connection_columnNames,2);
 params.innovId = 0;
 params.conn_state_enabled = 1;
 
-params.nodes = cell(1, num_networks);
-params.connections = cell(1, num_networks);
-params.spezies = zeros(num_networks,1);
-params.fitness = zeros(num_networks,1);
+params.nodes = cell(1, params.num_networks);
+params.connections = cell(1, params.num_networks);
+params.spezies = zeros(params.num_networks,1);
+params.fitness = zeros(params.num_networks,1);
 
 %Initial basic network
 aktuelleKnoten= params.nodeId;
@@ -96,6 +96,9 @@ distanceOf(a,b,params);
 
 %test defineSpezies
 params = defineSpecies(params);
+
+%test fitnessCalculating
+params = fitnessCalculating(params);
 
 
 
@@ -268,21 +271,27 @@ end
 end
 
 function [params] = fitnessCalculating(params)
-for i=1:params.num_network
+for i=1:params.num_networks
     
     weightMatrix = phenotyp(params.nodes{i},params.connections{i});
-    weightMatrix = weightMatrix(:,[params.num_input+1;size(params.nodes{i},1)]);
+    if params.num_input+1 == size(params.nodes{i},1)
+        weightMatrix = weightMatrix(:,[params.num_input+1]);
+    else
+        weightMatrix = weightMatrix(:,[params.num_input+1;size(params.nodes{i},1)]);
+    end
+    
     fehler = 0;
     
     for j=1:params.num_Training
-        currentActivation = zeros(1, size(params.nodes{i},1)- params.num_input);
+        currentActivation = zeros(1, size(params.nodes{i},1) - params.num_input);
+        numTrainingRows = size(params.train_data{j},1);
         for k=1:numTrainingRows
             input = [params.train_data{j}(k,1),params.train_data{j}(k,3)];
             netOut = [input, currentActivation] * weightMatrix;
             netOut = tanh(netOut);
             currentActivation = netOut;
             
-            heartrate_pred = netOut(3);
+            heartrate_pred = netOut(1);
             netFitness = fitness(params.train_data{j}(k,2), heartrate_pred);
             fehler = fehler + netFitness;
             
