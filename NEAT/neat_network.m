@@ -1,3 +1,17 @@
+%load Data
+load ('trainingData.mat','tdata')
+
+%normalize dataset
+for i=1:size(tdata,2)
+    tdata{i} = mapminmax(tdata{i}')';
+end
+
+params.train_data = {tdata{1:10}};
+params.test_data = {tdata{10:12}};
+
+params.numTraining = size(train_data,2);
+params.numTest = size(test_data,2);
+
 %network structure
 params.num_input = 2;
 params.num_output = 2;
@@ -263,13 +277,13 @@ for i=1:params.num_network
     for j=1:num_Zeitreihen
         currentActivation = zeros(1, size(params.nodes{i},1)- params.num_input);
         for k=1:numTrainingRows
-            %todo        input = [train_data{i}(k,1),train_data{i}(k,3)];
+            %todo        input = [train_data{j}(k,1),train_data{j}(k,3)];
             netOut = [input, currentActivation] * weightMatrix;
             netOut = tanh(netOut);
             currentActivation = netOut;
             
             heartrate_pred = netOut(3);
-            %todo        netFitness = fitness(train_data{i}(k,2), heartrate_pred);
+            %todo        netFitness = fitness(train_data{j}(k,2), heartrate_pred);
             fehler = fehler + netFitness;
             
         end
