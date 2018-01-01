@@ -12,6 +12,9 @@ params.test_data = {tdata{10:12}};
 params.num_Training = size(params.train_data,2);
 params.num_Test = size(params.test_data,2);
 
+%Trainingparameters
+num_Iterations = 10;
+
 %network structure
 params.num_input = 2;
 params.num_output = 1;
@@ -79,6 +82,15 @@ params.connections(1,:) = {params.connections{1}};
 %display matrix example
 array2table(params.nodes{1}, 'VariableNames', params.node_columnNames)
 array2table(params.connections{1}, 'VariableNames', params.connection_columnNames)
+
+for i=1:num_Iterations
+    %todo spezien bilden
+    params = defineSpecies(params);
+    %todo bewerten
+    params = fitnessCalculating(params);
+    %todo schlechteste rauswerfen
+    %todo verändern durch Mutation/Crossover innerhalb einer Spezies bis Größe wieder aufgefüllt
+end
 
 %test crossover
 mutatedparams = mutateAddNode(1, 3, 1, params);
