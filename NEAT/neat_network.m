@@ -14,8 +14,8 @@ params.num_Test = size(params.test_data,2);
 
 %Trainingparameters
 num_Iterations = 10;
-params.weightMutationRate = 0.1;
-params.standardDeviation = 1;
+params.weightMutationRate = 0.9;
+params.standardDeviation = 0.05;
 
 %network structure
 params.num_input = 2;
@@ -79,48 +79,25 @@ end
 params.nodes(1,:) = {params.nodes{1}};
 params.connections(1,:) = {params.connections{1}};
 
-%todo mutate basic networks
+%mutate basic networks
+for i=1:params.num_networks
+    params = mutateWeights(i, params);
+end
 
 %display matrix example
 array2table(params.nodes{1}, 'VariableNames', params.node_columnNames)
 array2table(params.connections{1}, 'VariableNames', params.connection_columnNames)
 
 for i=1:num_Iterations
-    %todo spezien bilden
+    %spezien bilden
     params = defineSpecies(params);
-    %todo bewerten
-    params = fitnessCalculating(params);
+    %bewerten
+    params = fitnessCalculation(params);
     %todo schlechteste rauswerfen
+    [params.fitness, sortIndex] = sort(params.fitness);
     
     %todo veraendern durch Mutation/Crossover innerhalb einer Spezies bis Groe�e wieder aufgefuellt
 end
-
-%test crossover
-mutatedparams = mutateAddNode(1, 3, 1, params);
-parentHigherFitnessIdx = 1;
-offspring = crossover(params.connections{1}, mutatedparams.connections{1}, params);
-offspringNodes = params.nodes{parentHigherFitnessIdx};
-
-%test distance
-a= [1,3,0.0527,1,1;
-    1,4,0.7379,0,2;
-    2,3,0.29,1,3;
-    2,4,0.422,1,4];
-b= [1,3,0.0527,1,1;
-    1,4,0.7379,0,2;
-    2,3,0.29,1,3];
-distanceOf(a,b,params);
-
-%test defineSpezies
-params = defineSpecies(params);
-
-%test fitnessCalculating
-params = fitnessCalculating(params);
-
-%test mutateAdd
-params = mutateAddConnection(1, params);
-
-
 
 function [params] = appendNode(type, netIndex, params)
 params.nodeId = params.nodeId + 1;
@@ -164,10 +141,10 @@ params = addConnection(inNodeId, params.nodeId, 1, params.conn_state_enabled, ne
 params = addConnection(params.nodeId, outNodeId, oldweight, params.conn_state_enabled, netIndex, params);
 end
 
-function [params] = mutateWeights(netIndex , params)
-for i=1:params.connections{netIndex}
+function [params] = mutateWeights(netIndex, params)
+for i=1:size(params.connections{netIndex},1)
     if rand(1) < params.weightMutationRate
-        params.connections{netIndex}(i,3) = params.connections{netIndex}(i,3) + normrnd(0,standardDeviation);
+        params.connections{netIndex}(i,3) = params.connections{netIndex}(i,3) + normrnd(0,params.standardDeviation);
     end
 end
 end
@@ -310,7 +287,7 @@ if spezies_count > params.spezies_target
 end
 end
 
-function [params] = fitnessCalculating(params)
+function [params] = fitnessCalculation(params)
 for i=1:params.num_networks
     
     weightMatrix = phenotyp(params.nodes{i},params.connections{i});
