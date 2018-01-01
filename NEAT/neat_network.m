@@ -128,9 +128,16 @@ end
 
 function [offspring] = crossover(parentLowerFitness, parentHigherFitness, params)
 [~, intersectParent1Idx, intersectParent2Idx] = intersect(parentLowerFitness(:, params.connCol_innovId),  parentHigherFitness(:, params.connCol_innovId));
-[~, disjointExcessIdx] = setdiff(parentHigherFitness(:, params.connCol_innovId), parentLowerFitness(:, params.connCol_innovId))
-%todo randomly inherit intersect genes
-%todo inherit all disjointExessidx of parentHigherFitness
+[~, disjointExcessIdx] = setdiff(parentHigherFitness(:, params.connCol_innovId), parentLowerFitness(:, params.connCol_innovId));
+
+ParentsConcatinated = [parentLowerFitness; parentHigherFitness];
+intersectIdx = [intersectParent1Idx, (intersectParent2Idx + size(parentLowerFitness,1))];
+intersectIdxColumnSelector = randi(2,1, size(intersectIdx,1));
+randomIntersectConnections = ParentsConcatinated(sub2ind(size(intersectIdx), 1:size(intersectIdx,1), intersectIdxColumnSelector),:);
+parentHigherFitDisExConnections = parentHigherFitness(disjointExcessIdx,:);
+offspring = [randomIntersectConnections; parentHigherFitDisExConnections];
+%todo add nodes to network, maybe use global node table for all netwoks.
+%(why do we need to keep track)
 end
 
 function [distance] = distanceOf(connectionList1,connectionList2,params)
@@ -147,11 +154,11 @@ if size1 > size2
     connectionList1 = tmp1;
 end
 
-%anhängen von Flag zum überprüfen ob vorgekommen
+%anhï¿½ngen von Flag zum ï¿½berprï¿½fen ob vorgekommen
 connectionListe1 = [connectionList1, zeros(size1,1)];
 connectionListe2 = [connectionList2, zeros(size2,1)];
 
-% Punkt finden für die Excess genome
+% Punkt finden fï¿½r die Excess genome
 maxInnovId1 = max(connectionList1(:,5));
 maxInnovId2 = max(connectionList2(:,5));
 if maxInnovId1 > maxInnovId2
@@ -195,7 +202,7 @@ for i=1:size1
     
 end
 
-%durchgehen von denen die in der größeren Liste nicht behandelt wurden
+%durchgehen von denen die in der grï¿½ï¿½eren Liste nicht behandelt wurden
 for i=1:size2
     if connectionListe2(i,6)==0
         %disjungt oder extra
