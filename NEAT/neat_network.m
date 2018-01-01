@@ -14,6 +14,8 @@ params.num_Test = size(params.test_data,2);
 
 %Trainingparameters
 num_Iterations = 10;
+params.weightMutationRate = 0.1;
+params.standardDeviation = 1;
 
 %network structure
 params.num_input = 2;
@@ -89,7 +91,8 @@ for i=1:num_Iterations
     %todo bewerten
     params = fitnessCalculating(params);
     %todo schlechteste rauswerfen
-    %todo verändern durch Mutation/Crossover innerhalb einer Spezies bis Größe wieder aufgefüllt
+    
+    %todo veraendern durch Mutation/Crossover innerhalb einer Spezies bis Groeße wieder aufgefuellt
 end
 
 %test crossover
@@ -158,6 +161,14 @@ params = addConnection(inNodeId, params.nodeId, 1, params.conn_state_enabled, ne
 params = addConnection(params.nodeId, outNodeId, oldweight, params.conn_state_enabled, netIndex, params);
 end
 
+function [params] = mutateWeights(netId , params)
+for i=1:params.connections{netId}
+    if rand(1) < params.weightMutationRate
+        params.connections{netId}(i,3) = params.connections{netId}(i,3) + normrnd(0,standardDeviation);
+    end
+end
+end
+
 function [offspringConnections] = crossover(parent, parentHigherFit, params)
 [~, intersectParent1Idx, intersectParent2Idx] = intersect(parent(:, params.connCol_innovId),  parentHigherFit(:, params.connCol_innovId));
 [~, disjointExcessIdx] = setdiff(parentHigherFit(:, params.connCol_innovId), parent(:, params.connCol_innovId));
@@ -184,11 +195,11 @@ if size1 > size2
     connectionList1 = tmp1;
 end
 
-%anhï¿½ngen von Flag zum ï¿½berprï¿½fen ob vorgekommen
+%anhaengen von Flag zum ueberpruefen ob vorgekommen
 connectionListe1 = [connectionList1, zeros(size1,1)];
 connectionListe2 = [connectionList2, zeros(size2,1)];
 
-% Punkt finden fï¿½r die Excess genome
+% Punkt finden fuer die Excess genome
 maxInnovId1 = max(connectionList1(:,5));
 maxInnovId2 = max(connectionList2(:,5));
 if maxInnovId1 > maxInnovId2
@@ -232,7 +243,7 @@ for i=1:size1
     
 end
 
-%durchgehen von denen die in der grï¿½ï¿½eren Liste nicht behandelt wurden
+%durchgehen von denen die in der groesseren Liste nicht behandelt wurden
 for i=1:size2
     if connectionListe2(i,6)==0
         %disjungt oder extra
