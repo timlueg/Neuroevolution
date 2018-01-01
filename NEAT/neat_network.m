@@ -9,12 +9,12 @@ end
 params.train_data = {tdata{1:10}};
 params.test_data = {tdata{10:12}};
 
-params.numTraining = size(train_data,2);
-params.numTest = size(test_data,2);
+params.num_Training = size(params.train_data,2);
+params.num_Test = size(params.test_data,2);
 
 %network structure
 params.num_input = 2;
-params.num_output = 2;
+params.num_output = 1;
 num_networks = 5;
 
 %distance parameter
@@ -274,16 +274,16 @@ for i=1:params.num_network
     weightMatrix = weightMatrix(:,[params.num_input+1;size(params.nodes{i},1)]);
     fehler = 0;
     
-    for j=1:num_Zeitreihen
+    for j=1:params.num_Training
         currentActivation = zeros(1, size(params.nodes{i},1)- params.num_input);
         for k=1:numTrainingRows
-            %todo        input = [train_data{j}(k,1),train_data{j}(k,3)];
+            input = [params.train_data{j}(k,1),params.train_data{j}(k,3)];
             netOut = [input, currentActivation] * weightMatrix;
             netOut = tanh(netOut);
             currentActivation = netOut;
             
             heartrate_pred = netOut(3);
-            %todo        netFitness = fitness(train_data{j}(k,2), heartrate_pred);
+            netFitness = fitness(params.train_data{j}(k,2), heartrate_pred);
             fehler = fehler + netFitness;
             
         end
