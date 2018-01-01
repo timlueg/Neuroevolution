@@ -1,6 +1,6 @@
 %network structure
-num_input = 2;
-num_output = 2;
+params.num_input = 2;
+params.num_output = 2;
 num_networks = 5;
 
 %distance parameter
@@ -38,20 +38,21 @@ params.conn_state_enabled = 1;
 params.nodes = cell(1, num_networks);
 params.connections = cell(1, num_networks);
 params.spezies = zeros(num_networks,1);
+params.fitness = zeros(num_networks,1);
 
 %Initial basic network
 aktuelleKnoten= params.nodeId;
 params.nodes{1} = zeros(0, params.node_num_fields);
-for j=1:num_input
+for j=1:params.num_input
     params = appendNode(params.node_type_sensor, 1, params);
 end
-for j=1:num_output
+for j=1:params.num_output
     params = appendNode(params.node_type_output, 1, params);
 end
 params.connections{1} = zeros(0, params.connection_num_fields);
-for j=1:num_input
-    for k=1:num_output
-        params = addConnection(aktuelleKnoten + j, aktuelleKnoten + num_input + k, rand, params.conn_state_enabled, 1, params);
+for j=1:params.num_input
+    for k=1:params.num_output
+        params = addConnection(aktuelleKnoten + j, aktuelleKnoten + params.num_input + k, rand, params.conn_state_enabled, 1, params);
     end
 end
 
@@ -77,7 +78,7 @@ a= [1,3,0.0527,1,1;
 b= [1,3,0.0527,1,1;
     1,4,0.7379,0,2;
     2,3,0.29,1,3];
-distanceOf(a,b,params)
+distanceOf(a,b,params);
 
 %test defineSpezies
 params = defineSpecies(params);
@@ -250,4 +251,32 @@ end
 if spezies_count > params.spezies_target
     params.spezies_distance = params.spezies_distance + 0.3;
 end
+end
+
+function [params] = fitnessCalculating(params)
+for i=1:params.num_network
+    currentActivation = zeros(1, size(params.nodes{i},1)- params.num_input);
+    weightMatrix = phenotyp(params.nodes{i},params.connections{i});
+    weightMatrix = weightMatrix(:,[params.num_input+1;size(params.nodes{i},1)]);
+    fehler = 0;
+    
+    for j=1:num_Zeitreihen
+        for k=1:numTrainingRows
+            %todo        input = [train_data{i}(k,1),train_data{i}(k,3)];
+            netOut = [input, currentActivation] * weightMatrix;
+            netOut = tanh(netOut);
+            %disp(netOut);
+            currentActivation = netOut;
+            
+            heartrate_pred = netOut(3);
+            %todo        netFitness = fitness(train_data{i}(k,2), heartrate_pred);
+            fehler = fehler + netFitness;
+            
+        end
+    end
+    params.fitness(i)=fehler;
+end
+end
+function [error]= fitness(target,out)
+error= (0.5* (target-out)^2);
 end
