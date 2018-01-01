@@ -94,7 +94,9 @@ end
 
 %test crossover
 mutatedparams = mutateAddNode(1, 3, 1, params);
-crossover(params.connections{1}, mutatedparams.connections{1}, params)
+parentHigherFitnessIdx = 1;
+offspring = crossover(params.connections{1}, mutatedparams.connections{1}, params);
+offspringNodes = params.nodes{parentHigherFitnessIdx};
 
 %test distance
 a= [1,3,0.0527,1,1;
@@ -156,18 +158,16 @@ params = addConnection(inNodeId, params.nodeId, 1, params.conn_state_enabled, ne
 params = addConnection(params.nodeId, outNodeId, oldweight, params.conn_state_enabled, netIndex, params);
 end
 
-function [offspring] = crossover(parentLowerFitness, parentHigherFitness, params)
-[~, intersectParent1Idx, intersectParent2Idx] = intersect(parentLowerFitness(:, params.connCol_innovId),  parentHigherFitness(:, params.connCol_innovId));
-[~, disjointExcessIdx] = setdiff(parentHigherFitness(:, params.connCol_innovId), parentLowerFitness(:, params.connCol_innovId));
+function [offspringConnections] = crossover(parent, parentHigherFit, params)
+[~, intersectParent1Idx, intersectParent2Idx] = intersect(parent(:, params.connCol_innovId),  parentHigherFit(:, params.connCol_innovId));
+[~, disjointExcessIdx] = setdiff(parentHigherFit(:, params.connCol_innovId), parent(:, params.connCol_innovId));
 
-ParentsConcatinated = [parentLowerFitness; parentHigherFitness];
-intersectIdx = [intersectParent1Idx, (intersectParent2Idx + size(parentLowerFitness,1))];
+ParentsConcatinated = [parent; parentHigherFit];
+intersectIdx = [intersectParent1Idx, (intersectParent2Idx + size(parent,1))];
 intersectIdxColumnSelector = randi(2,1, size(intersectIdx,1));
 randomIntersectConnections = ParentsConcatinated(sub2ind(size(intersectIdx), 1:size(intersectIdx,1), intersectIdxColumnSelector),:);
-parentHigherFitDisExConnections = parentHigherFitness(disjointExcessIdx,:);
-offspring = [randomIntersectConnections; parentHigherFitDisExConnections];
-%todo add nodes to network, maybe use global node table for all netwoks.
-%(why do we need to keep track)
+parentHigherFitDisExConnections = parentHigherFit(disjointExcessIdx,:);
+offspringConnections = [randomIntersectConnections; parentHigherFitDisExConnections];
 end
 
 function [distance] = distanceOf(connectionList1,connectionList2,params)
