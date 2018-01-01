@@ -25,7 +25,7 @@ params.num_networks = 5;
 %distance parameter
 params.c1 = 1;
 params.c2 = 1;
-params.c3 = 1;
+params.c3 = 0.4;
 
 %spezies parameter
 params.spezies_target = 10;
@@ -71,7 +71,7 @@ end
 params.connections{1} = zeros(0, params.connection_num_fields);
 for j=1:params.num_input
     for k=1:params.num_output
-        params = addConnection(aktuelleKnoten + j, aktuelleKnoten + params.num_input + k, rand, params.conn_state_enabled, 1, params);
+        params = addConnection(aktuelleKnoten + j, aktuelleKnoten + params.num_input + k, randn, params.conn_state_enabled, 1, params);
     end
 end
 
@@ -92,7 +92,7 @@ for i=1:num_Iterations
     params = fitnessCalculating(params);
     %todo schlechteste rauswerfen
     
-    %todo veraendern durch Mutation/Crossover innerhalb einer Spezies bis Groeße wieder aufgefuellt
+    %todo veraendern durch Mutation/Crossover innerhalb einer Spezies bis Groeï¿½e wieder aufgefuellt
 end
 
 %test crossover
@@ -116,6 +116,9 @@ params = defineSpecies(params);
 
 %test fitnessCalculating
 params = fitnessCalculating(params);
+
+%test mutateAdd
+params = mutateAddConnection(1, params);
 
 
 
@@ -161,13 +164,27 @@ params = addConnection(inNodeId, params.nodeId, 1, params.conn_state_enabled, ne
 params = addConnection(params.nodeId, outNodeId, oldweight, params.conn_state_enabled, netIndex, params);
 end
 
-function [params] = mutateWeights(netId , params)
-for i=1:params.connections{netId}
+function [params] = mutateWeights(netIndex , params)
+for i=1:params.connections{netIndex}
     if rand(1) < params.weightMutationRate
-        params.connections{netId}(i,3) = params.connections{netId}(i,3) + normrnd(0,standardDeviation);
+        params.connections{netIndex}(i,3) = params.connections{netIndex}(i,3) + normrnd(0,standardDeviation);
     end
 end
 end
+
+function [params] = mutateAddConnection(netIndex, params)
+existingConnections = params.connections{netIndex}(:,1:2);
+
+%randomConnections = randi([min(existingConnections(:)), max(existingConnections(:))],[4,2]);
+randomConnections(:,1) = randi([min(existingConnections(:)), max(existingConnections(:))],[4,1]);
+randomConnections(:,2) = randi([params.num_input+1, max(existingConnections(:))],[4,1]);
+difference = setdiff(randomConnections, existingConnections, 'rows');
+if ( size(difference, 1) ~= 0)
+    newConnection = difference(1,:);
+    params = addConnection(newConnection(1), newConnection(2), randn, params.conn_state_enabled, netIndex, params);
+end
+end
+
 
 function [offspringConnections] = crossover(parent, parentHigherFit, params)
 [~, intersectParent1Idx, intersectParent2Idx] = intersect(parent(:, params.connCol_innovId),  parentHigherFit(:, params.connCol_innovId));
