@@ -12,10 +12,11 @@ params.test_data = {tdata{10:12}};
 params.num_Training = size(params.train_data,2);
 params.num_Test = size(params.test_data,2);
 
-%Trainingparameters
+%Hyperparameter
 num_Iterations = 10;
 params.weightMutationRate = 0.9;
 params.standardDeviation = 0.05;
+params.genomeRemovalRate = 0.20; 
 
 %network structure
 params.num_input = 2;
@@ -27,9 +28,9 @@ params.c1 = 1;
 params.c2 = 1;
 params.c3 = 0.4;
 
-%spezies parameter
-params.spezies_target = 10;
-params.spezies_distance = 6;
+%species parameter
+params.species_target = 10;
+params.species_distance = 6;
 
 %node constants
 params.node_columnNames = {'id', 'type'};
@@ -56,7 +57,7 @@ params.conn_state_enabled = 1;
 
 params.nodes = cell(1, params.num_networks);
 params.connections = cell(1, params.num_networks);
-params.spezies = zeros(params.num_networks,1);
+params.species = zeros(params.num_networks,1);
 params.fitness = zeros(params.num_networks,1);
 
 %Initial basic network
@@ -89,14 +90,19 @@ array2table(params.nodes{1}, 'VariableNames', params.node_columnNames)
 array2table(params.connections{1}, 'VariableNames', params.connection_columnNames)
 
 for i=1:num_Iterations
-    %spezien bilden
     params = defineSpecies(params);
-    %bewerten
     params = fitnessCalculation(params);
-    %todo schlechteste rauswerfen
-    [params.fitness, sortIndex] = sort(params.fitness);
     
-    %todo veraendern durch Mutation/Crossover innerhalb einer Spezies bis Groe�e wieder aufgefuellt
+    %remove less fit genes
+    [fitnessArray, sortIndex] = sort(params.fitness, 'ascend');
+    num_GenomesSelected = params.num_networks * (1-params.genomeRemovalRate);
+    sortIndex = sortIndex(1:num_GenomesSelected);
+    params.connections = params.connections(sortIndex);
+    params.nodes = params.nodes(sortIndex);
+    params.species = params.species(sortIndex);
+    params.fitness = params.fitness(sortIndex);
+    %todo veraendern durch Mutation/Crossover innerhalb einer species bis Groe�e wieder aufgefuellt
+    
 end
 
 function [params] = appendNode(type, netIndex, params)
@@ -262,28 +268,28 @@ distance = ((params.c1 * E)/N) + ((params.c2 * D)/ N) + params.c3 * avgW;
 end
 
 function [params] = defineSpecies(params)
-params.spezies(1) = 1;
-spezies_count = 1;
+params.species(1) = 1;
+species_count = 1;
 
 for i=2:size(params.nodes,2)
     
     for j=1:i-1
         distance = distanceOf(params.connections{i},params.connections{j},params);
-        if distance <= params.spezies_distance
-            params.spezies(i) = params.spezies(j);
+        if distance <= params.species_distance
+            params.species(i) = params.species(j);
         end
     end
-    if params.spezies(i)==0
-        spezies_count = spezies_count +1;
-        params.spezies(i) = spezies_count;
+    if params.species(i)==0
+        species_count = species_count +1;
+        params.species(i) = species_count;
     end
     
 end
-if spezies_count < params.spezies_target
-    params.spezies_distance = params.spezies_distance - 0.3;
+if species_count < params.species_target
+    params.species_distance = params.species_distance - 0.3;
 end
-if spezies_count > params.spezies_target
-    params.spezies_distance = params.spezies_distance + 0.3;
+if species_count > params.species_target
+    params.species_distance = params.species_distance + 0.3;
 end
 end
 
