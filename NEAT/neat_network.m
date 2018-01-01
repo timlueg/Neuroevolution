@@ -95,14 +95,16 @@ for i=1:num_Iterations
     
     %remove less fit genes
     [fitnessArray, sortIndex] = sort(params.fitness, 'ascend');
-    num_GenomesSelected = params.num_networks * (1-params.genomeRemovalRate);
+    num_GenomesSelected = size(params.connections,2) * (1-params.genomeRemovalRate);
     sortIndex = sortIndex(1:num_GenomesSelected);
     params.connections = params.connections(sortIndex);
     params.nodes = params.nodes(sortIndex);
     params.species = params.species(sortIndex);
     params.fitness = params.fitness(sortIndex);
     %todo veraendern durch Mutation/Crossover innerhalb einer species bis Groe�e wieder aufgefuellt
-    
+    %elite
+    %mutieren
+    %crossover nur in spezies
 end
 
 function [params] = appendNode(type, netIndex, params)
@@ -111,6 +113,7 @@ params.nodes{netIndex} = [params.nodes{netIndex};  params.nodeId, type];
 end
 
 function [params] = addConnection(inNodeId, outNodeId, weight, state, netIndex, params)
+%todo if connection already exists assign the same innovId
 params.innovId = params.innovId + 1;
 params.connections{netIndex} = [params.connections{netIndex}; inNodeId, outNodeId, weight, state, params.innovId];
 end
@@ -294,7 +297,7 @@ end
 end
 
 function [params] = fitnessCalculation(params)
-for i=1:params.num_networks
+for i=1:size(params.connections,2)
     
     weightMatrix = phenotyp(params.nodes{i},params.connections{i});
     if params.num_input+1 == size(params.nodes{i},1)
