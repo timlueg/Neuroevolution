@@ -103,6 +103,25 @@ for i=1:num_Iterations
     params.fitness = params.fitness(sortIndex);
     %todo veraendern durch Mutation/Crossover innerhalb einer species bis Groe�e wieder aufgefuellt
     %elite
+     countSpecies = zeros(max(params.species));
+    for j=1:size(params.species,1)
+       countSpecies(params.species(j))= countSpecies(params.species(j)) + 1;
+    end
+    grosseSpecies = find(countSpecies>=5);
+    indexElite = zeros(size(grosseSpecies));
+    for j= 1:size(grosseSpecies,2)
+       minValue=Inf;
+       minIndex=0;
+       for k=1:size(params.fitness,1)
+           if params.species(k)== grosseSpecies(j)
+               if params.fitness(k)<minValue
+                   minValue = params.fitness(k);
+                   minIndex = k;
+               end
+           end
+       end
+       indexElite(j) = minIndex;
+    end
     %mutieren
     %crossover nur in spezies
 end
