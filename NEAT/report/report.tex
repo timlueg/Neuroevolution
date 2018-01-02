@@ -1,5 +1,4 @@
 \documentclass{hbrs-ecta-report}
-
 \usepackage{float}
 \usepackage{placeins}
 \usepackage{ngerman}
@@ -49,12 +48,14 @@ Wie eingangs schon erwähnt wird die Berechnung des Ergebnisses eines Netzes äh
 
 Die Methode FitnessCalulation berechnet für alle Netze die Fitness. Dafür wird pro Netz über alle Trainingszeitreihen nacheinander gegangen und der Fehler aufsummiert. Die Aktivierung von einem Netz wird nach jeder Zeitreihe aber wieder auf den Startzugang zurück gesetzt.\\
 
-In unserem Hauptprogramm werden dann alle Funktionen im Prinzip sinnvoll hintereinander aufgerufen. Nach erstellen einer Startpopulation werden erst die Spezies bestimmt und dann die Fitness für alle berechnet. Danach sortieren wir die Population und werfen die schlechtesten raus. Für den genauen Anteil verweise ich wieder auf Kapitel \ref{sec:parameter}. Im folgenden werden die Eliten von Spezies, die mehr als 5 groß sind unverändert übernommen. Dafür suchen wir die Indizes dieser uns speichern diese. Als nächstes wird die aktuelle Größe der Population abgespeichert und die Entfernten Topologien mittels Crossover wieder aufgefüllt. Als letztes werden über die nicht Elite Topologien bis zu den neu aufgefüllten iteriert und mit einer gewissen Wahrscheinlichkeit mutiert. Der ganze Ablauf ist in Figure \ref{fig:Ablauf} nochmals grafisch dargestellt.
+In unserem Hauptprogramm werden dann alle Funktionen im Prinzip sinnvoll hintereinander aufgerufen. Nach erstellen einer Startpopulation werden erst die Spezies bestimmt und dann die Fitness für alle berechnet. Danach sortieren wir die Population und werfen die schlechtesten raus. Für den genauen Anteil verweise ich wieder auf Kapitel \ref{sec:parameter}. Im folgenden werden die Eliten von Spezies, die mehr als 5 groß sind unverändert übernommen. Dafür suchen wir die Indizes dieser uns speichern diese. Als nächstes wird die aktuelle Größe der Population abgespeichert und die Entfernten Topologien mittels Crossover wieder aufgefüllt. Als letztes werden über die nicht Elite Topologien bis zu den neu aufgefüllten iteriert und mit einer gewissen Wahrscheinlichkeit mutiert. Der ganze Ablauf ist in Figure \ref{fig:Ablauf} nochmals grafisch dargestellt.\\
  \begin{figure}[t!]
 	\includegraphics[width=2\linewidth]{img/Ablauf}
 	\caption{Ablauf uneseres NEAT Algorithmus}
 	\label{fig:Ablauf}
 \end{figure}
+
+Der komplette Verlauf des Projektes mit den einzelnen Schritten kann auch auf unserem GitHub Repository (\url{https://github.com/timlueg/Neuroevolution/commits/master}) nachvollzogen werden. 
 
 
 

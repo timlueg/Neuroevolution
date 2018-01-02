@@ -20,7 +20,7 @@ num_outputNodes = 1;
 num_individuals_subpop = 15;
 num_nodes_insertion = 10;
 
-mutationRate = 0.5;
+mutationRate = 0.8;
 crossoverRate = 0.1;
 numIterations = n;
 standardDeviation=0.01;
