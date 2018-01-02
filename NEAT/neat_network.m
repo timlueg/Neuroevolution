@@ -116,24 +116,26 @@ for i=1:num_Iterations
     
     %index of elite for each species (> 5 networks)
     num_species = max(params.species);
-    num_genomesInSpecies = zeros(num_species);
+    num_genomesInSpecies = zeros(1, num_species);
     for j=1:size(params.species,1)
         num_genomesInSpecies(params.species(j))= num_genomesInSpecies(params.species(j)) + 1;
     end
     grosseSpecies = find(num_genomesInSpecies >= 5);
     eliteIndex = zeros(size(grosseSpecies));
-    for j=1:size(grosseSpecies,2)
-        minValue=Inf;
-        minIndex=0;
-        for k=1:size(params.fitness,1)
-            if params.species(k)== grosseSpecies(j)
-                if params.fitness(k) < minValue
-                    minValue = params.fitness(k);
-                    minIndex = k;
+    if(~isempty(grosseSpecies))
+        for j=1:size(grosseSpecies,2)
+            minValue=Inf;
+            minIndex=0;
+            for k=1:size(params.fitness,1)
+                if params.species(k)== grosseSpecies(j)
+                    if params.fitness(k) < minValue
+                        minValue = params.fitness(k);
+                        minIndex = k;
+                    end
                 end
             end
+            eliteIndex(j) = minIndex;
         end
-        eliteIndex(j) = minIndex;
     end
     
     
@@ -143,23 +145,25 @@ for i=1:num_Iterations
     num_assigned_offspring = zeros(1, num_species) + num_equalOffspring;
     %crossover nur in spezies
     for j=1:num_species
-        speciesIndices = find(params.species == j);
+        currrentSpeciesIndices = find(params.species == j);
         
-        for k=1:num_assigned_offspring(j)
-            speciesIndicesShuffled = speciesIndices(randperm(length(speciesIndices)));
-            randomParentIndex1 = speciesIndicesShuffled(1);
-            randomParentIndex2 = speciesIndicesShuffled(2);
-            if(params.fitness(randomParentIndex1) <= params.fitness(randomParentIndex2))
-                parentSmallerErrorIndex = randomParentIndex1;
-                parentGreaterErrorIndex = randomParentIndex2;
-            else
-                parentSmallerErrorIndex = randomParentIndex2;
-                parentGreaterErrorIndex = randomParentIndex1;
+        if(size(currrentSpeciesIndices,2) > 1)
+            for k=1:num_assigned_offspring(j)
+                speciesIndicesShuffled = currrentSpeciesIndices(randperm(length(currrentSpeciesIndices)));
+                randomParentIndex1 = speciesIndicesShuffled(1);
+                randomParentIndex2 = speciesIndicesShuffled(2);
+                if(params.fitness(randomParentIndex1) <= params.fitness(randomParentIndex2))
+                    parentSmallerErrorIndex = randomParentIndex1;
+                    parentGreaterErrorIndex = randomParentIndex2;
+                else
+                    parentSmallerErrorIndex = randomParentIndex2;
+                    parentGreaterErrorIndex = randomParentIndex1;
+                end
+                
+                params.connections{end+1} = crossover(params.connections{parentGreaterErrorIndex}, params.connections{parentSmallerErrorIndex}, params);
+                params.nodes{end+1} = params.nodes{parentSmallerErrorIndex};
+                
             end
-            
-            params.connections{end+1} = crossover(params.connections{parentGreaterErrorIndex}, params.connections{parentSmallerErrorIndex}, params);
-            params.nodes{end+1} = params.nodes{parentSmallerErrorIndex};
-            
         end
         
     end
@@ -382,12 +386,12 @@ for i=2:size(params.nodes,2)
     end
     
 end
-% if species_count < params.species_target
-%     params.species_distance = params.species_distance - 0.3;
-% end
-% if species_count > params.species_target
-%     params.species_distance = params.species_distance + 0.3;
-% end
+ if species_count < params.species_target
+     params.species_distance = params.species_distance - 0.3;
+ end
+ if species_count > params.species_target
+     params.species_distance = params.species_distance + 0.3;
+ end
 end
 
 function [params] = fitnessCalculation(params)
