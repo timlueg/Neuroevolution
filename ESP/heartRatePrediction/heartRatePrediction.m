@@ -39,7 +39,8 @@ sumEliteFitness = zeros(1, numIterations);
 sumEliteFitnessTest = zeros(1, numIterations);
 
 for l=1:numIterations
-    
+    bestFitness=Inf;
+    bestFitnessTest=Inf;
     for i=1:numTraining
         
         population_fitness = zeros(num_individuals_subpop, num_subpops);
@@ -61,6 +62,7 @@ for l=1:numIterations
             for m=1:num_individuals_subpop
                 currentActivation = zeros(1, num_innnerNodes + num_outputNodes);
                 weightMatrix = reshape(permute(population_perm(m,:,:),[2,1,3]),size(population_perm(m,:,:),2),[])'; %combine along 3rd dim
+                tmpBestFitness=0;
                 for r=1:numTrainingRows
                     input = [train_data{i}(r,1),train_data{i}(r,3)];
                     netOut = [input, currentActivation] * weightMatrix';
@@ -74,10 +76,12 @@ for l=1:numIterations
 
                     index = sub2ind(size(population_fitness), population_perm_selector(m,:), 1:size(population_fitness,2));
                     population_fitness(index) = population_fitness(index) + netFitness;
-                    
+                    tmpBestFitness = tmpBestFitness +netFitness;
                 end
                 
-                
+                if tmpBestFitness < bestFitness
+                    bestFitness = tmpBestFitness;
+                end
             end
             
         end
@@ -153,6 +157,7 @@ for l=1:numIterations
             for m=1:num_individuals_subpop
                 currentActivation = zeros(1, num_innnerNodes + num_outputNodes);
                 weightMatrix = reshape(permute(population_perm(m,:,:),[2,1,3]),size(population_perm(m,:,:),2),[])'; %combine along 3rd dim
+                tmpBestFitnessTest = 0;
                 for r=1:numTestRows
                     input = [test_data{i}(r,1),test_data{i}(r,3)];
                     netOut = [input, currentActivation] * weightMatrix';
@@ -166,7 +171,10 @@ for l=1:numIterations
                     for n=1:num_subpops
                         population_fitness_test(population_perm_selector(m,n),n) = population_fitness_test(population_perm_selector(m,n),n) + netFitness;
                     end
-                    
+                    tmpBestFitnessTest = tmpBestFitnessTest + netFitness;
+                end
+                 if tmpBestFitnessTest < bestFitnessTest
+                    bestFitnessTest = tmpBestFitnessTest;
                 end
             end
             
@@ -176,9 +184,9 @@ for l=1:numIterations
         [elite_fitness_Test, eliteIndexTest] = min(population_fitness_test,[],1);
     end
     
-    disp(sum(elite_fitness));
-    sumEliteFitness(l) = sum(elite_fitness);
-    sumEliteFitnessTest(l) = sum(elite_fitness_Test);
+    disp(bestFitness);
+    sumEliteFitness(l) = bestFitness;
+    sumEliteFitnessTest(l) = bestFitnessTest;
     
 end
 end
