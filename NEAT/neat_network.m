@@ -22,6 +22,12 @@ params.addConnectionMutationRate = 0.05;
 params.standardDeviation = 0.05;
 params.genomeRemovalRate = 0.2;
 
+%statistics
+allElite= zeros(1,num_Iterations);
+allMedian= zeros(1,num_Iterations);
+allNodes = zeros(1,num_Iterations);
+allConnections = zeros(1,num_Iterations);
+
 %network structure
 params.num_input = 2;
 params.num_output = 1;
@@ -166,15 +172,17 @@ for i=1:num_Iterations
             params = mutateWeights(nonEliteGenomeIndices(j), params);
         end
         %if rand() < params.addNodeMutationRate
-            params = mutateAddNode(nonEliteGenomeIndices(j), params);
+            %params = mutateAddNode(nonEliteGenomeIndices(j), params);
         %end
         if rand() < params.addConnectionMutationRate
-        %    params = mutateAddConnection(nonEliteGenomeIndices(j), params);
+            params = mutateAddConnection(nonEliteGenomeIndices(j), params);
         end
         %possible alternative only one mutation each
     end
     
     disp(min(params.fitness));
+    allElite(i) = min(params.fitness);
+    allMedian(i)= mean(params.fitness);
     
 end
 
