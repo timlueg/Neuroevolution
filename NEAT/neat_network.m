@@ -415,13 +415,7 @@ function [params] = fitnessCalculation(params)
 for i=1:size(params.connections,2)
     
     weightMatrix = phenotyp(params.nodes{i},params.connections{i});
-%     if params.num_input+1 == size(params.nodes{i},1)
-%         weightMatrix = weightMatrix(:,[params.num_input+1]);
-%     else
-%         weightMatrix = weightMatrix(:,[params.num_input+1:size(params.nodes{i},1)]);
-%     end
-    
-    fehler = 0;
+    error = 0;
     
     for j=1:params.num_Training
         currentActivation = zeros(1, max(params.nodes{i}(:,1)));
@@ -433,14 +427,11 @@ for i=1:size(params.connections,2)
             currentActivation = netOut;
             
             heartrate_pred = netOut(3);
-            netFitness = fitness(params.train_data{j}(k,2), heartrate_pred);
-            fehler = fehler + netFitness;
+            netError = (0.5* (params.train_data{j}(k,2)-heartrate_pred)^2);
+            error = error + netError;
             
         end
     end
-    params.fitness(i)=fehler;
+    params.fitness(i)=error;
 end
-end
-function [error]= fitness(target,out)
-error= (0.5* (target-out)^2);
 end
