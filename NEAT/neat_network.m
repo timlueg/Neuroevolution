@@ -165,11 +165,11 @@ for i=1:num_Iterations
         if rand() < params.weightMutationRate
             params = mutateWeights(nonEliteGenomeIndices(j), params);
         end
-        if rand() < params.addNodeMutationRate
+        %if rand() < params.addNodeMutationRate
             params = mutateAddNode(nonEliteGenomeIndices(j), params);
-        end
+        %end
         if rand() < params.addConnectionMutationRate
-            params = mutateAddConnection(nonEliteGenomeIndices(j), params);
+        %    params = mutateAddConnection(nonEliteGenomeIndices(j), params);
         end
         %possible alternative only one mutation each
     end
@@ -223,16 +223,17 @@ end
 
 function [params] = mutateAddNode(netIndex, params)
 enabledConnections = params.connections{netIndex}(params.connections{netIndex}(:,params.connCol_state) == params.conn_state_enabled,:);
-
-randomConnectionIndex = randi([1,size(enabledConnections,1)],1);
-inNodeId = enabledConnections(randomConnectionIndex, params.connCol_input);
-outNodeId = enabledConnections(randomConnectionIndex, params.connCol_output);
-
-params = appendNode(params.node_type_hidden, netIndex, params);
-params = disableConnection(inNodeId, outNodeId, netIndex, params);
-oldweight = params.connections{netIndex}(params.connections{netIndex}(:, params.connCol_input) == inNodeId & params.connections{netIndex}(:,params.connCol_output) == outNodeId, params.connCol_weight);
-params = addConnection(inNodeId, params.nodeId, 1, params.conn_state_enabled, netIndex, params);
-params = addConnection(params.nodeId, outNodeId, oldweight, params.conn_state_enabled, netIndex, params);
+if(~isempty(enabledConnections))
+    randomConnectionIndex = randi([1,size(enabledConnections,1)],1);
+    inNodeId = enabledConnections(randomConnectionIndex, params.connCol_input);
+    outNodeId = enabledConnections(randomConnectionIndex, params.connCol_output);
+    
+    params = appendNode(params.node_type_hidden, netIndex, params);
+    params = disableConnection(inNodeId, outNodeId, netIndex, params);
+    oldweight = params.connections{netIndex}(params.connections{netIndex}(:, params.connCol_input) == inNodeId & params.connections{netIndex}(:,params.connCol_output) == outNodeId, params.connCol_weight);
+    params = addConnection(inNodeId, params.nodeId, 1, params.conn_state_enabled, netIndex, params);
+    params = addConnection(params.nodeId, outNodeId, oldweight, params.conn_state_enabled, netIndex, params);
+end
 end
 
 function [params] = mutateWeights(netIndex, params)
@@ -385,24 +386,25 @@ function [params] = fitnessCalculation(params)
 for i=1:size(params.connections,2)
     
     weightMatrix = phenotyp(params.nodes{i},params.connections{i});
-    if params.num_input+1 == size(params.nodes{i},1)
-        weightMatrix = weightMatrix(:,[params.num_input+1]);
-    else
-        weightMatrix = weightMatrix(:,[params.num_input+1;size(params.nodes{i},1)]);
-    end
+%     if params.num_input+1 == size(params.nodes{i},1)
+%         weightMatrix = weightMatrix(:,[params.num_input+1]);
+%     else
+%         weightMatrix = weightMatrix(:,[params.num_input+1:size(params.nodes{i},1)]);
+%     end
     
     fehler = 0;
     
     for j=1:params.num_Training
-        currentActivation = zeros(1, size(params.nodes{i},1) - params.num_input);
+        currentActivation = zeros(1, max(params.nodes{i}(:,1)));
         numTrainingRows = size(params.train_data{j},1);
         for k=1:numTrainingRows
             input = [params.train_data{j}(k,1),params.train_data{j}(k,3)];
-            netOut = [input, currentActivation] * weightMatrix;
+            %netOut = [input, currentActivation(size(input,2)+1:size(currentActivation,2))] * weightMatrix;
+            netOut = [input, currentActivation(size(input,2)+1:size(currentActivation,2))] * weightMatrix;
             netOut = tanh(netOut);
             currentActivation = netOut;
             
-            heartrate_pred = netOut(1);
+            heartrate_pred = netOut(3);
             netFitness = fitness(params.train_data{j}(k,2), heartrate_pred);
             fehler = fehler + netFitness;
             

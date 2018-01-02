@@ -2,7 +2,8 @@ function [gewichtsmatrix] = phenotyp(nodeList,connectionList)
 %UNTITLED Summary of this function goes here
 %   Detailed explanation goes here
 
-size_knoten = size(nodeList,1);
+%size_knoten = size(nodeList,1);
+size_knoten = max(nodeList(:,1));
 size_connections = size(connectionList,1);
 
 index = find(connectionList(:,4));
@@ -12,7 +13,7 @@ gewichtsmatrix = zeros(size_knoten,size_knoten);
 
 indexGewichtsmatrix= sub2ind(size(gewichtsmatrix),connectionList(:,1),connectionList(:,2));
 %in einer Spalte der Gewichtsmatrix stehen alle Inputgewichte des Knoten,
-%Knoten der in der Spalte repräsentiert wird.
+%Knoten der in der Spalte reprï¿½sentiert wird.
 
 gewichtsmatrix(indexGewichtsmatrix)=connectionList(:,3);
 
