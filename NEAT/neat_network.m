@@ -25,7 +25,7 @@ params.genomeRemovalRate = 0.2;
 %network structure
 params.num_input = 2;
 params.num_output = 1;
-params.num_networks = 5;
+params.num_networks = 10;
 
 %distance parameter
 params.c1 = 1;
@@ -355,6 +355,7 @@ distance = ((params.c1 * E)/N) + ((params.c2 * D)/ N) + params.c3 * avgW;
 end
 
 function [params] = defineSpecies(params)
+params.species =zeros(size(params.nodes,2));
 params.species(1) = 1;
 species_count = 1;
 
@@ -372,12 +373,12 @@ for i=2:size(params.nodes,2)
     end
     
 end
-if species_count < params.species_target
-    params.species_distance = params.species_distance - 0.3;
-end
-if species_count > params.species_target
-    params.species_distance = params.species_distance + 0.3;
-end
+% if species_count < params.species_target
+%     params.species_distance = params.species_distance - 0.3;
+% end
+% if species_count > params.species_target
+%     params.species_distance = params.species_distance + 0.3;
+% end
 end
 
 function [params] = fitnessCalculation(params)
