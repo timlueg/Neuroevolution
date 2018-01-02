@@ -1,3 +1,4 @@
+%function [allElite,allMedian,allNodes,allConnections] = neat_network(num_Iterations)
 %load Data
 load ('trainingData.mat','tdata')
 
@@ -185,10 +186,14 @@ for i=1:num_Iterations
     end
     
     disp(min(params.fitness));
-    allElite(i) = min(params.fitness);
+    [allElite(i),eliteId] = min(params.fitness);
     allMedian(i)= mean(params.fitness);
     
+    allConnections(i)=  size(params.connections{eliteId},1);
+    allNodes(i)=  size(params.nodes{eliteId},1);
+    
 end
+%end
 
 function [params] = appendNode(type, netIndex, params)
 params.nodeId = params.nodeId + 1;

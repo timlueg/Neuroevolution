@@ -1,4 +1,5 @@
-num_Iterations = 100;
+
+num_Iterations = 150;
 repetitions = 10;
 allElites = zeros(repetitions,num_Iterations);
 allMedians = zeros(repetitions,num_Iterations);
