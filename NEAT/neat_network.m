@@ -166,13 +166,11 @@ for i=1:num_Iterations
             params = mutateWeights(nonEliteGenomeIndices(j), params);
         end
         if rand() < params.addNodeMutationRate
-            %todo add again
-            %params = mutateAddNode(nonEliteGenomeIndices(j), params);
+            params = mutateAddNode(nonEliteGenomeIndices(j), params);
         end
         if rand() < params.addConnectionMutationRate
             params = mutateAddConnection(nonEliteGenomeIndices(j), params);
         end
-        %todo add mutateadd mutateaddconnection with low prop
         %possible alternative only one mutation each
     end
     
@@ -223,10 +221,12 @@ for i=1:size(params.connections{netIndex},1)
 end
 end
 
-function [params] = mutateAddNode(inNodeId, outNodeId, netIndex, params)
-%todo use onley netindex as parameter
-existingConnections = params.connections{netIndex}(:,1:2);
+function [params] = mutateAddNode(netIndex, params)
+enabledConnections = params.connections{netIndex}(params.connections{netIndex}(:,params.connCol_state) == params.conn_state_enabled,:);
 
+randomConnectionIndex = randi([1,size(enabledConnections,1)],1);
+inNodeId = enabledConnections(randomConnectionIndex, params.connCol_input);
+outNodeId = enabledConnections(randomConnectionIndex, params.connCol_output);
 
 params = appendNode(params.node_type_hidden, netIndex, params);
 params = disableConnection(inNodeId, outNodeId, netIndex, params);
@@ -355,7 +355,7 @@ distance = ((params.c1 * E)/N) + ((params.c2 * D)/ N) + params.c3 * avgW;
 end
 
 function [params] = defineSpecies(params)
-params.species =zeros(size(params.nodes,2));
+params.species =zeros(1, size(params.nodes,2));
 params.species(1) = 1;
 species_count = 1;
 
