@@ -1,4 +1,4 @@
-%function [allElite,allMedian,allNodes,allConnections] = neat_network(num_Iterations)
+function [allElite,allMedian,allNodes,allConnections] = neat_network(num_Iterations)
 %load Data
 load ('trainingData.mat','tdata')
 
@@ -48,7 +48,7 @@ params.species_distance = 1;
 params.node_columnNames = {'id', 'type'};
 params.nodeCol_id = 1;
 params.nodeCol_type = 2;
-params.node_num_fields = size(params.node_columnNames,2);
+params.node_num_fields = length(params.node_columnNames);
 
 params.nodeId = 0;
 params.node_type_sensor = 1;
@@ -62,7 +62,7 @@ params.connCol_output = 2;
 params.connCol_weight = 3;
 params.connCol_state = 4;
 params.connCol_innovId = 5;
-params.connection_num_fields = size(params.connection_columnNames,2);
+params.connection_num_fields = length(params.connection_columnNames);
 
 params.innovId = 0;
 params.conn_state_enabled = 1;
@@ -121,16 +121,16 @@ for i=1:num_Iterations
     %index of elite for each species (with >=5 networks)
     num_species = max(params.species);
     num_genomesInSpecies = zeros(1, num_species);
-    for j=1:size(params.species,2)
+    for j=1:length(params.species)
         num_genomesInSpecies(params.species(j))= num_genomesInSpecies(params.species(j)) + 1;
     end
     grosseSpecies = find(num_genomesInSpecies >= 5);
-    eliteIndex = zeros(1,size(grosseSpecies,2));
+    eliteIndex = zeros(1,length(grosseSpecies));
     if(~isempty(grosseSpecies))
-        for j=1:size(grosseSpecies,2)
+        for j=1:length(grosseSpecies)
             minValue=Inf;
             minIndex=0;
-            for k=1:size(params.fitness,1)
+            for k=1:length(params.fitness)
                 if params.species(k)== grosseSpecies(j)
                     if params.fitness(k) < minValue
                         minValue = params.fitness(k);
@@ -151,7 +151,7 @@ for i=1:num_Iterations
     for j=1:num_species
         currrentSpeciesIndices = find(params.species == j);
         
-        if(size(currrentSpeciesIndices,2) > 1)
+        if(length(currrentSpeciesIndices) > 1)
             for k=1:num_assigned_offspring(j)
                 speciesIndicesShuffled = currrentSpeciesIndices(randperm(length(currrentSpeciesIndices)));
                 randomParentIndex1 = speciesIndicesShuffled(1);
@@ -173,10 +173,9 @@ for i=1:num_Iterations
         
     end
     
-    
     %mutate excluding elite genomes and crossover offspring
-    nonEliteGenomeIndices = setdiff(1:size(params.species,2), eliteIndex);
-    for j=1:size(nonEliteGenomeIndices,2)
+    nonEliteGenomeIndices = setdiff(1:length(params.species), eliteIndex);
+    for j=1:length(nonEliteGenomeIndices)
         if rand() < params.weightMutationRate
             params = mutateWeights(nonEliteGenomeIndices(j), params);
         end
@@ -208,7 +207,7 @@ for i=1:num_Iterations
     allTopologies(i) = size(params.nodes,2);
     
 end
- %end
+end
 
 function [params] = appendNode(type, netIndex, params)
 params.nodeId = params.nodeId + 1;
