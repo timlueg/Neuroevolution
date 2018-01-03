@@ -35,9 +35,10 @@ Außerdem plotte die Anzahl an Knoten und Kanten über die Generationen.
  \end{figure}
 
 Mit der Datei phenotyp.m lassen wir die Gewichtsmatrix aus den zwei oben genannten Matrizen erzeugen, um damit nachher besser rechnen zu können. Die Gewichtsmatrix, die dort zurückgegeben wird ist genauso aufgebaut wie die, die wir im ESP verwendet haben.\\
+
 Als nächstes haben wir die Funktionen implementiert, die für die Mutation bzw. für den Crossover gebraucht werden. Die appendNode und addConnection hängen einfach nur weitere Zeilen in die in Figure \ref{fig:Genomtabelle} gezeigte Liste. Wenn Kannten hinzugefügt wird muss allerdings noch überprüft werden, ob in der gleichen Iteration schon einmal zufällig eine gleiche Innovation stattgefunden hat und wenn ja muss diese nämlich die gleiche Innovationsid bekommen. Im Zuge der Mutationen haben wir auch Funktionen geschrieben, die Kanten enablen, disablen oder switchen. Nicht alle der drei Funktionen werden im Moment verwendet, aber sie sind schon einmal da, damit spätere Erweiterungen einfacher werden.\\ 
 Die Funktion mutateAdd arbeitet wie in der Vorlesung und dem Paper beschrieben. Sie erstellt einen neuen Knoten und hängt diesen zwischen zwei, wobei die alte Kante disabled wird und die eine neue Kante das Kantengewicht 1 und die andere das der alten Kante bekommt.
-Die MutateAddConnection fügt eine noch nicht vorhande Kante hinzu. Dafür werden ?? zufällige Kanten erzeugt und geguckt ob eine davon noch nicht existiert. Wenn es alle schon gibt passiert nichts.
+Die MutateAddConnection fügt eine noch nicht vorhande Kante hinzu. Dafür werden x zufällige Kanten erzeugt und geguckt ob eine davon noch nicht existiert. Wenn es alle schon gibt passiert nichts.
 Die Funktion mutateWeights implementiert das, was in den bisherigen Algorithmen eigentlich nur gemacht wurde, und zwar die Kantengewichte anzupassen. Dazu werden zu x Prozent aller Kanten ein normalverteilter Zufallswert addiert. Wie viel Prozent verändert werden klären wir in Kapitel \ref{sec:parameter}. Der Crossover ist genau so umgesetzt, wie im Paper beschrieben.\\
 
 Was dann noch fehlt ist eine Methode, die die Distanz zwischen zwei Netzen bestimmt, um diese nachher einer Spezies zuordnen zu können. Diese bekommt zwei Knotenlisten übergeben und muss dann erst einmal bestimmen welche die kleinere ist um diese durchgehen zu können. Die erste Liste wird also durchgegangen und bei jeder Kante wird geguckt ob sie gleich zur anderen Liste ist, disjunkt oder extra vorkommt. Je nachdem werden die Parameter E,D und W erhöht. Da es vorkommen kann, dass die zweite Liste auch Kanten hat, die in der ersten nicht vorkommen, muss ich mir die bis dorthin abgehandelten Kanten markieren und iteriere in einem zweiten Schritt noch über die nicht behandelten Kanten. Am Ende muss das Gewicht noch gemittelt werden, wie es das Paper verlangt und die Distanz mit Hilfe der Funktion $ \dfrac{c1*E}{N}+\dfrac{c2*D}{N}+c3*\bar{W}$ bestimmt werden.\\
@@ -49,34 +50,55 @@ Wie eingangs schon erwähnt wird die Berechnung des Ergebnisses eines Netzes äh
 Die Methode FitnessCalulation berechnet für alle Netze die Fitness. Dafür wird pro Netz über alle Trainingszeitreihen nacheinander gegangen und der Fehler aufsummiert. Die Aktivierung von einem Netz wird nach jeder Zeitreihe aber wieder auf den Startzugang zurück gesetzt.\\
 
 In unserem Hauptprogramm werden dann alle Funktionen im Prinzip sinnvoll hintereinander aufgerufen. Nach erstellen einer Startpopulation werden erst die Spezies bestimmt und dann die Fitness für alle berechnet. Danach sortieren wir die Population und werfen die schlechtesten raus. Für den genauen Anteil verweise ich wieder auf Kapitel \ref{sec:parameter}. Im folgenden werden die Eliten von Spezies, die mehr als 5 groß sind unverändert übernommen. Dafür suchen wir die Indizes dieser uns speichern diese. Als nächstes wird die aktuelle Größe der Population abgespeichert und die Entfernten Topologien mittels Crossover wieder aufgefüllt. Als letztes werden über die nicht Elite Topologien bis zu den neu aufgefüllten iteriert und mit einer gewissen Wahrscheinlichkeit mutiert. Der ganze Ablauf ist in Figure \ref{fig:Ablauf} nochmals grafisch dargestellt.\\
- \begin{figure}[t!]
+ \begin{figure}[b!]
 	\includegraphics[width=2\linewidth]{img/Ablauf}
 	\caption{Ablauf uneseres NEAT Algorithmus}
 	\label{fig:Ablauf}
 \end{figure}
 
-Der komplette Verlauf des Projektes mit den einzelnen Schritten kann auch auf unserem GitHub Repository (\url{https://github.com/timlueg/Neuroevolution/commits/master}) nachvollzogen werden. 
-
-
+Der komplette Verlauf des Projektes mit den einzelnen Schritten kann auch auf unserem GitHub Repository (\url{https://github.com/timlueg/Neuroevolution/commits/master}) nachvollzogen werden. \\ 
 
 \subsection{Hyperparameter}\label{sec:parameter}
+Zu der Anzahl an Topologien innerhalb von NEAT lässt sich sagen, dass mit 150 Topologien bei gleicher Anzahl an Generationen bessere Ergebnisse erzielt werden (siehe Figure \ref{fig:150Topos} im Vergleich zu Figure \ref{fig:NeatElite}). Mit 150 Topologien dauert die Berechung aber erheblich länger. Sinnvoller ist es daher
+ die Anzahl an Topologien etwas kleiner zu wählen und dafür die Anzahl an Generationen zu erhöhen.\\
+\begin{figure}[h!]
+	\includegraphics[width=\linewidth]{img/150Topos}
+	\caption{2 Experimente worüber pro Iteration der Durchschnitt bzw. der Beste genommen wurde}
+	\label{fig:150Topos}
+\end{figure}
 
+Die Gewichte (c1,c2,c3) für die Distanzfunktion haben wir aus dem Paper übernommen. Für die Distanz zwischen den Spezies haben wir festgestellt, dass die die ersten Iterationen immer bis unter 0.5 absinkt, weswegen wir diese initial auf 0.3 setzen und dafür die Schritte, mit denen angepasst wird, wenn das Target nicht erreicht wird auf 0.05 gesetzt haben.\\
+
+Die Wahrscheinlichkeit, dass ein Netz mutiert wird beträgt 80\% und ist auch aus dem Paper entnommen, genauso wie die Wahrscheinlichkeit dass eine Kante innerhalb eines Netzes mutiert wird 90\% beträgt und die restlichen 10\% ein zufälliges Gewicht gesetzt wird. Die Standardabweichung mit der die Gewichte verändert werden ist nur 0.04. Das erschien uns sinnvoll, da die meisten Gewichte in Intervall $[-1;1]$ liegen und so die Änderungen nur hinreichend klein sind.
+\newpage
 \section{Unsere Ergebnisse}
 \subsection{NeatErgebnisse}
+Man kann in Figure \ref{fig:NeatElite} sehen, dass die Populationen, die keinen günstigen Start haben sich sehr schnell anpassen können. Auch ohne den Crossover lassen sich schon ganz gute Werte erzielen.\\
 \begin{figure}[h!]
 	\includegraphics[width=\linewidth]{img/NeatElite}
 	\caption{10 Experimente worüber pro Iteration der Durchschnitt bzw. der Beste genommen wurde}
 	\label{fig:NeatElite}
 \end{figure}
+
+Figure \ref{fig:KantenUndKnoten} lässt erkennen, dass die Kanten deutlich zunehmen, im Gegensatz zu der Anzahl an Knoten. Daraus lässt sich schließen, dass sich tendenziell eher vollvermaschte oder nahezu vollvermaschte Netze ergeben.
 \begin{figure}[h!]
 	\includegraphics[width=\linewidth]{img/KantenUndKnoten}
 	\caption{Die gemittelte Anzahl an Knoten und Kanten über 10 Experimente}
 	\label{fig:KantenUndKnoten}
 \end{figure}
 \subsection{Verlgeich zu ESP}
+Im Vergleich zu ESP (Figure \ref{fig:ESP}) sieht man, dass der Fehler viel höher anfängt, da sich Rekurrenz, die für die Vorhersage einer Zeitreihe notwendig ist bei NEAT erst mit der Zeit bildet. Bei ESP ist sie von vorne herein gegeben, da wir ein vollvermaschtes Netz vorgeben.\\
+\begin{figure}[h!]
+	\includegraphics[width=\linewidth]{img/ESP2}
+	\caption{Der Trainings- und Testerror über 200 Generationen}
+	\label{fig:ESP}
+\end{figure}
 
+Der Fehlerwert an sich ist leider nicht direkt vergleichbar, da bei NEAT der Fehler über alle Zeitreihen aufsummiert wird. Beim ESP wird der Fehler nur nach jeder einzelnen Zeitreihe berechnet, da dann die Gewichte angepasst werden.
 
+\section{Probleme}
 
+\section{Anhang}
 
 \end{document}
 }
