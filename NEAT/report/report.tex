@@ -80,7 +80,8 @@ Man kann in Figure \ref{fig:NeatElite} sehen, dass die Populationen, die keinen 
 	\label{fig:NeatElite}
 \end{figure}
 
-Figure \ref{fig:KantenUndKnoten} lässt erkennen, dass die Kanten deutlich zunehmen, im Gegensatz zu der Anzahl an Knoten. Daraus lässt sich schließen, dass sich tendenziell eher Netze mit einem hohen Grad an Vermaschung ergeben, was auch den Aussagen der Vorlesung entspricht, da für eine Zeitreihenvorhersage Netze mit Rekurrenz besser geeignet sind.
+Figure \ref{fig:KantenUndKnoten} lässt erkennen, dass die Kanten deutlich zunehmen, im Gegensatz zu der Anzahl an Knoten. Daraus lässt sich schließen, dass sich tendenziell eher Netze mit einem hohen Grad an Vermaschung ergeben, was auch den Aussagen der Vorlesung entspricht, da für eine Zeitreihenvorhersage Netze mit Rekurrenz besser geeignet sind.\\
+Unsere anzahl an Topologien sind über die Generationen hinweg immer Konstant, weswegen wir diese nicht geplotet haben. Bei uns ist es ja so implementiert, dass die Topologien die wegfallen wieder aufgefüllt werden.
 \begin{figure}[h!]
 	\includegraphics[width=\linewidth]{img/KantenUndKnoten}
 	\caption{Die gemittelte Anzahl an Knoten und Kanten über 10 Experimente}
@@ -94,15 +95,14 @@ Im Vergleich zu ESP (Figure \ref{fig:ESP}) sieht man, dass der Fehler viel höhe
 	\label{fig:ESP}
 \end{figure}
 
-Der Fehlerwert an sich ist leider nicht direkt vergleichbar, da bei NEAT der Fehler über alle Zeitreihen aufsummiert wird. Beim ESP wird der Fehler nur nach jeder einzelnen Zeitreihe berechnet, da dann die Gewichte angepasst werden.
+Der Fehlerwert an sich ist leider nicht direkt vergleichbar, da bei NEAT der Fehler über alle Zeitreihen aufsummiert wird. Beim ESP wird der Fehler nur nach jeder einzelnen Zeitreihe berechnet, da dann die Gewichte angepasst werden. Ganz grob kann man die Fehler vergleichen, wenn man den Fehler vom NEAT durch 10 teilt, da der Fehler über 10 mal so viele Zeitreihen aufsummiert wird. Ganz genau stimmt das dennoch leider nicht.\\
+Aber was die Konvergenz betrifft kann man sagen, dass der ESP Algorithmus nach 200 Generationen noch nicht konvergiert. In Figure \ref{fig:NeatElite} ist aber erkennbar, dass es bei NEAT schon ab 130 Generationen zur konvergenz kommt.
 
 \section{Offene Baustellen}
 Aktuell ist die Gewichtsmartix der Netze noch sehr unoptimiert aufgebaut, sodass das ausführen von Netzen bei großer Knotenzahl sehr lange dauert und damit unsere Auswertung sehr aufwendig ist.
 Weiterhin wurde fitness Sharing vorerst nicht implementiert sondern allen Spezies die gleiche Anzahl an Offspring aus Crossover erlaubt. Außerdem wird Crossover immer auf alle Spezies >= 2 angewandt und die Parents beibehalten (aber mutiert).
 Nicht geklärt ist weiterhin, ob es vorteilhaft ist, eine Population (< Größe der Startpopulation) mit Mutationen aufzufüllen bis mindestens die Größe der Startpopulation erreicht ist.
 
-
-\section{Anhang}
 
 \end{document}
 }
