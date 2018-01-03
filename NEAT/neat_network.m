@@ -14,13 +14,13 @@ params.num_Training = size(params.train_data,2);
 params.num_Test = size(params.test_data,2);
 
 %Hyperparameter
-num_Iterations = 200;
+num_Iterations = 400;
 params.weightMutationRate = 0.8;
 params.singleWeightMutationRate = 0.9;
 params.singleWeightRandomResetRate = 0.1;
 params.addNodeMutationRate = 0.03;
 params.addConnectionMutationRate = 0.05;
-params.standardDeviation = 0.04;
+params.standardDeviation = 0.02;
 params.genomeRemovalRate = 0.2;
 
 %statistics
@@ -40,8 +40,8 @@ params.c2 = 1;
 params.c3 = 0.4;
 
 %species parameter
-params.species_target = 3;
-params.species_distance = 0.3;
+params.species_target = 4;
+params.species_distance = 1;
 
 %node constants
 params.node_columnNames = {'id', 'type'};
@@ -117,7 +117,7 @@ for i=1:num_Iterations
     params.fitness = params.fitness(sortIndex);
     %todo veraendern durch Mutation/Crossover innerhalb einer species bis Groe�e wieder aufgefuellt
     
-    %index of elite for each species (> 5 networks)
+    %index of elite for each species (with >=5 networks)
     num_species = max(params.species);
     num_genomesInSpecies = zeros(1, num_species);
     for j=1:size(params.species,1)
@@ -147,29 +147,30 @@ for i=1:num_Iterations
     num_equalOffspring = ceil(num_genomesRemoved / num_species);
     num_assigned_offspring = zeros(1, num_species) + num_equalOffspring;
     %crossover nur in spezies
-%     for j=1:num_species
-%         currrentSpeciesIndices = find(params.species == j);
-%         
-%         if(size(currrentSpeciesIndices,2) > 1)
-%             for k=1:num_assigned_offspring(j)
-%                 speciesIndicesShuffled = currrentSpeciesIndices(randperm(length(currrentSpeciesIndices)));
-%                 randomParentIndex1 = speciesIndicesShuffled(1);
-%                 randomParentIndex2 = speciesIndicesShuffled(2);
-%                 if(params.fitness(randomParentIndex1) <= params.fitness(randomParentIndex2))
-%                     parentSmallerErrorIndex = randomParentIndex1;
-%                     parentGreaterErrorIndex = randomParentIndex2;
-%                 else
-%                     parentSmallerErrorIndex = randomParentIndex2;
-%                     parentGreaterErrorIndex = randomParentIndex1;
-%                 end
-%                 
-%                 params.connections{end+1} = crossover(params.connections{parentGreaterErrorIndex}, params.connections{parentSmallerErrorIndex}, params);
-%                 params.nodes{end+1} = params.nodes{parentSmallerErrorIndex};
-%                 
-%             end
-%         end
-%         
-%     end
+    for j=1:num_species
+        currrentSpeciesIndices = find(params.species == j);
+        
+        if(size(currrentSpeciesIndices,2) > 1)
+            for k=1:num_assigned_offspring(j)
+                speciesIndicesShuffled = currrentSpeciesIndices(randperm(length(currrentSpeciesIndices)));
+                randomParentIndex1 = speciesIndicesShuffled(1);
+                randomParentIndex2 = speciesIndicesShuffled(2);
+                if(params.fitness(randomParentIndex1) <= params.fitness(randomParentIndex2))
+                    parentSmallerErrorIndex = randomParentIndex1;
+                    parentGreaterErrorIndex = randomParentIndex2;
+                else
+                    parentSmallerErrorIndex = randomParentIndex2;
+                    parentGreaterErrorIndex = randomParentIndex1;
+                end
+                %do parents have to be removed after crossover ?
+                params.connections{end+1} = crossover(params.connections{parentGreaterErrorIndex}, params.connections{parentSmallerErrorIndex}, params);
+                params.nodes{end+1} = params.nodes{parentSmallerErrorIndex};
+                %disp(params.connections{end})
+                %disp(params.nodes{end})
+            end
+        end
+        
+    end
     
     
     %mutate excluding elite genomes and crossover offspring
@@ -191,7 +192,7 @@ for i=1:num_Iterations
     num_unnasignedGenmoes = params.num_networks - length(params.nodes);
     randomGenomesInd = randi([1, length(params.nodes)], 1, num_unnasignedGenmoes);
     for j=1:length(randomGenomesInd)
-        endIndex = length(params.nodes) +1; 
+        endIndex = length(params.nodes) +1;
         params.nodes{endIndex} = params.nodes{randomGenomesInd(j)};
         params.connections{endIndex} = params.connections{randomGenomesInd(j)};
         params = mutateWeights(endIndex, params);
@@ -293,9 +294,9 @@ function [offspringConnections] = crossover(parent, parentBetterFit, params)
 ParentsConcatinated = [parent; parentBetterFit];
 intersectIdx = [intersectParent1Idx, (intersectParent2Idx + size(parent,1))];
 intersectIdxColumnSelector = randi(2,1, size(intersectIdx,1));
-randomIntersectConnections = ParentsConcatinated(sub2ind(size(intersectIdx), 1:size(intersectIdx,1), intersectIdxColumnSelector),:);
-parentHigherFitDisExConnections = parentBetterFit(disjointExcessIdx,:);
-offspringConnections = [randomIntersectConnections; parentHigherFitDisExConnections];
+randomIntersectConnections = ParentsConcatinated(intersectIdx(sub2ind(size(intersectIdx), 1:size(intersectIdx,1), intersectIdxColumnSelector)),:);
+parentBetterFitDisExConnections = parentBetterFit(disjointExcessIdx,:);
+offspringConnections = [randomIntersectConnections; parentBetterFitDisExConnections];
 end
 
 function [distance] = distanceOf(connectionList1,connectionList2,params)
@@ -403,12 +404,12 @@ for i=2:size(params.nodes,2)
     end
     
 end
- if species_count < params.species_target
-     params.species_distance = params.species_distance - 0.005;
- end
- if species_count > params.species_target
-     params.species_distance = params.species_distance + 0.005;
- end
+if species_count < params.species_target
+    params.species_distance = params.species_distance - 0.005;
+end
+if species_count > params.species_target
+    params.species_distance = params.species_distance + 0.005;
+end
 end
 
 function [params] = fitnessCalculation(params)
