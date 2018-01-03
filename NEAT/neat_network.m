@@ -1,4 +1,4 @@
-%function [allElite,allMedian,allNodes,allConnections] = neat_network(num_Iterations)
+function [allElite,allMedian,allNodes,allConnections] = neat_network(num_Iterations)
 %load Data
 load ('trainingData.mat','tdata')
 
@@ -14,7 +14,7 @@ params.num_Training = size(params.train_data,2);
 params.num_Test = size(params.test_data,2);
 
 %Hyperparameter
-num_Iterations = 400;
+%num_Iterations = 300;
 params.weightMutationRate = 0.8;
 params.singleWeightMutationRate = 0.9;
 params.singleWeightRandomResetRate = 0.1;
@@ -28,11 +28,12 @@ allElite= zeros(1,num_Iterations);
 allMedian= zeros(1,num_Iterations);
 allNodes = zeros(1,num_Iterations);
 allConnections = zeros(1,num_Iterations);
+allTopologies = zeros(1,num_Iterations);
 
 %network structure
 params.num_input = 2;
 params.num_output = 1;
-params.num_networks = 20;
+params.num_networks = 30;
 
 %distance parameter
 params.c1 = 1;
@@ -204,9 +205,10 @@ for i=1:num_Iterations
     
     allConnections(i)=  size(params.connections{eliteId},1);
     allNodes(i)=  size(params.nodes{eliteId},1);
+    allTopologies(i) = size(params.nodes,2);
     
 end
-%end
+ end
 
 function [params] = appendNode(type, netIndex, params)
 params.nodeId = params.nodeId + 1;

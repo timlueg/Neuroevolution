@@ -81,12 +81,19 @@ Man kann in Figure \ref{fig:NeatElite} sehen, dass die Populationen, die keinen 
 \end{figure}
 
 Figure \ref{fig:KantenUndKnoten} lässt erkennen, dass die Kanten deutlich zunehmen, im Gegensatz zu der Anzahl an Knoten. Daraus lässt sich schließen, dass sich tendenziell eher Netze mit einem hohen Grad an Vermaschung ergeben, was auch den Aussagen der Vorlesung entspricht, da für eine Zeitreihenvorhersage Netze mit Rekurrenz besser geeignet sind.\\
-Unsere anzahl an Topologien sind über die Generationen hinweg immer Konstant, weswegen wir diese nicht geplotet haben. Bei uns ist es ja so implementiert, dass die Topologien die wegfallen wieder aufgefüllt werden.
 \begin{figure}[h!]
 	\includegraphics[width=\linewidth]{img/KantenUndKnoten}
 	\caption{Die gemittelte Anzahl an Knoten und Kanten über 10 Experimente}
 	\label{fig:KantenUndKnoten}
 \end{figure}
+
+Unsere Anzahl an Topologien sind über die Generationen hinweg immer größer oder gleich der Zahl die wir anfangs gesetzt haben (siehe Figure \ref{fig:VerlaufTopo}). Das liegt daran, dass wir diese Zahl, nachdem wir die ''schlechten'' rausgeschmissen haben, mit crossover wieder auffüllen, dabei können auch etwas mehr entstehen, als die ursprüngliche Anzahl.
+\begin{figure}[h!]
+	\includegraphics[width=\linewidth]{img/VerlaufTopo}
+	\caption{Verlauf der beinhalteten Topologien}
+	\label{fig:VerlaufTopo}
+\end{figure}
+
 \subsection{Verlgeich zu ESP}
 Im Vergleich zu ESP (Figure \ref{fig:ESP}) sieht man, dass der Fehler viel höher anfängt, da sich Rekurrenz, die für die Vorhersage einer Zeitreihe notwendig ist bei NEAT erst mit der Zeit bildet. Bei ESP ist sie von vorne herein gegeben, da wir ein vollvermaschtes Netz vorgeben.\\
 \begin{figure}[h!]

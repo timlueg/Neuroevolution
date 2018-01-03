@@ -1,6 +1,6 @@
 
-num_Iterations = 500;
-repetitions = 10;
+num_Iterations = 300;
+repetitions = 1;
 allElites = zeros(repetitions,num_Iterations);
 allMedians = zeros(repetitions,num_Iterations);
 allNodes = zeros(repetitions,num_Iterations);
