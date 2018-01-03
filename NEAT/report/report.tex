@@ -20,7 +20,7 @@ Tim L"ugger, Jan Urfei
 \date{today}
 \maketitle
 \begin{abstract}
-Aufgabe:Implementieren Sie NEAT auf den Herzfrequenz Daten. Bestimmen Sie die besten Hyperparameter. Wiederholen Sie ihr Experiment 10 mal und vergleichen Sie die Ergebnisse mit den Ergebnissen aus ESP bezogen auf die Zeit und den Error.
+Aufgabe: Implementieren Sie NEAT auf den Herzfrequenz Daten. Bestimmen Sie die besten Hyperparameter. Wiederholen Sie ihr Experiment 10 mal und vergleichen Sie die Ergebnisse mit den Ergebnissen aus ESP bezogen auf die Zeit und den Fehler.
 Plottet die durchschnittliche Elite, die Elite und den durchschnittlichen Median über alle Experimente.
 Außerdem plotte die Anzahl an Knoten und Kanten über die Generationen.
 \end{abstract}
@@ -80,7 +80,7 @@ Man kann in Figure \ref{fig:NeatElite} sehen, dass die Populationen, die keinen 
 	\label{fig:NeatElite}
 \end{figure}
 
-Figure \ref{fig:KantenUndKnoten} lässt erkennen, dass die Kanten deutlich zunehmen, im Gegensatz zu der Anzahl an Knoten. Daraus lässt sich schließen, dass sich tendenziell eher vollvermaschte oder nahezu vollvermaschte Netze ergeben.
+Figure \ref{fig:KantenUndKnoten} lässt erkennen, dass die Kanten deutlich zunehmen, im Gegensatz zu der Anzahl an Knoten. Daraus lässt sich schließen, dass sich tendenziell eher Netze mit einem hohen Grad an Vermaschung ergeben, was auch den Aussagen der Vorlesung entspricht, da für eine Zeitreihenvorhersage Netze mit Rekurrenz besser geeignet sind.
 \begin{figure}[h!]
 	\includegraphics[width=\linewidth]{img/KantenUndKnoten}
 	\caption{Die gemittelte Anzahl an Knoten und Kanten über 10 Experimente}
@@ -96,7 +96,11 @@ Im Vergleich zu ESP (Figure \ref{fig:ESP}) sieht man, dass der Fehler viel höhe
 
 Der Fehlerwert an sich ist leider nicht direkt vergleichbar, da bei NEAT der Fehler über alle Zeitreihen aufsummiert wird. Beim ESP wird der Fehler nur nach jeder einzelnen Zeitreihe berechnet, da dann die Gewichte angepasst werden.
 
-\section{Probleme}
+\section{Offene Baustellen}
+Aktuell ist die Gewichtsmartix der Netze noch sehr unoptimiert aufgebaut, sodass das ausführen von Netzen bei großer Knotenzahl sehr lange dauert und damit unsere Auswertung sehr aufwendig ist.
+Weiterhin wurde fitness Sharing vorerst nicht implementiert sondern allen Spezies die gleiche Anzahl an Offspring aus Crossover erlaubt. Außerdem wird Crossover immer auf alle Spezies >= 2 angewandt und die Parents beibehalten (aber mutiert).
+Nicht geklärt ist weiterhin, ob es vorteilhaft ist, eine Population (< Größe der Startpopulation) mit Mutationen aufzufüllen bis mindestens die Größe der Startpopulation erreicht ist.
+
 
 \section{Anhang}
 
