@@ -87,12 +87,15 @@ Figure \ref{fig:KantenUndKnoten} lässt erkennen, dass die Kanten deutlich zuneh
 	\label{fig:KantenUndKnoten}
 \end{figure}
 
-Unsere Anzahl an Topologien sind über die Generationen hinweg immer größer oder gleich der Zahl die wir anfangs gesetzt haben (siehe Figure \ref{fig:VerlaufTopo}). Das liegt daran, dass wir diese Zahl, nachdem wir die ''schlechten'' rausgeschmissen haben, mit crossover wieder auffüllen, dabei können auch etwas mehr entstehen, als die ursprüngliche Anzahl.
+Unsere Anzahl an Topologien sind über die Generationen hinweg immer größer oder gleich der Zahl die wir anfangs gesetzt haben (siehe Figure \ref{fig:VerlaufTopo}). Das liegt daran, dass wir diese Zahl, nachdem wir die ''schlechten'' rausgeschmissen haben, mit crossover wieder auffüllen, dabei können auch etwas mehr entstehen, als die ursprüngliche Anzahl.\\
 \begin{figure}[h!]
 	\includegraphics[width=\linewidth]{img/VerlaufTopo}
 	\caption{Verlauf der beinhalteten Topologien}
 	\label{fig:VerlaufTopo}
 \end{figure}
+
+Nach 300 Iterationen sieht ein Netz, welches die Fitness 46 hat z.B. aus wie das Netz was in Figure \ref{fig:BeispielTopologie}. Die Knoten, die nicht erreicht werden können, bzw. von denen es kein Weg zum Output gibt sind orange eingefärbt.
+
 
 \subsection{Verlgeich zu ESP}
 Im Vergleich zu ESP (Figure \ref{fig:ESP}) sieht man, dass der Fehler viel höher anfängt, da sich Rekurrenz, die für die Vorhersage einer Zeitreihe notwendig ist bei NEAT erst mit der Zeit bildet. Bei ESP ist sie von vorne herein gegeben, da wir ein vollvermaschtes Netz vorgeben.\\
@@ -101,9 +104,17 @@ Im Vergleich zu ESP (Figure \ref{fig:ESP}) sieht man, dass der Fehler viel höhe
 	\caption{Der Trainings- und Testerror über 200 Generationen}
 	\label{fig:ESP}
 \end{figure}
+\newpage
+\begin{figure}[t!]
+	\includegraphics[width=2\linewidth]{img/BeispielTopologie}
+	\caption{bestes Netz nach 300 Generationen}
+	\label{fig:BeispielTopologie}
+\end{figure}
 
 Der Fehlerwert an sich ist leider nicht direkt vergleichbar, da bei NEAT der Fehler über alle Zeitreihen aufsummiert wird. Beim ESP wird der Fehler nur nach jeder einzelnen Zeitreihe berechnet, da dann die Gewichte angepasst werden. Ganz grob kann man die Fehler vergleichen, wenn man den Fehler vom NEAT durch 10 teilt, da der Fehler über 10 mal so viele Zeitreihen aufsummiert wird. Ganz genau stimmt das dennoch leider nicht.\\
-Aber was die Konvergenz betrifft kann man sagen, dass der ESP Algorithmus nach 200 Generationen noch nicht konvergiert. In Figure \ref{fig:NeatElite} ist aber erkennbar, dass es bei NEAT schon ab 130 Generationen zur konvergenz kommt.
+Aber was die Konvergenz betrifft kann man sagen, dass der ESP Algorithmus nach 200 Generationen noch nicht konvergiert. In Figure \ref{fig:NeatElite} ist aber erkennbar, dass es bei NEAT schon ab 130 Generationen zur konvergenz kommt.\\
+
+
 
 \section{Offene Baustellen}
 Aktuell ist die Gewichtsmartix der Netze noch sehr unoptimiert aufgebaut, sodass das ausführen von Netzen bei großer Knotenzahl sehr lange dauert und damit unsere Auswertung sehr aufwendig ist.
