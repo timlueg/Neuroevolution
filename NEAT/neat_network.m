@@ -1,4 +1,4 @@
-function [allElite,allMedian,allNodes,allConnections] = neat_network(num_Iterations)
+%function [allElite,allMedian,allNodes,allConnections] = neat_network(num_Iterations)
 %load Data
 load ('trainingData.mat','tdata')
 
@@ -14,7 +14,7 @@ params.num_Training = size(params.train_data,2);
 params.num_Test = size(params.test_data,2);
 
 %Hyperparameter
-%num_Iterations = 300;
+num_Iterations = 200;
 params.weightMutationRate = 0.8;
 params.singleWeightMutationRate = 0.9;
 params.singleWeightRandomResetRate = 0.1;
@@ -121,11 +121,11 @@ for i=1:num_Iterations
     %index of elite for each species (with >=5 networks)
     num_species = max(params.species);
     num_genomesInSpecies = zeros(1, num_species);
-    for j=1:size(params.species,1)
+    for j=1:size(params.species,2)
         num_genomesInSpecies(params.species(j))= num_genomesInSpecies(params.species(j)) + 1;
     end
     grosseSpecies = find(num_genomesInSpecies >= 5);
-    eliteIndex = zeros(size(grosseSpecies));
+    eliteIndex = zeros(1,size(grosseSpecies,2));
     if(~isempty(grosseSpecies))
         for j=1:size(grosseSpecies,2)
             minValue=Inf;
@@ -208,7 +208,7 @@ for i=1:num_Iterations
     allTopologies(i) = size(params.nodes,2);
     
 end
- end
+ %end
 
 function [params] = appendNode(type, netIndex, params)
 params.nodeId = params.nodeId + 1;
