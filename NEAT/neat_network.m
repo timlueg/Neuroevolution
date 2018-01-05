@@ -1,4 +1,4 @@
-function [allElite,allMedian,allNodes,allConnections] = neat_network(num_Iterations)
+%function [allElite,allMedian,allNodes,allConnections] = neat_network(num_Iterations)
 %load Data
 load ('trainingData.mat','tdata')
 
@@ -207,7 +207,7 @@ for i=1:num_Iterations
     allTopologies(i) = size(params.nodes,2);
     
 end
-end
+%end
 
 function [params] = appendNode(type, netIndex, params)
 params.nodeId = params.nodeId + 1;
@@ -277,13 +277,15 @@ end
 end
 
 function [params] = mutateAddConnection(netIndex, params)
-existingConnections = params.connections{netIndex}(:,1:2);
-randomConnections(:,1) = randi([min(existingConnections(:)), max(existingConnections(:))],[4,1]);
-randomConnections(:,2) = randi([params.num_input+1, max(existingConnections(:))],[4,1]);
-difference = setdiff(randomConnections, existingConnections, 'rows');
-if ( ~isempty(difference))
-    newConnection = difference(1,:);
-    params = addConnection(newConnection(1), newConnection(2), randn, params.conn_state_enabled, netIndex, params);
+ existingConnections = params.connections{netIndex}(:,1:2);
+
+randomInNodeId = datasample(params.nodes{netIndex}(:,params.nodeCol_id), 1);
+outNodesAlreadyConnected = existingConnections(existingConnections(:,params.connCol_input) == randomInNodeId, 2);
+[nodesNotConnected, ~] = setdiff(existingConnections(:), outNodesAlreadyConnected);
+%alternative setdiff(params.nodes{netIndex}(:,1), outNodesAlreadyConnected)
+if( ~isempty(nodesNotConnected))
+    randomOutNode = datasample(nodesNotConnected,1);
+    params = addConnection(randomInNodeId, randomOutNode, randn, params.conn_state_enabled, netIndex, params);
 end
 end
 
