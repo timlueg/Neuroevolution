@@ -416,26 +416,39 @@ end
 end
 
 function [params] = fitnessCalculation(params)
-for i=1:size(params.connections,2)
+num_networks = size(params.connections,2);
+
+%copy variables to avoid parfor broadcasting
+fitness = zeros(num_networks, 1);
+num_training = params.num_Training;
+nodes = params.nodes;
+connections = params.connections;
+
+parfor i=1:num_networks
     
-    weightMatrix = phenotyp(params.nodes{i},params.connections{i});
+    weightMatrix = sparse(phenotyp(nodes{i},connections{i}));
     error = 0;
     
-    for j=1:params.num_Training
-        currentActivation = zeros(1, max(params.nodes{i}(:,1)));
-        numTrainingRows = size(params.train_data{j},1);
+    for j=1:num_training
+        currentActivation = zeros(1, max(nodes{i}(:,1)));
+        currentTrainingData = params.train_data{j};
+        numTrainingRows = size(currentTrainingData,1);
         for k=1:numTrainingRows
-            input = [params.train_data{j}(k,1),params.train_data{j}(k,3)];
+            input = [currentTrainingData(k,1), currentTrainingData(k,3)];
             netOut = [input, currentActivation(size(input,2)+1:size(currentActivation,2))] * weightMatrix;
             netOut = tanh(netOut);
             currentActivation = netOut;
             
             heartrate_pred = netOut(3);
-            netError = (0.5* (params.train_data{j}(k,2)-heartrate_pred)^2);
+            netError = (0.5* (currentTrainingData(k,2)-heartrate_pred)^2);
             error = error + netError;
             
         end
     end
-    params.fitness(i)=error;
+    %params.fitness(i)=error;
+    fitness(i) = error;
 end
+
+params.fitness = fitness;
+
 end
