@@ -14,7 +14,7 @@ params.num_Training = size(params.train_data,2);
 params.num_Test = size(params.test_data,2);
 
 %Hyperparameter
-num_Iterations = 200;
+num_Iterations = 500;
 params.weightMutationRate = 0.8;
 params.singleWeightMutationRate = 0.9;
 params.singleWeightRandomResetRate = 0.1;
