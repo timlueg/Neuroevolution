@@ -71,6 +71,7 @@ params.nodes = cell(1, params.num_networks);
 params.connections = cell(1, params.num_networks);
 params.species = zeros(params.num_networks,1);
 params.fitness = zeros(params.num_networks,1);
+params.sharedfitness = zeros(params.num_networks,1);
 
 %Initial basic network
 aktuelleKnoten= params.nodeId;
@@ -106,7 +107,7 @@ for i=1:num_Iterations
     params = fitnessCalculation(params);
     %disp(params.species);
     %disp(params.species_distance);
-    
+    params = sharedFitness(params);
     %remove less fit genes
     [fitnessArray, sortIndex] = sort(params.fitness, 'ascend');
     num_genomesRemoved = floor(size(params.connections,2) * params.genomeRemovalRate);
@@ -198,7 +199,7 @@ for i=1:num_Iterations
         params = mutateWeights(endIndex, params);
     end
     
-    disp(min(params.fitness));
+%     disp(min(params.fitness));
     [allElite(i),eliteId] = min(params.fitness);
     allMedian(i)= mean(params.fitness);
     
@@ -451,4 +452,24 @@ end
 
 params.fitness = fitness;
 
+end
+
+function [params] = sharedFitness(params)
+
+for i=1:size(params.sharedfitness,1)
+    counter = 0;
+    for j=1:size(params.connections,2)
+        counter = counter + sharingFunction(distanceOf(params.connections{i},params.connections{j},params),params);
+    end
+    params.sharedfitness(i)= params.fitness(i)/counter;
+end
+disp(min(params.fitness));
+params.fitness = params.sharedfitness;
+end
+
+function [aboveTreshold] = sharingFunction(distance, params)
+aboveTreshold = 0;
+if distance < params.species_distance
+    aboveTreshold = 1;
+end
 end
