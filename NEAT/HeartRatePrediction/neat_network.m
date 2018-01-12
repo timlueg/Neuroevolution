@@ -29,11 +29,13 @@ allMedian= zeros(1,num_Iterations);
 allNodes = zeros(1,num_Iterations);
 allConnections = zeros(1,num_Iterations);
 allTopologies = zeros(1,num_Iterations);
+allSpezies = zeros(1,num_Iterations);
+allDistance = zeros(1,num_Iterations);
 
 %network structure
 params.num_input = 2;
 params.num_output = 1;
-params.num_networks = 30;
+params.num_networks = 50;
 
 %distance parameter
 params.c1 = 1;
@@ -41,8 +43,8 @@ params.c2 = 1;
 params.c3 = 0.4;
 
 %species parameter
-params.species_target = 4;
-params.species_distance = 1;
+params.species_target = 10;
+params.species_distance = 0.01;
 
 %node constants
 params.node_columnNames = {'id', 'type'};
@@ -107,7 +109,6 @@ for i=1:num_Iterations
     params = fitnessCalculation(params);
     %disp(params.species);
     %disp(params.species_distance);
-    params = sharedFitness(params);
     %remove less fit genes
     [fitnessArray, sortIndex] = sort(params.fitness, 'ascend');
     num_genomesRemoved = floor(size(params.connections,2) * params.genomeRemovalRate);
@@ -119,8 +120,11 @@ for i=1:num_Iterations
     params.fitness = params.fitness(sortIndex);
     %todo veraendern durch Mutation/Crossover innerhalb einer species bis Groeï¿½e wieder aufgefuellt
     
+    params = sharedFitness(params);
     %index of elite for each species (with >=5 networks)
     num_species = max(params.species);
+    allSpezies(i) = num_species;
+    allDistance(i) = params.species_distance;
     num_genomesInSpecies = zeros(1, num_species);
     for j=1:length(params.species)
         num_genomesInSpecies(params.species(j))= num_genomesInSpecies(params.species(j)) + 1;
@@ -145,9 +149,25 @@ for i=1:num_Iterations
     
     
     %todo use fitnesssharing to determine num offspirngs for each species
+    %Anzahl an offspring abhängig von Anteil an gesamt fitness
+    fitness_per_species = zeros(1,num_species);
+    for j=1:size(params.species,2)
+        fitness_per_species(params.species(j)) = fitness_per_species(params.species(j)) + params.fitness(j); 
+    end
+    fitness_per_species_percent = zeros(1,num_species);
+    for j=1:size(fitness_per_species,2)
+        fitness_per_species_percent(j) = 1-(fitness_per_species(j)/sum(fitness_per_species)); 
+    end
+    fitness_per_species_percent = fitness_per_species_percent/num_species;
+    
+    %disp(sum(fitness_per_species_percent));
+    
     %currently using equal num offsprints
-    num_equalOffspring = ceil(num_genomesRemoved / num_species);
-    num_assigned_offspring = zeros(1, num_species) + num_equalOffspring;
+    %num_equalOffspring = ceil(num_genomesRemoved / num_species);
+    %num_assigned_offspring = zeros(1, num_species) + num_equalOffspring;
+    
+    
+    num_assigned_offspring = round(num_genomesRemoved*fitness_per_species_percent);
     %crossover nur in spezies
     for j=1:num_species
         currrentSpeciesIndices = find(params.species == j);
@@ -206,7 +226,6 @@ for i=1:num_Iterations
     allConnections(i)=  size(params.connections{eliteId},1);
     allNodes(i)=  size(params.nodes{eliteId},1);
     allTopologies(i) = size(params.nodes,2);
-    
 end
 %end
 
@@ -409,10 +428,10 @@ for i=2:size(params.nodes,2)
     
 end
 if species_count < params.species_target
-    params.species_distance = params.species_distance - 0.005;
+    params.species_distance = params.species_distance - 0.0001;
 end
 if species_count > params.species_target
-    params.species_distance = params.species_distance + 0.005;
+    params.species_distance = params.species_distance + 0.0001;
 end
 end
 
@@ -455,8 +474,8 @@ params.fitness = fitness;
 end
 
 function [params] = sharedFitness(params)
-
-for i=1:size(params.sharedfitness,1)
+params.sharedfitness = zeros(1,size(params.fitness,1));
+for i=1:size(params.sharedfitness,2)
     counter = 0;
     for j=1:size(params.connections,2)
         counter = counter + sharingFunction(distanceOf(params.connections{i},params.connections{j},params),params);
@@ -465,6 +484,7 @@ for i=1:size(params.sharedfitness,1)
 end
 disp(min(params.fitness));
 params.fitness = params.sharedfitness;
+disp(min(params.fitness));
 end
 
 function [aboveTreshold] = sharingFunction(distance, params)
