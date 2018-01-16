@@ -20,10 +20,10 @@ if(params.isTraining)
         newSimulationStarted = false;
     end
     
+    maxTileId = 14;
+    gameStateNormalized = gameState_tiles / maxTileId;
     
-    agentStatus = 0;
-    
-    params = evaluateNetwork(params, params.trainingNetIdx, agentStatus);
+    params = evaluateNetwork(params, params.trainingNetIdx, gameStateNormalized);
     
 end
 
