@@ -4,19 +4,19 @@ public enum Tile {
 	/**
 	 * ZLevel: 0 only 
 	 */
-	CANNON_MUZZLE("CM", -82, 0),
+	CANNON_MUZZLE("CM", 14, 0),
 	
 	/**
 	 * ZLevel: 0 only 
 	 */
-	CANNON_TRUNK("CT", -80, 0),
+	CANNON_TRUNK("CT", 2, 0),
 	
 	/**
 	 * ZLevel: 0, 1 and 2
 	 * 
 	 * Represents a coin Mario can collect.
 	 */
-	COIN_ANIM("C", 2, 0, 1, 2),
+	COIN_ANIM("C", 3, 0, 1, 2),
 	
 	/**
 	 * ZLevel: 0 only
@@ -26,7 +26,7 @@ public enum Tile {
      * -- brick with a hidden coin
 	 * -- brick with a hidden friendly flower
 	 */
-	BREAKABLE_BRICK("BB", -20, 0),
+	BREAKABLE_BRICK("BB", 4, 0),
 	
 	/**
 	 * ZLevel: 0 only
@@ -36,7 +36,7 @@ public enum Tile {
 	 * -- question brick containing flower/mushroom
 	 * -- question brick containing 0-N coins inside
 	 */
-	QUESTION_BRICK("BQ", -22, 0),
+	QUESTION_BRICK("BQ", 5, 0),
 	
 	/**
 	 * ZLevel: 1 only
@@ -49,7 +49,7 @@ public enum Tile {
 	 * -- question brick, contains flower/mushroom
 	 * -- question brick, 0-N coins inside
 	 */
-	BRICK("B", -24, 1),
+	BRICK("B", 6, 1),
 	
 	/**
 	 * ZLevel: 0 only
@@ -62,49 +62,49 @@ public enum Tile {
 	 * -- question brick, contains flower/mushroom
 	 * -- question brick, 0-N coins inside
 	 */
-	FLOWER_POT("FP", -90, 0),
+	FLOWER_POT("FP", 7, 0),
 	
 	/**
 	 * ZLevel: 0, 1, 2
 	 * 
 	 * Represents a SOLID block.
 	 */
-	BORDER_CANNOT_PASS_THROUGH("BI", -60, 0, 1, 2),
+	BORDER_CANNOT_PASS_THROUGH("BI", 8, 0, 1, 2),
 	
 	/**
 	 * ZLevel: 0, 1
 	 * 
 	 * Represents a block you can stand on but also jump through (when jumping up) but not fall through.
 	 */
-	BORDER_HILL("BH", -62, 0, 1),
+	BORDER_HILL("BH", 9, 0, 1),
 	
 	/**
 	 * ZLevel: 1 only
 	 * 
 	 * Flower pot or a cannon.
 	 */
-	FLOWER_POT_OR_CANNON("PC", -85, 1),
+	FLOWER_POT_OR_CANNON("PC", 10, 1),
 	
 	/**
 	 * ZLevel: 0, 1
 	 * 
 	 * Represents a LADDER block (but not its top)
 	 */
-	LADDER("L", 61, 0, 1),
+	LADDER("L", 11, 0, 1),
 	
 	/**
 	 * ZLevel: 0, 1
 	 * 
 	 * Represents top of the ladder (you cannot climb up anymore than this).
 	 */
-	TOP_OF_LADDER("TL", 61, 0, 1),
+	TOP_OF_LADDER("TL", 12, 0, 1),
 	
 	/**
 	 * ZLevel: 0, 1, 2
 	 * 
 	 * PRINCESS! Congratulation, you will win if you reach her!
 	 */
-	PRINCESS("P", 5, 1, 2),
+	PRINCESS("P", 13, 1, 2),
 
 	/**
 	 * ZLevel: 2 only
