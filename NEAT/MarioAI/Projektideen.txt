@@ -1,0 +1,26 @@
+Fitnessberechnung Optionen:
+	X Position
+	Score (bestehend aus kaputten Blöcken & Münzen & Monster)
+	benötigte Zeit 
+	
+	
+	
+	
+Level
+	ertseinmal auf einem Level trainieren und ausführen
+	ausführen auf einem ähnlichen Level
+	später Levelkomplexität steigern und verschiedene Level spielen
+	
+	
+grober Ablauf:
+	Level generieren (fester Seed)
+	Matlab einbinden
+	
+	schleife für Anzahl an Generationen
+		schleife über alle Netze einer Generation 
+			Ausführen
+			fitness setzen
+		mutieren/crossover etc population neu bilde
+	
+	
+	

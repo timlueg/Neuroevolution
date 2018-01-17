@@ -44,7 +44,7 @@ params.c3 = 0.4;
 
 %species parameter
 params.species_target = 10;
-params.species_distance = 0.01;
+params.species_distance = 0.1;
 
 %node constants
 params.node_columnNames = {'id', 'type'};
@@ -428,10 +428,10 @@ for i=2:size(params.nodes,2)
     
 end
 if species_count < params.species_target
-    params.species_distance = params.species_distance - 0.0001;
+    params.species_distance = params.species_distance - 0.001;
 end
 if species_count > params.species_target
-    params.species_distance = params.species_distance + 0.0001;
+    params.species_distance = params.species_distance + 0.001;
 end
 end
 
