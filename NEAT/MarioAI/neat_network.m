@@ -5,6 +5,7 @@ if(~exist('params', 'var'))
     params.isTraining = false;
     params.isNewSimulation = false;
     params.trainingNet = 1;
+    keyPress = 0;
 end
 
 if(params.isTraining)
@@ -24,6 +25,7 @@ if(params.isTraining)
     gameStateNormalized = gameState_tiles / maxTileId;
     
     params = evaluateNetwork(params, params.trainingNetIdx, gameStateNormalized);
+    keyPress = params.keyPress;
     
 end
 
@@ -41,7 +43,7 @@ params.genomeRemovalRate = 0.2;
 
 %network structure
 params.num_input = 2;
-params.num_output = 3;
+params.num_output = 4;
 params.num_networks = 30;
 
 %distance parameter
@@ -485,6 +487,10 @@ currentActivation = params.currentNetworkActivation;
 act = [input, currentActivation(size(input,2)+1:size(currentActivation,2))];
 netOut = act * weightMatrix;
 params.currentNetworkActivation = tanh(netOut);
+
+netOutKeys = params.currentNetworkActivation((params.num_input+1):(params.num_input+params.num_output));
+[maxIndex, ~] = max(netOutKeys);
+params.keyPress = maxIndex;
 end
 
 
