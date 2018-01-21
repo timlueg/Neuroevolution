@@ -7,3 +7,6 @@ bin
 /MarioAI4J-Tournament/results
 /results/
 .idea/
+/lib/
+/MarioAI4J-Agents/MarioAI4J-Agents.iml
+/MarioAI4J-Agents/target/
