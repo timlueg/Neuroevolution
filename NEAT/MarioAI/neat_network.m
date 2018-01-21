@@ -2,22 +2,21 @@
 
 if(~exist('params', 'var'))
     params = initialize();
-    params.isTraining = false;
-    params.isNewSimulation = false;
-    params.trainingNet = 1;
+    isTraining = false;
+    newSimulationStarted = false;
+    params.trainingNetIdx = 1;
     keyPress = 0;
 end
 
-if(params.isTraining)
-    
+if(isTraining)
     if(newSimulationStarted)
         num_networks = size(params.connections, 2);
-        if(params.trainingNet < num_networks)
-            params.trainingNet = params.trainingNet +1;
+        if(params.trainingNetIdx < num_networks)
+            params.trainingNetIdx = params.trainingNetIdx +1;
         else
-            params.trainingNet = 1;
+            params.trainingNetIdx = 1;
         end
-        params.trainingNetActivation = zeros(1,zeros(1, max(nodes{params.trainingNetIdx}(:,1))));
+        params.currentNetworkActivation = zeros(1, max(params.nodes{params.trainingNetIdx}(:,1)));
         newSimulationStarted = false;
     end
     
@@ -42,9 +41,9 @@ params.standardDeviation = 0.02;
 params.genomeRemovalRate = 0.2;
 
 %network structure
-params.num_input = 2;
+params.num_input = 361;
 params.num_output = 4;
-params.num_networks = 30;
+params.num_networks = 10;
 
 %distance parameter
 params.c1 = 1;
@@ -482,7 +481,7 @@ end
 
 function [params] = evaluateNetwork(params, netIndex, input)
 
-weightMatrix = sparse(phenotyp(params.nodes{netIndex},params.connections{netIndex}));
+weightMatrix = phenotyp(params.nodes{netIndex},params.connections{netIndex});
 currentActivation = params.currentNetworkActivation;
 act = [input, currentActivation(size(input,2)+1:size(currentActivation,2))];
 netOut = act * weightMatrix;
@@ -491,6 +490,22 @@ params.currentNetworkActivation = tanh(netOut);
 netOutKeys = params.currentNetworkActivation((params.num_input+1):(params.num_input+params.num_output));
 [maxIndex, ~] = max(netOutKeys);
 params.keyPress = maxIndex;
+end
+
+function [weightMatrix] = phenotyp(nodeList,connectionList)
+size_knoten = max(nodeList(:,1));
+
+index = find(connectionList(:,4));
+connectionList=connectionList(index,:);
+
+weightMatrix = zeros(size_knoten,size_knoten);
+indexGewichtsmatrix= sub2ind(size(weightMatrix),connectionList(:,1),connectionList(:,2));
+%in einer Spalte der Gewichtsmatrix stehen alle Inputgewichte des Knoten,
+%Knoten der in der Spalte repraesentiert wird.
+
+weightMatrix(indexGewichtsmatrix)=connectionList(:,3);
+weightMatrix = sparse(weightMatrix);
+
 end
 
 
