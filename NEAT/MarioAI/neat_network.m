@@ -9,23 +9,8 @@ if(~exist('params', 'var'))
 end
 
 if(isTraining)
-    if(newSimulationStarted)
-        num_networks = size(params.connections, 2);
-        if(params.trainingNetIdx < num_networks)
-            params.trainingNetIdx = params.trainingNetIdx +1;
-        else
-            params.trainingNetIdx = 1;
-        end
-        params.currentNetworkActivation = zeros(1, max(params.nodes{params.trainingNetIdx}(:,1)));
-        newSimulationStarted = false;
-    end
-    
-    maxTileId = 14;
-    gameStateNormalized = gameState_tiles / maxTileId;
-    
-    params = evaluateNetwork(params, params.trainingNetIdx, gameStateNormalized);
-    keyPress = params.keyPress;
-    
+    params.fitness = marioFitness;
+    params = train(params);
 end
 
 %end
@@ -37,7 +22,7 @@ params.singleWeightMutationRate = 0.9;
 params.singleWeightRandomResetRate = 0.1;
 params.addNodeMutationRate = 0.03;
 params.addConnectionMutationRate = 0.05;
-params.standardDeviation = 0.02;
+params.standardDeviation = 0.2;
 params.genomeRemovalRate = 0.2;
 
 %network structure
@@ -115,14 +100,11 @@ array2table(params.connections{1}, 'VariableNames', params.connection_columnName
 end
 
 function [params] = train(params)
-
-for i=1:num_Iterations
     params = defineSpecies(params);
-    params = fitnessCalculation(params);
     %disp(params.species);
     %disp(params.species_distance);
     %remove less fit genes
-    [fitnessArray, sortIndex] = sort(params.fitness, 'ascend');
+    [~, sortIndex] = sort(params.fitness, 'descend');
     num_genomesRemoved = floor(size(params.connections,2) * params.genomeRemovalRate);
     num_genomesSelected = floor(size(params.connections,2) * (1-params.genomeRemovalRate));
     sortIndex = sortIndex(1:num_genomesSelected);
@@ -132,11 +114,12 @@ for i=1:num_Iterations
     params.fitness = params.fitness(sortIndex);
     %todo veraendern durch Mutation/Crossover innerhalb einer species bis Groe�e wieder aufgefuellt
     
-    params = sharedFitness(params);
+    %params = sharedFitness(params);
+    
     %index of elite for each species (with >=5 networks)
     num_species = max(params.species);
-    allSpezies(i) = num_species;
-    allDistance(i) = params.species_distance;
+    %allSpezies(i) = num_species;
+    %allDistance(i) = params.species_distance;
     num_genomesInSpecies = zeros(1, num_species);
     for j=1:length(params.species)
         num_genomesInSpecies(params.species(j))= num_genomesInSpecies(params.species(j)) + 1;
@@ -145,17 +128,17 @@ for i=1:num_Iterations
     eliteIndex = zeros(1,length(grosseSpecies));
     if(~isempty(grosseSpecies))
         for j=1:length(grosseSpecies)
-            minValue=Inf;
-            minIndex=0;
+            maxValue=-Inf;
+            maxIndex=0;
             for k=1:length(params.fitness)
                 if params.species(k)== grosseSpecies(j)
-                    if params.fitness(k) < minValue
-                        minValue = params.fitness(k);
-                        minIndex = k;
+                    if params.fitness(k) > maxValue
+                        maxValue = params.fitness(k);
+                        maxIndex = k;
                     end
                 end
             end
-            eliteIndex(j) = minIndex;
+            eliteIndex(j) = maxIndex;
         end
     end
     
@@ -189,18 +172,16 @@ for i=1:num_Iterations
                 speciesIndicesShuffled = currrentSpeciesIndices(randperm(length(currrentSpeciesIndices)));
                 randomParentIndex1 = speciesIndicesShuffled(1);
                 randomParentIndex2 = speciesIndicesShuffled(2);
-                if(params.fitness(randomParentIndex1) <= params.fitness(randomParentIndex2))
-                    parentSmallerErrorIndex = randomParentIndex1;
-                    parentGreaterErrorIndex = randomParentIndex2;
+                if(params.fitness(randomParentIndex1) >= params.fitness(randomParentIndex2))
+                    parentHigherFitnessIndex = randomParentIndex1;
+                    parentLowerFitnessIndex = randomParentIndex2;
                 else
-                    parentSmallerErrorIndex = randomParentIndex2;
-                    parentGreaterErrorIndex = randomParentIndex1;
+                    parentHigherFitnessIndex = randomParentIndex2;
+                    parentLowerFitnessIndex = randomParentIndex1;
                 end
                 %do parents have to be removed after crossover ?
-                params.connections{end+1} = crossover(params.connections{parentGreaterErrorIndex}, params.connections{parentSmallerErrorIndex}, params);
-                params.nodes{end+1} = params.nodes{parentSmallerErrorIndex};
-                %disp(params.connections{end})
-                %disp(params.nodes{end})
+                params.connections{end+1} = crossover(params.connections{parentLowerFitnessIndex}, params.connections{parentHigherFitnessIndex}, params);
+                params.nodes{end+1} = params.nodes{parentHigherFitnessIndex};
             end
         end
         
@@ -230,8 +211,6 @@ for i=1:num_Iterations
         params.connections{endIndex} = params.connections{randomGenomesInd(j)};
         params = mutateWeights(endIndex, params);
     end
-    
-end
 
 end
 
@@ -314,7 +293,6 @@ if( ~isempty(nodesNotConnected))
     params = addConnection(randomInNodeId, randomOutNode, randn, params.conn_state_enabled, netIndex, params);
 end
 end
-
 
 function [offspringConnections] = crossover(parent, parentBetterFit, params)
 [~, intersectParent1Idx, intersectParent2Idx] = intersect(parent(:, params.connCol_innovId),  parentBetterFit(:, params.connCol_innovId));
@@ -441,74 +419,6 @@ if species_count > params.species_target
 end
 end
 
-function [params] = fitnessCalculation(params)
-num_networks = size(params.connections,2);
-
-%copy variables to avoid parfor broadcasting
-fitness = zeros(num_networks, 1);
-num_training = params.num_Training;
-nodes = params.nodes;
-connections = params.connections;
-
-parfor i=1:num_networks
-    
-    weightMatrix = sparse(phenotyp(nodes{i},connections{i}));
-    error = 0;
-    
-    for j=1:num_training
-        currentActivation = zeros(1, max(nodes{i}(:,1)));
-        currentTrainingData = params.train_data{j};
-        numTrainingRows = size(currentTrainingData,1);
-        for k=1:numTrainingRows
-            input = [currentTrainingData(k,1), currentTrainingData(k,3)];
-            netOut = [input, currentActivation(size(input,2)+1:size(currentActivation,2))] * weightMatrix;
-            netOut = tanh(netOut);
-            currentActivation = netOut;
-            
-            heartrate_pred = netOut(3);
-            netError = (0.5* (currentTrainingData(k,2)-heartrate_pred)^2);
-            error = error + netError;
-            
-        end
-    end
-    %params.fitness(i)=error;
-    fitness(i) = error;
-end
-
-params.fitness = fitness;
-
-end
-
-function [params] = evaluateNetwork(params, netIndex, input)
-
-weightMatrix = phenotyp(params.nodes{netIndex},params.connections{netIndex});
-currentActivation = params.currentNetworkActivation;
-act = [input, currentActivation(size(input,2)+1:size(currentActivation,2))];
-netOut = act * weightMatrix;
-params.currentNetworkActivation = tanh(netOut);
-
-netOutKeys = params.currentNetworkActivation((params.num_input+1):(params.num_input+params.num_output));
-[maxIndex, ~] = max(netOutKeys);
-params.keyPress = maxIndex;
-end
-
-function [weightMatrix] = phenotyp(nodeList,connectionList)
-size_knoten = max(nodeList(:,1));
-
-index = find(connectionList(:,4));
-connectionList=connectionList(index,:);
-
-weightMatrix = zeros(size_knoten,size_knoten);
-indexGewichtsmatrix= sub2ind(size(weightMatrix),connectionList(:,1),connectionList(:,2));
-%in einer Spalte der Gewichtsmatrix stehen alle Inputgewichte des Knoten,
-%Knoten der in der Spalte repraesentiert wird.
-
-weightMatrix(indexGewichtsmatrix)=connectionList(:,3);
-weightMatrix = sparse(weightMatrix);
-
-end
-
-
 function [params] = sharedFitness(params)
 params.sharedfitness = zeros(1,size(params.fitness,1));
 for i=1:size(params.sharedfitness,2)
@@ -518,9 +428,9 @@ for i=1:size(params.sharedfitness,2)
     end
     params.sharedfitness(i)= params.fitness(i)/counter;
 end
-disp(min(params.fitness));
+disp(max(params.fitness));
 params.fitness = params.sharedfitness;
-disp(min(params.fitness));
+disp(max(params.fitness));
 end
 
 function [aboveTreshold] = sharingFunction(distance, params)

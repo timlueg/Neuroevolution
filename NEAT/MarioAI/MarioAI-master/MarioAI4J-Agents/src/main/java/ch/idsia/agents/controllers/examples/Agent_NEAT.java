@@ -21,6 +21,8 @@ import org.nd4j.linalg.factory.Nd4j;
 import org.nd4j.linalg.indexing.NDArrayIndex;
 import org.nd4j.linalg.indexing.conditions.Conditions;
 
+import javax.sound.midi.Soundbank;
+
 /**
  * Usage:
  * Add  matlabroot/bin/<arch> as environment variable
@@ -37,6 +39,7 @@ public class Agent_NEAT extends MarioHijackAIBase implements IAgent {
 	double[] tiles = new double[AIOptions.getReceptiveFieldWidth() * AIOptions.getReceptiveFieldHeight()];
 	INDArray weightMatrix;
 	INDArray activation;
+	INDArray inputTiles;
 
 	@Override
 	public void reset(AgentOptions options) {
@@ -64,10 +67,10 @@ public class Agent_NEAT extends MarioHijackAIBase implements IAgent {
 			}
 		}
 
-		INDArray inputTiles = Nd4j.create(tiles);
+		int maxTileId = 14;
+		INDArray inputTiles = Nd4j.create(tiles).div(maxTileId);
 		activation = Nd4j.concat(1, inputTiles, activation.get(NDArrayIndex.interval(inputTiles.length(), activation.length())));
 		INDArray netOut = Nd4j.getExecutioner().execAndReturn(new Tanh((activation.mmul(weightMatrix))));
-		//activation = netOut;
 
 		netOut = netOut.get(NDArrayIndex.interval(inputTiles.length(), inputTiles.length() + ((Double) params.get("num_output")).intValue()));
 
@@ -83,9 +86,10 @@ public class Agent_NEAT extends MarioHijackAIBase implements IAgent {
 		if (keyId == 1) {
 			control.jump();
 		} else if (keyId == 2) {
-			control.runLeft();
-		} else if (keyId == 3) {
 			control.jump();
+			control.runRight();;
+		} else if (keyId == 3) {
+			control.runRight();
 		}
 
 
@@ -95,7 +99,7 @@ public class Agent_NEAT extends MarioHijackAIBase implements IAgent {
 
 	public static void main(String[] args) throws Exception {
 
-		String options = FastOpts.VIS_ON_2X + FastOpts.LEVEL_04_BLOCKS;
+		String options = FastOpts.VIS_OFF + FastOpts.LEVEL_04_BLOCKS;
 		MarioSimulator simulator = new MarioSimulator(options);
 		IAgent agent = new Agent_NEAT();
 
@@ -103,6 +107,7 @@ public class Agent_NEAT extends MarioHijackAIBase implements IAgent {
 
 		eng = MatlabEngine.connectMatlab(MatlabEngine.findMatlab()[0]);
 		eng.eval("neat_network()");
+		eng.putVariable("isTraining", true);
 
 		/*
 		eng.putVariable("isTraining", true);
@@ -115,39 +120,59 @@ public class Agent_NEAT extends MarioHijackAIBase implements IAgent {
 
 		closeMatlabEngineOnManualExit();
 
+		for (int iteration = 0; iteration < 100; iteration++) {
+
 
 		((Agent_NEAT)agent).params = eng.getVariable("params");
 		Object[] nodes = (Object[]) ((Agent_NEAT)agent).params.get("nodes");
 		Object[] connections = (Object[]) ((Agent_NEAT)agent).params.get("connections");
+		int num_networks = connections.length;
+		int[] fitness = new int[connections.length];
 
-		int currentNetworkId = 1;
-		INDArray nodesCurrent = Nd4j.create((double[][]) nodes[currentNetworkId]);
-		INDArray connectionsCurrent = Nd4j.create((double[][]) connections[currentNetworkId]);
+		for (int currentNetworkId = 0; currentNetworkId < num_networks; currentNetworkId++) {
 
-		int maxNodeId = nodesCurrent.getColumn(0).maxNumber().intValue();
+			INDArray nodesCurrent = Nd4j.create((double[][]) nodes[currentNetworkId]);
+			INDArray connectionsCurrent = Nd4j.create((double[][]) connections[currentNetworkId]);
 
-		//remove disabled connections
-		INDArray enabledSelector = connectionsCurrent.getColumn(3).eq(1d);
-		int[] enabledIndex = new int[Nd4j.getExecutioner().exec(new MatchCondition(enabledSelector, Conditions.equals(1)), Integer.MAX_VALUE).getInt(0)];
-		int indexCounter = 0;
-		for (int i = 0; i < enabledSelector.length(); i++) {
-			if (enabledSelector.getInt(i) == 1) {
-				enabledIndex[indexCounter++] = i;
+			int maxNodeId = nodesCurrent.getColumn(0).maxNumber().intValue();
+
+			//remove disabled connections
+			INDArray enabledSelector = connectionsCurrent.getColumn(3).eq(1d);
+			int[] enabledIndex = new int[Nd4j.getExecutioner().exec(new MatchCondition(enabledSelector, Conditions.equals(1)), Integer.MAX_VALUE).getInt(0)];
+			int indexCounter = 0;
+			for (int i = 0; i < enabledSelector.length(); i++) {
+				if (enabledSelector.getInt(i) == 1) {
+					enabledIndex[indexCounter++] = i;
+				}
 			}
+			connectionsCurrent = connectionsCurrent.getRows(enabledIndex).getColumns(0, 1, 2);
+
+			((Agent_NEAT) agent).activation = Nd4j.zeros(1, maxNodeId);
+			((Agent_NEAT) agent).weightMatrix = Nd4j.zeros(maxNodeId, maxNodeId);
+			for (int i = 0; i < connectionsCurrent.getColumn(0).size(0); i++) {
+				((Agent_NEAT) agent).weightMatrix.put(connectionsCurrent.getColumn(0).getInt(i) - 1, connectionsCurrent.getColumn(1).getInt(i) - 1, connectionsCurrent.getColumn(2).getDouble(i));
+			}
+
+			simulator.run(agent);
+
+			//deciding which fitness to use
+			fitness[currentNetworkId] = MarioEnvironment.getInstance().getIntermediateReward();
+			//fitness[currentNetworkId] = MarioEnvironment.getInstance().getMario().sprite.mapX;
+			System.out.println(fitness[currentNetworkId]);
 		}
-		connectionsCurrent = connectionsCurrent.getRows(enabledIndex).getColumns(0, 1, 2);
 
-		((Agent_NEAT) agent).activation = Nd4j.zeros(1, maxNodeId);
-		((Agent_NEAT) agent).weightMatrix = (NDArray) Nd4j.zeros(maxNodeId, maxNodeId);
-		for (int i = 0; i < connectionsCurrent.getColumn(0).size(0); i++) {
-			((Agent_NEAT) agent).weightMatrix.put(connectionsCurrent.getColumn(0).getInt(i) - 1, connectionsCurrent.getColumn(1).getInt(i) - 1, connectionsCurrent.getColumn(2).getDouble(i));
+		eng.putVariable("marioFitness", fitness);
+		eng.eval("neat_network()");
+		System.out.println("iteration = " + iteration);
+
+		if(iteration == 10)
+			options = FastOpts.VIS_ON_2X + FastOpts.LEVEL_04_BLOCKS;
+			simulator = new MarioSimulator(options);
+			simulator.run(agent);
+			options = FastOpts.VIS_OFF + FastOpts.LEVEL_04_BLOCKS;
+			simulator = new MarioSimulator(options);
 		}
-
-		simulator.run(agent);
-
-		int fitness = MarioEnvironment.getInstance().getIntermediateReward();
-		System.out.println(fitness);
-		System.exit(0);
+			System.exit(0);
 
 	}
 
