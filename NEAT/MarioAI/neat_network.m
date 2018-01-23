@@ -18,17 +18,18 @@ end
 function [params] = initialize() 
 %Hyperparameter 
 params.weightMutationRate = 0.8;
-params.singleWeightMutationRate = 0.9;
+params.singleWeightMutationRate = 0.96;
 params.singleWeightRandomResetRate = 0.1;
-params.addNodeMutationRate = 0.03;
-params.addConnectionMutationRate = 0.05;
-params.standardDeviation = 0.2;
-params.genomeRemovalRate = 0.2;
+params.addNodeMutationRate = 0.02;
+params.addConnectionMutationRate = 0.08;
+params.standardDeviation = 0.002;
+params.standardDeviationInit = 0.2;
+params.genomeRemovalRate = 0.3;
 
 %network structure
-params.num_input = 361;
+params.num_input = 100;
 params.num_output = 4;
-params.num_networks = 10;
+params.num_networks = 32;
 
 %distance parameter
 params.c1 = 1;
@@ -36,7 +37,7 @@ params.c2 = 1;
 params.c3 = 0.4;
 
 %species parameter
-params.species_target = 4;
+params.species_target = 3;
 params.species_distance = 0.01;
 
 %node constants
@@ -80,7 +81,7 @@ end
 params.connections{1} = zeros(0, params.connection_num_fields);
 for j=1:params.num_input
     for k=1:params.num_output
-        params = addConnection(aktuelleKnoten + j, aktuelleKnoten + params.num_input + k, randn, params.conn_state_enabled, 1, params);
+        params = addConnection(aktuelleKnoten + j, aktuelleKnoten + params.num_input + k, normrnd(0, params.standardDeviationInit), params.conn_state_enabled, 1, params);
     end
 end
 
@@ -114,7 +115,7 @@ function [params] = train(params)
     params.fitness = params.fitness(sortIndex);
     %todo veraendern durch Mutation/Crossover innerhalb einer species bis Groe�e wieder aufgefuellt
     
-    %params = sharedFitness(params);
+    params = sharedFitness(params);
     
     %index of elite for each species (with >=5 networks)
     num_species = max(params.species);
@@ -124,7 +125,7 @@ function [params] = train(params)
     for j=1:length(params.species)
         num_genomesInSpecies(params.species(j))= num_genomesInSpecies(params.species(j)) + 1;
     end
-    grosseSpecies = find(num_genomesInSpecies >= 5);
+    grosseSpecies = find(num_genomesInSpecies >= 3);
     eliteIndex = zeros(1,length(grosseSpecies));
     if(~isempty(grosseSpecies))
         for j=1:length(grosseSpecies)
@@ -143,10 +144,9 @@ function [params] = train(params)
     end
     
     
-    %todo use fitnesssharing to determine num offspirngs for each species
-    %Anzahl an offspring abh�ngig von Anteil an gesamt fitness
+    %Anzahl an offspring abhängig von Anteil an gesamt fitness
     fitness_per_species = zeros(1,num_species);
-    for j=1:size(params.species,2)
+    for j=1:length(params.species)
         fitness_per_species(params.species(j)) = fitness_per_species(params.species(j)) + params.fitness(j); 
     end
     fitness_per_species_percent = zeros(1,num_species);
@@ -276,8 +276,9 @@ function [params] = mutateWeights(netIndex, params)
 for i=1:size(params.connections{netIndex},1)
     if rand() < params.singleWeightMutationRate
         params.connections{netIndex}(i,3) = params.connections{netIndex}(i,3) + normrnd(0,params.standardDeviation);
+    else
+        params.connections{netIndex}(i,3) = normrnd(0, params.standardDeviationInit);
     end
-    %%todo reassign weight randomly (with low popability)
 end
 end
 
@@ -290,7 +291,7 @@ outNodesAlreadyConnected = existingConnections(existingConnections(:,params.conn
 %alternative setdiff(params.nodes{netIndex}(:,1), outNodesAlreadyConnected)
 if( ~isempty(nodesNotConnected))
     randomOutNode = datasample(nodesNotConnected,1);
-    params = addConnection(randomInNodeId, randomOutNode, randn, params.conn_state_enabled, netIndex, params);
+    params = addConnection(randomInNodeId, randomOutNode, normrnd(0, params.standardDeviationInit), params.conn_state_enabled, netIndex, params);
 end
 end
 
@@ -420,17 +421,17 @@ end
 end
 
 function [params] = sharedFitness(params)
-params.sharedfitness = zeros(1,size(params.fitness,1));
-for i=1:size(params.sharedfitness,2)
+params.sharedfitness = zeros(1, length(params.fitness));
+for i=1:length(params.sharedfitness)
     counter = 0;
     for j=1:size(params.connections,2)
         counter = counter + sharingFunction(distanceOf(params.connections{i},params.connections{j},params),params);
     end
     params.sharedfitness(i)= params.fitness(i)/counter;
 end
-disp(max(params.fitness));
+%disp(max(params.fitness));
 params.fitness = params.sharedfitness;
-disp(max(params.fitness));
+%disp(max(params.fitness));
 end
 
 function [aboveTreshold] = sharingFunction(distance, params)

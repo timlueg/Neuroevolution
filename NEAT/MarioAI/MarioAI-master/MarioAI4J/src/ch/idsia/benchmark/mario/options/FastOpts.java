@@ -65,7 +65,7 @@ public class FastOpts {
 	 * @return
 	 */
 	public static String AI_RECEPTIVE_FIELD(int width, int height) {
-		return " " + IntOption.AI_RECEPTIVE_FIELD_WIDTH.getParam() + " " + width + IntOption.AI_RECEPTIVE_FIELD_HEIGHT.getParam() + " " + height;
+		return " " + IntOption.AI_RECEPTIVE_FIELD_WIDTH.getParam() + " " + width + " " + IntOption.AI_RECEPTIVE_FIELD_HEIGHT.getParam() + " " + height;
 	}
 	
 	// =======================
@@ -92,7 +92,7 @@ public class FastOpts {
 	
 	/**
 	 * Level will be generated as 'length'-tile long.
-	 * @param lenght
+	 * @param length
 	 * @return
 	 */
 	public static String L_LENGTH(int length) {
