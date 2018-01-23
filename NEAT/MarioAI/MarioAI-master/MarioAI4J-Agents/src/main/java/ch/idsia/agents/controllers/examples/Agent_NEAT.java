@@ -100,18 +100,15 @@ public class Agent_NEAT extends MarioHijackAIBase implements IAgent {
 
 
 	public static void main(String[] args) throws Exception {
-
-
 		eng = MatlabEngine.connectMatlab(MatlabEngine.findMatlab()[0]);
 		eng.eval("neat_network()");
-		eng.putVariable("isTraining", true);
 
 		closeMatlabEngineOnManualExit();
 
 		IAgent agent = new Agent_NEAT();
 		agent.receiveReward(MarioEnvironment.getInstance().getIntermediateReward());
 
-		String options = FastOpts.LEVEL_05_GAPS + FastOpts.AI_RECEPTIVE_FIELD(10, 10);
+		String options = FastOpts.LEVEL_07_SPIKY + FastOpts.AI_RECEPTIVE_FIELD(10, 10);
 		String visualizeON = FastOpts.VIS_ON_2X;
 		String visualizeOFF = FastOpts.VIS_OFF;
 		MarioSimulator simulator = new MarioSimulator(visualizeOFF + options);
@@ -119,6 +116,8 @@ public class Agent_NEAT extends MarioHijackAIBase implements IAgent {
 		INDArray nodesCurrent;
 		INDArray connectionsCurrent;
 		int maxNodeId = 0;
+
+		eng.putVariable("isTraining", true);
 
 		for (int iteration = 0; iteration < 10000; iteration++) {
 
@@ -162,7 +161,7 @@ public class Agent_NEAT extends MarioHijackAIBase implements IAgent {
 				fitness[currentNetworkId] = (int) MarioEnvironment.getInstance().getMario().sprite.x;
 
 
-				System.out.println(fitness[currentNetworkId]);
+				System.out.println(fitness[currentNetworkId] + "   " + MarioEnvironment.getInstance().getMario().sprite.mapX);
 
 			}
 

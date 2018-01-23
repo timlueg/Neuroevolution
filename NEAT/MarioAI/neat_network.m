@@ -27,7 +27,7 @@ params.standardDeviationInit = 0.2;
 params.genomeRemovalRate = 0.3;
 
 %network structure
-params.num_input = 100;
+params.num_input = 101;
 params.num_output = 4;
 params.num_networks = 32;
 
