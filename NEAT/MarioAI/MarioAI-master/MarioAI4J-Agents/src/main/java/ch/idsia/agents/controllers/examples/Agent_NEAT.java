@@ -1,5 +1,20 @@
 package ch.idsia.agents.controllers.examples;
 
+import java.util.Arrays;
+import java.util.Collections;
+
+import org.apache.commons.lang3.ArrayUtils;
+import org.nd4j.linalg.api.ndarray.INDArray;
+import org.nd4j.linalg.api.ops.impl.accum.MatchCondition;
+import org.nd4j.linalg.api.ops.impl.transforms.Tanh;
+import org.nd4j.linalg.factory.Nd4j;
+import org.nd4j.linalg.indexing.NDArrayIndex;
+import org.nd4j.linalg.indexing.conditions.Conditions;
+
+import com.mathworks.engine.EngineException;
+import com.mathworks.engine.MatlabEngine;
+import com.mathworks.matlab.types.Struct;
+
 import ch.idsia.agents.AgentOptions;
 import ch.idsia.agents.IAgent;
 import ch.idsia.agents.controllers.MarioHijackAIBase;
@@ -8,17 +23,6 @@ import ch.idsia.benchmark.mario.engine.input.MarioInput;
 import ch.idsia.benchmark.mario.environments.MarioEnvironment;
 import ch.idsia.benchmark.mario.options.FastOpts;
 import ch.idsia.benchmark.mario.options.MarioOptions;
-import com.mathworks.engine.EngineException;
-import com.mathworks.engine.MatlabEngine;
-import com.mathworks.matlab.types.Struct;
-import jdk.nashorn.internal.runtime.NumberToString;
-import org.nd4j.linalg.api.ndarray.INDArray;
-import org.nd4j.linalg.api.ops.impl.accum.MatchCondition;
-import org.nd4j.linalg.api.ops.impl.transforms.*;
-import org.nd4j.linalg.cpu.nativecpu.NDArray;
-import org.nd4j.linalg.factory.Nd4j;
-import org.nd4j.linalg.indexing.NDArrayIndex;
-import org.nd4j.linalg.indexing.conditions.Conditions;
 
 /**
  * Usage:
@@ -121,6 +125,7 @@ public class Agent_NEAT extends MarioHijackAIBase implements IAgent {
 
 		for (int iteration = 0; iteration < 10000; iteration++) {
 
+			System.out.println("iteration = " + iteration);
 
 			((Agent_NEAT) agent).params = eng.getVariable("params");
 			Object[] nodes = (Object[]) ((Agent_NEAT) agent).params.get("nodes");
@@ -170,12 +175,16 @@ public class Agent_NEAT extends MarioHijackAIBase implements IAgent {
 				avgFitness += element;
 			}
 			avgFitness = avgFitness / fitness.length;
-			
 			System.out.println("Durschnitts Fitness der Iteration: " + avgFitness);
+			
+			int max=0;
+			max = Collections.max(Arrays.asList(ArrayUtils.toObject(fitness)));
+			
+			System.out.println("Fitness Elite: "+ max);
+			System.out.println("-----------------------------------------------------------------------------------------------------------------------");
 
 			eng.putVariable("marioFitness", fitness);
 			eng.eval("neat_network()");
-			System.out.println("iteration = " + iteration);
 
 			if (iteration == 0 || iteration % 30 == 0) {
 				simulator = new MarioSimulator(visualizeON + options + " " + MarioOptions.IntOption.SIMULATION_TIME_LIMIT.getParam() + " 100");
