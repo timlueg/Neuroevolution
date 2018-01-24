@@ -164,6 +164,14 @@ public class Agent_NEAT extends MarioHijackAIBase implements IAgent {
 				System.out.println("Fitness Pixel: "+fitness[currentNetworkId]+"\t max: "+ MarioEnvironment.getInstance().getLevelLength()*16 + "\t|\t Fitness Bloecke: " + MarioEnvironment.getInstance().getMario().sprite.mapX+"\t max: "+MarioEnvironment.getInstance().getLevelLength()+"\t| time left: "+MarioEnvironment.getInstance().getTimeLeft()+"\t\t| win?: "+ ((int) MarioEnvironment.getInstance().getMario().sprite.mapX ==(int) MarioEnvironment.getInstance().getLevelLength()?"True":"False"));
 
 			}
+			
+			int avgFitness =0;
+			for(int element:fitness){
+				avgFitness += element;
+			}
+			avgFitness = avgFitness / fitness.length;
+			
+			System.out.println("Durschnitts Fitness der Iteration: " + avgFitness);
 
 			eng.putVariable("marioFitness", fitness);
 			eng.eval("neat_network()");
