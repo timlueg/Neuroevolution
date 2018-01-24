@@ -6,11 +6,16 @@ if(~exist('params', 'var'))
     newSimulationStarted = false;
     params.trainingNetIdx = 1;
     keyPress = 0;
+    logEliteFitness = [];
+    logMeanFitness =[];
 end
 
 if(isTraining)
     params.fitness = marioFitness;
     params = train(params);
+    logEliteFitness = [logEliteFitness, max(params.fitness)];
+    logMeanFitness = [logMeanFitness, mean(params.fitness)];
+    
 end
 
 %end

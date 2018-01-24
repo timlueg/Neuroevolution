@@ -112,7 +112,7 @@ public class Agent_NEAT extends MarioHijackAIBase implements IAgent {
 		IAgent agent = new Agent_NEAT();
 		agent.receiveReward(MarioEnvironment.getInstance().getIntermediateReward());
 
-		String options = FastOpts.LEVEL_07_SPIKY + FastOpts.AI_RECEPTIVE_FIELD(10, 10);
+		String options = FastOpts.LEVEL_04_BLOCKS + FastOpts.AI_RECEPTIVE_FIELD(10, 10);
 		String visualizeON = FastOpts.VIS_ON_2X;
 		String visualizeOFF = FastOpts.VIS_OFF;
 		MarioSimulator simulator = new MarioSimulator(visualizeOFF + options);
@@ -122,8 +122,9 @@ public class Agent_NEAT extends MarioHijackAIBase implements IAgent {
 		int maxNodeId = 0;
 
 		eng.putVariable("isTraining", true);
-
-		for (int iteration = 0; iteration < 10000; iteration++) {
+		
+		
+		for (int iteration = 0; iteration < 100; iteration++) {
 
 			System.out.println("iteration = " + iteration);
 
@@ -132,6 +133,7 @@ public class Agent_NEAT extends MarioHijackAIBase implements IAgent {
 			Object[] connections = (Object[]) ((Agent_NEAT) agent).params.get("connections");
 			int num_networks = connections.length;
 			int[] fitness = new int[connections.length];
+			
 
 
 			for (int currentNetworkId = 0; currentNetworkId < num_networks; currentNetworkId++) {
