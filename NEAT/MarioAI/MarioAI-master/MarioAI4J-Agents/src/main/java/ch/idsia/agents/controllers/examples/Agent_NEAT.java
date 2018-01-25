@@ -23,6 +23,7 @@ import ch.idsia.benchmark.mario.engine.input.MarioInput;
 import ch.idsia.benchmark.mario.environments.MarioEnvironment;
 import ch.idsia.benchmark.mario.options.FastOpts;
 import ch.idsia.benchmark.mario.options.MarioOptions;
+import org.nd4j.linalg.ops.transforms.Transforms;
 
 /**
  * Usage:
@@ -36,11 +37,10 @@ import ch.idsia.benchmark.mario.options.MarioOptions;
 public class Agent_NEAT extends MarioHijackAIBase implements IAgent {
 
 	static MatlabEngine eng;
-	Struct params;
+	private Struct params;
 
-	INDArray weightMatrix;
-	INDArray activation;
-	INDArray inputTiles;
+	private INDArray weightMatrix;
+	private INDArray activation;
 
 	@Override
 	public void reset(AgentOptions options) {
@@ -50,16 +50,11 @@ public class Agent_NEAT extends MarioHijackAIBase implements IAgent {
 	@Override
 	public MarioInput actionSelectionAI() {
 
-
 		//todo only train every x frames.
-		//control.jump();
-		//control.runRight();
-
-
-			/*Double enteties = new Double(e.entities.size());
-			for (int i = 0; i < e.entities.size(); i++) {
-				if(e.entities.get(i).type.equals(EntityType.DANGER))
-			}*/
+		/*Double enteties = new Double(e.entities.size());
+		for (int i = 0; i < e.entities.size(); i++) {
+			if(e.entities.get(i).type.equals(EntityType.DANGER))
+		}*/
 
 		int index = 0;
 		double[] tiles = new double[(t.tileField.length * t.tileField[0].length) + 1];
@@ -72,14 +67,13 @@ public class Agent_NEAT extends MarioHijackAIBase implements IAgent {
 		int maxTileId = 14;
 		tiles[index] = 14; //add bias
 		INDArray inputTiles = Nd4j.create(tiles).div(maxTileId);
-		//inputTiles.put(NDArrayIndex.point(inputTiles.length()), Nd4j.create(new Double[1]{1}));
 		activation = Nd4j.concat(1, inputTiles, activation.get(NDArrayIndex.interval(inputTiles.length(), activation.length())));
-		INDArray netOut = Nd4j.getExecutioner().execAndReturn(new Tanh((activation.mmul(weightMatrix))));
+		INDArray netOut = Transforms.tanh(activation.mmul(weightMatrix));
 
 		activation = netOut;
 		netOut = netOut.get(NDArrayIndex.interval(inputTiles.length(), inputTiles.length() + ((Double) params.get("num_output")).intValue()));
 
-		Double maxValue = Double.NEGATIVE_INFINITY;
+		/*Double maxValue = Double.NEGATIVE_INFINITY;
 		int keyId = 0;
 		for (int i = 0; i < netOut.length(); i++) {
 			if (netOut.getDouble(i) > maxValue) {
@@ -96,6 +90,18 @@ public class Agent_NEAT extends MarioHijackAIBase implements IAgent {
 		} else if (keyId == 3) {
 			control.sprint();
 			control.runRight();
+		}*/
+
+		for (int i = 0; i < netOut.length(); i++) {
+			if (netOut.getDouble(1) > 0.1) {
+				control.jump();
+			}
+			if (netOut.getDouble(2) > 0.1) {
+				control.runRight();
+			}
+			if (netOut.getDouble(3) > 0.1) {
+				control.sprint();
+			}
 		}
 
 
@@ -117,8 +123,7 @@ public class Agent_NEAT extends MarioHijackAIBase implements IAgent {
 		String visualizeOFF = FastOpts.VIS_OFF;
 		MarioSimulator simulator = new MarioSimulator(visualizeOFF + options);
 
-		INDArray nodesCurrent;
-		INDArray connectionsCurrent;
+
 		int maxNodeId = 0;
 
 		eng.putVariable("isTraining", true);
@@ -138,8 +143,8 @@ public class Agent_NEAT extends MarioHijackAIBase implements IAgent {
 
 			for (int currentNetworkId = 0; currentNetworkId < num_networks; currentNetworkId++) {
 
-				nodesCurrent = Nd4j.create((double[][]) nodes[currentNetworkId]);
-				connectionsCurrent = Nd4j.create((double[][]) connections[currentNetworkId]);
+				INDArray nodesCurrent = Nd4j.create((double[][]) nodes[currentNetworkId]);
+				INDArray connectionsCurrent = Nd4j.create((double[][]) connections[currentNetworkId]);
 
 				maxNodeId = nodesCurrent.getColumn(0).maxNumber().intValue();
 
@@ -164,7 +169,6 @@ public class Agent_NEAT extends MarioHijackAIBase implements IAgent {
 
 				//deciding which fitness to use
 				//fitness[currentNetworkId] = MarioEnvironment.getInstance().getIntermediateReward()+ 10 * MarioEnvironment.getInstance().getMario().sprite.mapX;
-				//fitness[currentNetworkId] = MarioEnvironment.getInstance().getMario().sprite.mapX;
 				fitness[currentNetworkId] = (int) MarioEnvironment.getInstance().getMario().sprite.x;
 
 				
