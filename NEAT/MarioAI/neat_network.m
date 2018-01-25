@@ -312,89 +312,39 @@ parentBetterFitDisExConnections = parentBetterFit(disjointExcessIdx,:);
 offspringConnections = [randomIntersectConnections; parentBetterFitDisExConnections];
 end
 
-function [distance] = distanceOf(connectionList1,connectionList2,params)
-size1 = size(connectionList1,1);
-size2 = size(connectionList2,1);
+function [distance] = distanceOf(parent1, parent2, params)
+[intersectInnovIds, matchingParent1Idx, matchingParent2Idx] = intersect(parent1(:, params.connCol_innovId),  parent2(:, params.connCol_innovId));
+num_matching = length(intersectInnovIds);
 
-% kleinere Liste ist Liste 1
-if size1 > size2
-    tmp = size2;
-    size2 = size1;
-    size1 = tmp;
-    tmp1 = connectionList2;
-    connectionList2 = connectionList1;
-    connectionList1 = tmp1;
-end
+[disExcInnovIdParent1, disjointExcessParent1Idx] = setdiff(parent1(:, params.connCol_innovId), parent2(:, params.connCol_innovId));
+[disExcInnovIdParent2, disjointExcessParent2Idx] = setdiff(parent2(:, params.connCol_innovId), parent1(:, params.connCol_innovId));
 
-%anhaengen von Flag zum ueberpruefen ob vorgekommen
-connectionListe1 = [connectionList1, zeros(size1,1)];
-connectionListe2 = [connectionList2, zeros(size2,1)];
+if(isempty(disExcInnovIdParent1)), disExcInnovIdParent1 = 0; end
+if(isempty(disExcInnovIdParent2)), disExcInnovIdParent2 = 0; end
 
-% Punkt finden fuer die Excess genome
-maxInnovId1 = max(connectionList1(:,5));
-maxInnovId2 = max(connectionList2(:,5));
-if maxInnovId1 > maxInnovId2
-    klInnovId = maxInnovId2;
+if(max(disExcInnovIdParent1) > max(disExcInnovIdParent2))
+    num_excess = length(disExcInnovIdParent1( disExcInnovIdParent1 > max(disExcInnovIdParent2)) );
+    num_disjoint = size(parent1, 1) - num_matching - num_excess;
+elseif (max(disExcInnovIdParent1) < max(disExcInnovIdParent2))
+    num_excess = length(disExcInnovIdParent2( disExcInnovIdParent2 > max(disExcInnovIdParent1)) );
+    num_disjoint = size(parent2, 1) - num_matching - num_excess;
 else
-    klInnovId = maxInnovId1;
+    num_excess = 0;
+    num_disjoint = size(parent1, 1) - num_matching - num_excess;
 end
 
-N = size2;
-E = 0;
-D = 0;
-W = 0;
-matching_counter = 0;
+avg_weight_Diff = sum(abs(parent1(matchingParent1Idx, params.connCol_weight) - parent2(matchingParent2Idx, params.connCol_weight)));
+avg_weight_Diff = avg_weight_Diff / num_matching;
 
-%Liste1 durchgehen
-for i=1:size1
-    zeile1 = connectionListe1(i,:);
-    %gucken ob Kante der einen Liste in der anderen auftaucht.
-    for j=1:size2
-        zeile2 = connectionListe2(j,:);
-        %gleiche Kante
-        if zeile1(5) == zeile2(5)
-            matching_counter = matching_counter +1;
-            W = W + abs(zeile1(3)-zeile2(3));
-            %Flag setzen
-            connectionListe1(i,6) = 1;
-            connectionListe2(j,6) = 1;
-        end
-    end
-    if connectionListe1(i,6)==0
-        %disjungt oder extra
-        if zeile1(5)>klInnovId
-            E = E +1;
-            connectionListe1(i,6) = 1;
-        else
-            D = D +1;
-            connectionListe1(i,6) = 1;
-        end
-    end
-    
-    
+if(size(parent1,1) > size(parent2,1))
+    N = size(parent1,1);
+else
+    N = size(parent2,1);
 end
 
-%durchgehen von denen die in der groesseren Liste nicht behandelt wurden
-for i=1:size2
-    if connectionListe2(i,6)==0
-        %disjungt oder extra
-        if zeile1(5)>klInnovId
-            E = E +1;
-            connectionListe2(i,6) = 1;
-        else
-            D = D +1;
-            connectionListe2(i,6) = 1;
-        end
-    end
-end
+if(N < 20), N = 1; end
 
-if matching_counter ==0
-    matching_counter = 1;
-end
-%gewichte mitteln
-avgW = W/matching_counter;
-
-distance = ((params.c1 * E)/N) + ((params.c2 * D)/ N) + params.c3 * avgW;
+distance = ((params.c1 * num_excess)/N) + ((params.c2 * num_disjoint)/ N) + (params.c3 * avg_weight_Diff);
 
 end
 
