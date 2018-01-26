@@ -8,14 +8,31 @@ if(~exist('params', 'var'))
     keyPress = 0;
     logEliteFitness = [];
     logMeanFitness =[];
+    logMeanNumNodes=[];
+    logMeanNumConnections=[];
+    logEliteNumNodes = [];
+    logEliteNumConnections = [];
     isVisualization = false;
 end
 
 if(isTraining)
     params.fitness = marioFitness;
-    
-    logEliteFitness = [logEliteFitness, max(params.fitness)];
+    [maxfitness,indexMaxFitness] = max(params.fitness);
+    logEliteFitness = [logEliteFitness, maxfitness ];
     logMeanFitness = [logMeanFitness, mean(params.fitness)];
+    
+    sumConnection = 0;
+    sumNode = 0;
+    for i=1:length(params.nodes)
+        sumConnection = sumConnection + size(params.nodes{i},1);
+        sumNode = sumNode + size(params.connections{i},1);
+    end
+    logMeanNumNodes = [logMeanNumNodes,sumNode/length(params.nodes)];
+    logMeanNumConnections = [logMeanNumConnections,sumConnection/length(params.connections)];
+    
+    logEliteNumNodes = [logEliteNumNodes,length(params.nodes{indexMaxFitness})];
+    logEliteNumConnections = [logEliteNumConnections, length(params.connections{indexMaxFitness})];
+    
     params = train(params);
     
 end
@@ -28,6 +45,15 @@ if(isVisualization)
    xlabel('Generationen');
    ylabel('Fitness');
    legend('Elite','Durschnittliche Population');
+   hold off;
+   
+   figure(2);
+   cla;
+   hold on;
+   plot(logEliteNumNodes);
+   plot(logEliteNumConnections);
+   plot(logMeanNumNodes);
+   plot(logMeanNumConnections);
    hold off;
 end
 
