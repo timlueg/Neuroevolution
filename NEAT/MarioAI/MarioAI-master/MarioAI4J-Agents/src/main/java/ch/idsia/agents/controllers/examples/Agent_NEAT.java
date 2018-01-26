@@ -118,7 +118,7 @@ public class Agent_NEAT extends MarioHijackAIBase implements IAgent {
 		IAgent agent = new Agent_NEAT();
 		agent.receiveReward(MarioEnvironment.getInstance().getIntermediateReward());
 
-		String options = FastOpts.LEVEL_04_BLOCKS + FastOpts.AI_RECEPTIVE_FIELD(10, 10);
+		String options = FastOpts.LEVEL_05_GAPS + FastOpts.AI_RECEPTIVE_FIELD(10, 10);
 		String visualizeON = FastOpts.VIS_ON_2X;
 		String visualizeOFF = FastOpts.VIS_OFF;
 		MarioSimulator simulator = new MarioSimulator(visualizeOFF + options);
@@ -200,6 +200,8 @@ public class Agent_NEAT extends MarioHijackAIBase implements IAgent {
 			}
 
 		}
+		eng.putVariable("isVisualization", true);
+		eng.eval("neat_network()");
 		System.exit(0);
 
 	}

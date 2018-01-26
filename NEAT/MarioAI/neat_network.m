@@ -8,14 +8,27 @@ if(~exist('params', 'var'))
     keyPress = 0;
     logEliteFitness = [];
     logMeanFitness =[];
+    isVisualization = false;
 end
 
 if(isTraining)
     params.fitness = marioFitness;
-    params = train(params);
+    
     logEliteFitness = [logEliteFitness, max(params.fitness)];
     logMeanFitness = [logMeanFitness, mean(params.fitness)];
+    params = train(params);
     
+end
+if(isVisualization)
+   figure(1);
+   cla;
+   hold on;
+   plot(logEliteFitness);
+   plot(logMeanFitness);
+   xlabel('Generationen');
+   ylabel('Fitness');
+   legend('Elite','Durschnittliche Population');
+   hold off;
 end
 
 %end
