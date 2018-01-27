@@ -12,7 +12,7 @@ if(~exist('params', 'var'))
     logMeanNumConnections=[];
     logEliteNumNodes = [];
     logEliteNumConnections = [];
-    isVisualization = true;
+    isVisualization = false;
 end
 
 if(isTraining)
@@ -21,17 +21,17 @@ if(isTraining)
     logEliteFitness = [logEliteFitness, maxfitness ];
     logMeanFitness = [logMeanFitness, mean(params.fitness)];
     
-    sumConnection = 0;
+    sumEnabledConnection = 0;
     sumNode = 0;
     for i=1:length(params.nodes)
-        sumConnection = sumConnection + size(params.connections{i},1);
+        sumEnabledConnection = sumEnabledConnection + size(params.connections{i}(params.connections{i}(:,params.connCol_state)== params.conn_state_enabled,:),1);
         sumNode = sumNode + size(params.nodes{i},1);
     end
     logMeanNumNodes = [logMeanNumNodes,sumNode/length(params.nodes)];
-    logMeanNumConnections = [logMeanNumConnections,sumConnection/length(params.connections)];
+    logMeanNumConnections = [logMeanNumConnections,sumEnabledConnection/length(params.connections)];
     
     logEliteNumNodes = [logEliteNumNodes,length(params.nodes{indexMaxFitness})];
-    logEliteNumConnections = [logEliteNumConnections, length(params.connections{indexMaxFitness})];
+    logEliteNumConnections = [logEliteNumConnections, size(params.connections{indexMaxFitness}(params.connections{indexMaxFitness}(:,params.connCol_state)== params.conn_state_enabled,:),1)];
     
     params = train(params);
     
@@ -73,10 +73,11 @@ end
 function [params] = initialize() 
 %Hyperparameter 
 params.weightMutationRate = 0.8;
-params.singleWeightMutationRate = 0.96;
+params.singleWeightMutationRate = 0.98;
 params.singleWeightRandomResetRate = 0.1;
-params.addNodeMutationRate = 0.1;
-params.addConnectionMutationRate = 0.18;
+params.addNodeMutationRate = 0.02;
+params.addConnectionMutationRate = 0.08;
+params.disableConnectionMutationRate = 0.08;
 params.standardDeviation = 0.002;
 params.standardDeviationInit = 0.2;
 params.genomeRemovalRate = 0.3;
@@ -92,7 +93,7 @@ params.c2 = 1;
 params.c3 = 0.4;
 
 %species parameter
-params.species_target = 3;
+params.species_target = 4;
 params.species_distance = 0.01;
 
 %node constants
@@ -170,7 +171,7 @@ function [params] = train(params)
     params.fitness = params.fitness(sortIndex);
     %todo veraendern durch Mutation/Crossover innerhalb einer species bis Groe�e wieder aufgefuellt
     
-    params = sharedFitness(params);
+    %params = sharedFitness(params);
     
     %index of elite for each species (with >=5 networks)
     num_species = max(params.species);
@@ -245,14 +246,18 @@ function [params] = train(params)
     %mutate excluding elite genomes and crossover offspring
     nonEliteGenomeIndices = setdiff(1:length(params.species), eliteIndex);
     for j=1:length(nonEliteGenomeIndices)
-        if rand() < params.weightMutationRate
+        muationSelection = sum(rand >= cumsum([0,params.weightMutationRate, params.addNodeMutationRate, params.addConnectionMutationRate, params.disableConnectionMutationRate]));
+        if muationSelection == 1
             params = mutateWeights(nonEliteGenomeIndices(j), params);
         end
-        if rand() < params.addNodeMutationRate
+        if muationSelection == 2
             params = mutateAddNode(nonEliteGenomeIndices(j), params);
         end
-        if rand() < params.addConnectionMutationRate
+        if muationSelection == 3
             params = mutateAddConnection(nonEliteGenomeIndices(j), params);
+        end
+        if muationSelection == 4
+            params = mutateDisableConnection(nonEliteGenomeIndices(j), params);
         end
         %possible alternative only one mutation each
     end
@@ -310,6 +315,12 @@ for i=1:size(params.connections{netIndex},1)
         params.connections{netIndex}(i, params.connCol_state) =  ~params.connections{netIndex}(i, params.connCol_state);
     end
 end
+end
+
+function [params] = mutateDisableConnection(netIndex, params)
+enabledConnectionIndices = params.connections{netIndex}(:,params.connCol_state)== params.conn_state_enabled;
+[~, randomEnabledConnIndex] = datasample(find(enabledConnectionIndices), 1);
+params.connections{netIndex}(randomEnabledConnIndex, params.connCol_state) = ~params.conn_state_enabled;
 end
 
 function [params] = mutateAddNode(netIndex, params)
