@@ -12,7 +12,7 @@ if(~exist('params', 'var'))
     logMeanNumConnections=[];
     logEliteNumNodes = [];
     logEliteNumConnections = [];
-    isVisualization = false;
+    isVisualization = true;
 end
 
 if(isTraining)
@@ -24,8 +24,8 @@ if(isTraining)
     sumConnection = 0;
     sumNode = 0;
     for i=1:length(params.nodes)
-        sumConnection = sumConnection + size(params.nodes{i},1);
-        sumNode = sumNode + size(params.connections{i},1);
+        sumConnection = sumConnection + size(params.connections{i},1);
+        sumNode = sumNode + size(params.nodes{i},1);
     end
     logMeanNumNodes = [logMeanNumNodes,sumNode/length(params.nodes)];
     logMeanNumConnections = [logMeanNumConnections,sumConnection/length(params.connections)];
@@ -51,9 +51,20 @@ if(isVisualization)
    cla;
    hold on;
    plot(logEliteNumNodes);
-   plot(logEliteNumConnections);
    plot(logMeanNumNodes);
+   xlabel('Generationen');
+   ylabel('Knotenzahl');
+   legend('Elite','Durschnittliche Population');
+   hold off;
+   
+   figure(3);
+   cla;
+   hold on;
+   plot(logEliteNumConnections);
    plot(logMeanNumConnections);
+   xlabel('Generationen');
+   ylabel('Kantenzahl');
+   legend('Elite','Durschnittliche Population');
    hold off;
 end
 
@@ -64,8 +75,8 @@ function [params] = initialize()
 params.weightMutationRate = 0.8;
 params.singleWeightMutationRate = 0.96;
 params.singleWeightRandomResetRate = 0.1;
-params.addNodeMutationRate = 0.02;
-params.addConnectionMutationRate = 0.08;
+params.addNodeMutationRate = 0.1;
+params.addConnectionMutationRate = 0.18;
 params.standardDeviation = 0.002;
 params.standardDeviationInit = 0.2;
 params.genomeRemovalRate = 0.3;
