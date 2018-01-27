@@ -3,6 +3,7 @@ package ch.idsia.agents.controllers.examples;
 import java.util.Arrays;
 import java.util.Collections;
 
+import ch.idsia.benchmark.mario.engine.sprites.Mario;
 import org.apache.commons.lang3.ArrayUtils;
 import org.nd4j.linalg.api.ndarray.INDArray;
 import org.nd4j.linalg.api.ops.impl.accum.MatchCondition;
@@ -60,13 +61,13 @@ public class Agent_NEAT extends MarioHijackAIBase implements IAgent {
 		double[] tiles = new double[(t.tileField.length * t.tileField[0].length) + 1];
 		for (int i = 0; i < t.tileField.length; i++) {
 			for (int j = 0; j < t.tileField[i].length; j++) {
-				tiles[index++] = (double) t.tileField[i][j].getCode();
+				tiles[index++] = t.tileField[i][j].getCode();
 			}
 		}
 
-		int maxTileId = 14;
-		tiles[index] = 14; //add bias
-		INDArray inputTiles = Nd4j.create(tiles).div(maxTileId);
+		//int maxTileId = 14;
+		tiles[index] = 1; //add bias
+		INDArray inputTiles = Nd4j.create(tiles);//.div(maxTileId);
 		activation = Nd4j.concat(1, inputTiles, activation.get(NDArrayIndex.interval(inputTiles.length(), activation.length())));
 		INDArray netOut = Transforms.tanh(activation.mmul(weightMatrix));
 
@@ -93,13 +94,13 @@ public class Agent_NEAT extends MarioHijackAIBase implements IAgent {
 		}*/
 
 		for (int i = 0; i < netOut.length(); i++) {
-			if (netOut.getDouble(1) > 0.1) {
+			if (netOut.getDouble(1) > 0.2) {
 				control.jump();
 			}
-			if (netOut.getDouble(2) > 0.1) {
+			if (netOut.getDouble(2) > 0.2) {
 				control.runRight();
 			}
-			if (netOut.getDouble(3) > 0.1) {
+			if (netOut.getDouble(3) > 0.2) {
 				control.sprint();
 			}
 		}
@@ -127,9 +128,12 @@ public class Agent_NEAT extends MarioHijackAIBase implements IAgent {
 		int maxNodeId = 0;
 
 		eng.putVariable("isTraining", true);
-		
-		
-		for (int iteration = 0; iteration < 100; iteration++) {
+
+		INDArray weightMatrixGlobalElite = null;
+		int fitnessGlobalElite = 0;
+
+
+		for (int iteration = 0; iteration < 10000; iteration++) {
 
 			System.out.println("iteration = " + iteration);
 
@@ -169,10 +173,20 @@ public class Agent_NEAT extends MarioHijackAIBase implements IAgent {
 
 				//deciding which fitness to use
 				//fitness[currentNetworkId] = MarioEnvironment.getInstance().getIntermediateReward()+ 10 * MarioEnvironment.getInstance().getMario().sprite.mapX;
-				fitness[currentNetworkId] = (int) MarioEnvironment.getInstance().getMario().sprite.x;
+				boolean levelWon = MarioEnvironment.getInstance().getMario().sprite.mapX ==MarioEnvironment.getInstance().getLevelLength();
+				if(levelWon)
+				{
+					fitness[currentNetworkId] = (int) MarioEnvironment.getInstance().getMario().sprite.x + MarioEnvironment.getInstance().getTimeLeft();
+				} else {
+					fitness[currentNetworkId] = (int) MarioEnvironment.getInstance().getMario().sprite.x;
+				}
+				if(fitness[currentNetworkId] >= fitnessGlobalElite) {
+					fitnessGlobalElite = fitness[currentNetworkId];
+					weightMatrixGlobalElite = ((Agent_NEAT) agent).weightMatrix;
+				}
 
 				
-				System.out.println("Fitness Pixel: "+fitness[currentNetworkId]+"\t max: "+ MarioEnvironment.getInstance().getLevelLength()*16 + "\t|\t Fitness Bloecke: " + MarioEnvironment.getInstance().getMario().sprite.mapX+"\t max: "+MarioEnvironment.getInstance().getLevelLength()+"\t| time left: "+MarioEnvironment.getInstance().getTimeLeft()+"\t\t| win?: "+ ((int) MarioEnvironment.getInstance().getMario().sprite.mapX ==(int) MarioEnvironment.getInstance().getLevelLength()?"True":"False"));
+				//System.out.println("Fitness Pixel: "+fitness[currentNetworkId]+"\t max: "+ MarioEnvironment.getInstance().getLevelLength()*16 + "\t|\t Fitness Bloecke: " + MarioEnvironment.getInstance().getMario().sprite.mapX+"\t max: "+MarioEnvironment.getInstance().getLevelLength()+"\t| time left: "+MarioEnvironment.getInstance().getTimeLeft()+"\t\t| win?: "+ ((int) MarioEnvironment.getInstance().getMario().sprite.mapX ==(int) MarioEnvironment.getInstance().getLevelLength()?"True":"False"));
 
 			}
 			
@@ -182,22 +196,21 @@ public class Agent_NEAT extends MarioHijackAIBase implements IAgent {
 			}
 			avgFitness = avgFitness / fitness.length;
 			System.out.println("Durschnitts Fitness der Iteration: " + avgFitness);
-			
 			int max=0;
 			max = Collections.max(Arrays.asList(ArrayUtils.toObject(fitness)));
-			
 			System.out.println("Fitness Elite: "+ max);
 			System.out.println("-----------------------------------------------------------------------------------------------------------------------");
 
-			eng.putVariable("marioFitness", fitness);
-			eng.eval("neat_network()");
-
 			if (iteration == 0 || iteration % 30 == 0) {
 				simulator = new MarioSimulator(visualizeON + options + " " + MarioOptions.IntOption.SIMULATION_TIME_LIMIT.getParam() + " 100");
-				((Agent_NEAT) agent).activation = Nd4j.zeros(1, maxNodeId);
+				((Agent_NEAT) agent).activation = Nd4j.zeros(1, weightMatrixGlobalElite.shape()[0]);
+				((Agent_NEAT) agent).weightMatrix = weightMatrixGlobalElite;
 				simulator.run(agent);
 				simulator = new MarioSimulator(visualizeOFF + options);
 			}
+			
+			eng.putVariable("marioFitness", fitness);
+			eng.eval("neat_network()");
 
 		}
 		eng.putVariable("isVisualization", true);
