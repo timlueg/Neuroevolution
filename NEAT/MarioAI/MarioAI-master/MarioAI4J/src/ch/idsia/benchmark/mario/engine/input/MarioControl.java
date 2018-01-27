@@ -1,6 +1,7 @@
 package ch.idsia.benchmark.mario.engine.input;
 
 import ch.idsia.benchmark.mario.engine.generalization.MarioEntity;
+import ch.idsia.benchmark.mario.engine.sprites.Mario;
 import ch.idsia.benchmark.mario.engine.sprites.Mario.MarioMode;
 
 /**
@@ -43,7 +44,7 @@ public class MarioControl {
 		shooting = (lastFrameShootCalled + 1) == frame;
 		
 		// WHAT IS THE STATE OF SPEED/SHOOT BUTTON?
-		if (input.isPressed(MarioKey.SPEED)) {
+		/*if (input.isPressed(MarioKey.SPEED)) {
 			// SPEED/SHOOT WAS PRESSED LAST FRAME 
 			if (shooting && mario.mode == MarioMode.FIRE_LARGE && mario.mayShoot) {
 				input.release(MarioKey.SPEED);
@@ -59,6 +60,11 @@ public class MarioControl {
 			if (sprinting) {
 				input.press(MarioKey.SPEED);
 			}				
+		}*/
+		if(input.isPressed(MarioKey.SPEED)){
+			input.press(MarioKey.SPEED);
+		}else {
+			input.release(MarioKey.SPEED);
 		}
 		
 		input.release(MarioKey.LEFT);

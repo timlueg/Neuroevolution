@@ -345,7 +345,7 @@ public final class MarioEnvironment implements IEnvironment {
 				for (int x = 0; x < levelScene.length; ++x) {
 					String tmpData = "";
 					for (int y = 0; y < levelScene[0].length; ++y)
-						tmpData += levelSceneCellToString(levelScene[x][y].getCode());
+						tmpData += levelSceneCellToString((int) levelScene[x][y].getCode());
 					ret.add(tmpData);
 				}
 			}
