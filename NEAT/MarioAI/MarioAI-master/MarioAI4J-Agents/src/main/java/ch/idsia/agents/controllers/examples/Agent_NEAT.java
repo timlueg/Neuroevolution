@@ -133,7 +133,7 @@ public class Agent_NEAT extends MarioHijackAIBase implements IAgent {
 		int fitnessGlobalElite = 0;
 
 
-		for (int iteration = 0; iteration < 10000; iteration++) {
+		for (int iteration = 0; iteration < 1000; iteration++) {
 
 			System.out.println("iteration = " + iteration);
 
