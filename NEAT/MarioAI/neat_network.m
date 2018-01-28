@@ -76,7 +76,6 @@ function [params] = initialize()
 %Hyperparameter 
 params.weightMutationRate = 0.8;
 params.singleWeightMutationRate = 0.98;
-params.singleWeightRandomResetRate = 0.1;
 params.addNodeMutationRate = 0.02;
 params.addConnectionMutationRate = 0.08;
 params.disableConnectionMutationRate = 0.08;
