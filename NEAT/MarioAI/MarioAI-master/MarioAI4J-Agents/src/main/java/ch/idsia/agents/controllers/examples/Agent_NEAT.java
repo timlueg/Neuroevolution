@@ -37,7 +37,7 @@ import org.nd4j.linalg.ops.transforms.Transforms;
 
 public class Agent_NEAT extends MarioHijackAIBase implements IAgent {
 
-	static MatlabEngine eng;
+	private static MatlabEngine eng;
 	private Struct params;
 
 	private INDArray weightMatrix;
@@ -58,9 +58,9 @@ public class Agent_NEAT extends MarioHijackAIBase implements IAgent {
 		}*/
 
 		int index = 0;
-		double[] tiles = new double[(t.tileField.length * t.tileField[0].length) + 1];
+		double[] tiles = new double[(t.tileField.length * (t.tileField[0].length - mario.egoCol)) + 1];
 		for (int i = 0; i < t.tileField.length; i++) {
-			for (int j = 0; j < t.tileField[i].length; j++) {
+			for (int j = mario.egoCol; j < t.tileField[0].length; j++) {
 				tiles[index++] = t.tileField[i][j].getCode();
 			}
 		}
@@ -119,7 +119,7 @@ public class Agent_NEAT extends MarioHijackAIBase implements IAgent {
 		IAgent agent = new Agent_NEAT();
 		agent.receiveReward(MarioEnvironment.getInstance().getIntermediateReward());
 
-		String options = FastOpts.LEVEL_05_GAPS + FastOpts.AI_RECEPTIVE_FIELD(10, 10);
+		String options = FastOpts.LEVEL_05_GAPS + FastOpts.AI_RECEPTIVE_FIELD(14, 14);
 		String visualizeON = FastOpts.VIS_ON_2X;
 		String visualizeOFF = FastOpts.VIS_OFF;
 		MarioSimulator simulator = new MarioSimulator(visualizeOFF + options);
