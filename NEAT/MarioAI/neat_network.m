@@ -42,9 +42,11 @@ if(isVisualization)
    hold on;
    plot(logEliteFitness);
    plot(logMeanFitness);
+   line([0,length(logMeanFitness)],[4096,4096],'Color','r');
    xlabel('Generationen');
    ylabel('Fitness');
-   legend('Elite','Durschnittliche Population');
+   legend('Elite','Durschnittliche Population','Level geschafft');
+   
    hold off;
    
    figure(2);
