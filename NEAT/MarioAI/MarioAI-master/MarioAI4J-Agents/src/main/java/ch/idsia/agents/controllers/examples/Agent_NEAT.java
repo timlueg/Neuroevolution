@@ -39,7 +39,7 @@ public class Agent_NEAT extends MarioHijackAIBase implements IAgent {
 
 	private static MatlabEngine eng;
 	private Struct params;
-
+	
 	private INDArray weightMatrix;
 	private INDArray activation;
 
