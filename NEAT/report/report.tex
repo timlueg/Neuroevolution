@@ -30,7 +30,7 @@ Jan Urfei\\
 \date{today}
 \maketitle
 \begin{abstract}
-Short summary: in \textbf{very few} sentences, describe what was asked, what you did and what the results were
+Ziel war es eine Mario Spielfigur mit bestimmten Szenarien zu trainieren, sodass diese dann das/die Level best möglichst lösen kann.
 \end{abstract}
 
 %% ------------------------------ GENERAL NOTES ------------------------------ %%
@@ -75,25 +75,18 @@ Develop an actual strategy, preferably on a reduced but similar problem. You can
 \newpage
 \newpage
 \section{Assignment}
-In this assignment, we implement NEAT according to the original publication \cite{Stanley2002a}. The compatibility threshold for speciation is increased/decreased depending whether the number of species $\leq$ or $\geq$ the target number of species.
+Aufgabe war es den für die HeartRate Prediction implementierten NEAT Algorithmus, der sich an dem Originalpaper \cite{Stanley2002a} orientiert, so zu verändern und anzupassen, dass er ein Problem eines Projektes löst, das sich ausgesucht werden konnte. 
 
-NEAT is then applied to create a time sequence predictor for a heart rate dataset that is provided by the university. We find the best hyperparameters (like number of subpopulations etc.). We then compare NEAT to ESP in terms of \textbf{convergence time} and \textbf{testing error}.
+In unserem Fall hieß das, eine Mario Figur durch ein Level zu bringen. Dafür muss eine neue Parametrisierung gefunden werden.
 
-12 datasets are provided, containing the information as shown in Table \ref{table:heartrate}. Using power data, collected from a cyclist in a lab situation, NEAT will be used to predict the heart rate for the next time step\footnote{Please also describe \textbf{why} you would use NEAT}.
+Als Trainingsdaten konnten Level generiert werden, die einen gewünschten Schwierigkeitsgrad besaßen. Die Daten, die man aus dieser Map ziehen konnte, sind die Blöcke zentriert um den Mario herum (siehe Figure \ref{fig:MarioInput}). Dabei ist jedem Blocktyp eine eigene Id zugewiesen. Aufgrund von diesen Daten soll NEAT eine Tastenkombination wählen, um den Mario zu steuern.
 
-\begin{table}[h!tbp]
-\centering                                                                      
-\begin{tabular}{c||c|c|c}
-data&timestep&heart rate&power\\
-\hline
-unit&t&bpm&W\\
-\hline
-type&-&output&input\\
-\end{tabular}                                                                   
-\caption{Heart rate dataset}
-\label{table:heartrate}                                                      
-\end{table} 
-
+\begin{figure}[h!]
+	\centering
+	\includegraphics[width=\linewidth]{img/MarioInput.jpg}
+	\caption{Umgebungsblöcke des Marios für den Input}
+	\label{fig:MarioInput} 
+\end{figure}
 
 \FloatBarrier
 \section{Approach}

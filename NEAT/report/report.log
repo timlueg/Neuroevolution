@@ -1,4 +1,4 @@
-This is XeTeX, Version 3.14159265-2.6-0.99998 (TeX Live 2017/W32TeX) (preloaded format=xelatex 2017.10.17)  19 FEB 2018 22:18
+This is XeTeX, Version 3.14159265-2.6-0.99998 (TeX Live 2017/W32TeX) (preloaded format=xelatex 2017.10.17)  20 FEB 2018 20:04
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -285,6 +285,8 @@ File: t1ptm.fd 2001/06/04 font definitions for T1/ptm.
 
 
 ]
+File: img/MarioInput.jpg Graphic file (type bmp)
+<img/MarioInput.jpg>
 File: img/1.png Graphic file (type bmp)
 <img/1.png>
 File: img/2.png Graphic file (type bmp)
@@ -303,10 +305,10 @@ File: img/6.png Graphic file (type bmp)
 
 ] (./report.aux) ) 
 Here is how much of TeX's memory you used:
- 2978 strings out of 492994
- 36406 string characters out of 6137807
- 114755 words of memory out of 5000000
- 6890 multiletter control sequences out of 15000+600000
+ 2981 strings out of 492994
+ 36470 string characters out of 6137807
+ 110755 words of memory out of 5000000
+ 6891 multiletter control sequences out of 15000+600000
  46426 words of font info for 56 fonts, out of 8000000 for 9000
  1348 hyphenation exceptions out of 8191
  39i,8n,34p,815b,296s stack positions out of 5000i,500n,10000p,200000b,80000s
