@@ -2,12 +2,10 @@ package ch.idsia.agents.controllers.examples;
 
 import java.util.Arrays;
 import java.util.Collections;
-
-import ch.idsia.benchmark.mario.engine.sprites.Mario;
+import java.util.Random;
 import org.apache.commons.lang3.ArrayUtils;
 import org.nd4j.linalg.api.ndarray.INDArray;
 import org.nd4j.linalg.api.ops.impl.accum.MatchCondition;
-import org.nd4j.linalg.api.ops.impl.transforms.Tanh;
 import org.nd4j.linalg.factory.Nd4j;
 import org.nd4j.linalg.indexing.NDArrayIndex;
 import org.nd4j.linalg.indexing.conditions.Conditions;
@@ -126,11 +124,15 @@ public class Agent_NEAT extends MarioHijackAIBase implements IAgent {
 
 
 		int maxNodeId = 0;
-
 		eng.putVariable("isTraining", true);
 
 		INDArray weightMatrixGlobalElite = null;
 		int fitnessGlobalElite = 0;
+
+		boolean isMultiLevelTraining = false;
+		int[] trainingLevelSeeds = generateSeeds(1235, 50);
+		int[] evaluationLevelSeeds = generateSeeds(12341234, 100);
+		int levelSeedIndex = 0;
 
 
 		for (int iteration = 0; iteration < 1000; iteration++) {
@@ -144,6 +146,17 @@ public class Agent_NEAT extends MarioHijackAIBase implements IAgent {
 			int[] fitness = new int[connections.length];
 			
 
+			if (isMultiLevelTraining) {
+				simulator = new MarioSimulator(visualizeOFF + FastOpts.L_RANDOM_SEED(trainingLevelSeeds[levelSeedIndex]) + options);
+				if(iteration % 15 == 0) {
+					if(levelSeedIndex < trainingLevelSeeds.length-1){
+						//levelSeedIndex = ThreadLocalRandom.current().nextInt(0, trainingLevelSeeds.length-1);
+						levelSeedIndex++;
+					} else {
+						levelSeedIndex = 0;
+					}
+				}
+			}
 
 			for (int currentNetworkId = 0; currentNetworkId < num_networks; currentNetworkId++) {
 
@@ -171,8 +184,6 @@ public class Agent_NEAT extends MarioHijackAIBase implements IAgent {
 
 				simulator.run(agent);
 
-				//deciding which fitness to use
-				//fitness[currentNetworkId] = MarioEnvironment.getInstance().getIntermediateReward()+ 10 * MarioEnvironment.getInstance().getMario().sprite.mapX;
 				boolean levelWon = MarioEnvironment.getInstance().getMario().sprite.mapX ==MarioEnvironment.getInstance().getLevelLength();
 				if(levelWon)
 				{
@@ -201,7 +212,7 @@ public class Agent_NEAT extends MarioHijackAIBase implements IAgent {
 			System.out.println("Fitness Elite: "+ max);
 			System.out.println("-----------------------------------------------------------------------------------------------------------------------");
 
-			if (iteration == 0 || iteration % 30 == 0) {
+			if (iteration == 0 || iteration % 500 == 0) {
 				simulator = new MarioSimulator(visualizeON + options + " " + MarioOptions.IntOption.SIMULATION_TIME_LIMIT.getParam() + " 100");
 				((Agent_NEAT) agent).activation = Nd4j.zeros(1, weightMatrixGlobalElite.shape()[0]);
 				((Agent_NEAT) agent).weightMatrix = weightMatrixGlobalElite;
@@ -213,10 +224,42 @@ public class Agent_NEAT extends MarioHijackAIBase implements IAgent {
 			eng.eval("neat_network()");
 
 		}
+
+		if (isMultiLevelTraining) {
+			int[] validationFitness = new int[trainingLevelSeeds.length];
+			for (int i = 0; i < trainingLevelSeeds.length; i++) {
+				simulator = new MarioSimulator(visualizeOFF + FastOpts.L_RANDOM_SEED(trainingLevelSeeds[i]) + options);
+				((Agent_NEAT) agent).activation = Nd4j.zeros(1, weightMatrixGlobalElite.shape()[0]);
+				((Agent_NEAT) agent).weightMatrix = weightMatrixGlobalElite;
+				simulator.run(agent);
+				boolean levelWon = MarioEnvironment.getInstance().getMario().sprite.mapX ==MarioEnvironment.getInstance().getLevelLength();
+				if(levelWon) {
+					validationFitness[i] = (int) MarioEnvironment.getInstance().getMario().sprite.x + MarioEnvironment.getInstance().getTimeLeft();
+				} else {
+					validationFitness[i] = (int) MarioEnvironment.getInstance().getMario().sprite.x;
+				}
+			}
+			eng.putVariable("validationFitness", validationFitness);
+		}
+
 		eng.putVariable("isVisualization", true);
 		eng.eval("neat_network()");
 		System.exit(0);
 
+	}
+
+	public static int[] generateSeeds(int randomSeed, int count) {
+		Random random = new Random(randomSeed);
+		int[] seeds = new int[count];
+
+		for (int i = 0; i < count; ++i) {
+			seeds[i] = random.nextInt();
+			while (seeds[i] <= 0) {
+				seeds[i] += Integer.MAX_VALUE;
+			}
+		}
+
+		return seeds;
 	}
 
 	private static void closeMatlabEngineOnManualExit() {
