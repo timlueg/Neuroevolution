@@ -340,13 +340,15 @@ end
 end
 
 function [params] = mutateWeights(netIndex, params)
-for i=1:size(params.connections{netIndex},1)
-    if rand() < params.singleWeightMutationRate
-        params.connections{netIndex}(i,3) = params.connections{netIndex}(i,3) + normrnd(0,params.standardDeviation);
-    else
-        params.connections{netIndex}(i,3) = normrnd(0, params.standardDeviationInit);
-    end
-end
+connections = params.connections{netIndex};
+
+weightMuationSelector = (rand(size(params.connections{netIndex},1),1) < params.singleWeightMutationRate);
+%weight mutation
+connections(:,params.connCol_weight) = connections(:,params.connCol_weight) + (weightMuationSelector .* normrnd(0,params.standardDeviation, [size(connections,1),1]));
+%reset the remaining weights randomly
+connections(~weightMuationSelector,params.connCol_weight) = normrnd(0,params.standardDeviationInit, [size(connections(~weightMuationSelector,params.connCol_weight),1),1]);
+
+params.connections{netIndex} = connections;
 end
 
 function [params] = mutateAddConnection(netIndex, params)
@@ -378,8 +380,11 @@ function [distance] = distanceOf(parent1, parent2, params)
 [intersectInnovIds, matchingParent1Idx, matchingParent2Idx] = intersect(parent1(:, params.connCol_innovId),  parent2(:, params.connCol_innovId));
 num_matching = length(intersectInnovIds);
 
-[disExcInnovIdParent1, disjointExcessParent1Idx] = setdiff(parent1(:, params.connCol_innovId), parent2(:, params.connCol_innovId));
-[disExcInnovIdParent2, disjointExcessParent2Idx] = setdiff(parent2(:, params.connCol_innovId), parent1(:, params.connCol_innovId));
+%[disExcInnovIdParent1, ~] = setdiff(parent1(:, params.connCol_innovId), parent2(:, params.connCol_innovId));
+%[disExcInnovIdParent2, ~] = setdiff(parent2(:, params.connCol_innovId), parent1(:, params.connCol_innovId));
+
+disExcInnovIdParent1 = parent1(~ismember(parent1(:, params.connCol_innovId), parent2(:, params.connCol_innovId)),params.connCol_innovId);
+disExcInnovIdParent2 = parent2(~ismember(parent2(:, params.connCol_innovId), parent1(:, params.connCol_innovId)),params.connCol_innovId);
 
 if(isempty(disExcInnovIdParent1)), disExcInnovIdParent1 = 0; end
 if(isempty(disExcInnovIdParent2)), disExcInnovIdParent2 = 0; end
