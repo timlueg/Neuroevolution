@@ -2,73 +2,69 @@
 
 if(~exist('params', 'var'))
     params = initialize();
-    isTraining = false;
-    newSimulationStarted = false;
-    params.trainingNetIdx = 1;
-    keyPress = 0;
-    logEliteFitness = [];
-    logMeanFitness =[];
-    logMeanNumNodes=[];
-    logMeanNumConnections=[];
-    logEliteNumNodes = [];
-    logEliteNumConnections = [];
-    isVisualization = false;
+    
+    if(init)
+        isTraining = false;
+        experimentType = "learningRates";
+        
+        logEliteFitness = cell(num_experiments, 1);
+        for i=1:num_experiments
+            logEliteFitness{i} = zeros(num_iterations, num_runs);
+        end
+        logEliteFitnessCurrent = [];
+        logEliteNumNodes = [];
+        logEliteNumConnections = [];
+        
+        isVisualization = false;
+        init = false;
+    end
+    
 end
 
 if(isTraining)
     params.fitness = marioFitness;
     [maxfitness,indexMaxFitness] = max(params.fitness);
-    logEliteFitness = [logEliteFitness, maxfitness ];
-    logMeanFitness = [logMeanFitness, mean(params.fitness)];
+    %logEliteFitnessCurrent = [logEliteFitnessCurrent, maxfitness ];
     
-    sumEnabledConnection = 0;
-    sumNode = 0;
-    for i=1:length(params.nodes)
-        sumEnabledConnection = sumEnabledConnection + size(params.connections{i}(params.connections{i}(:,params.connCol_state)== params.conn_state_enabled,:),1);
-        sumNode = sumNode + size(params.nodes{i},1);
-    end
-    logMeanNumNodes = [logMeanNumNodes,sumNode/length(params.nodes)];
-    logMeanNumConnections = [logMeanNumConnections,sumEnabledConnection/length(params.connections)];
+    %logEliteNumNodes = [logEliteNumNodes,length(params.nodes{indexMaxFitness})];
+    %logEliteNumConnections = [logEliteNumConnections, size(params.connections{indexMaxFitness}(params.connections{indexMaxFitness}(:,params.connCol_state)== params.conn_state_enabled,:),1)];
     
-    logEliteNumNodes = [logEliteNumNodes,length(params.nodes{indexMaxFitness})];
-    logEliteNumConnections = [logEliteNumConnections, size(params.connections{indexMaxFitness}(params.connections{indexMaxFitness}(:,params.connCol_state)== params.conn_state_enabled,:),1)];
+    logEliteFitness{experiment}(iteration, experiment_run) = maxfitness;
     
     params = train(params);
-    
 end
-if(isVisualization)
-   figure(1);
-   cla;
-   hold on;
-   plot(logEliteFitness);
-   plot(logMeanFitness);
-   line([0,length(logMeanFitness)],[4096,4096],'Color','r');
-   xlabel('Generationen');
-   ylabel('Fitness');
-   legend('Elite','Durschnittliche Population','Level geschafft');
-   
-   hold off;
-   
-   figure(2);
-   cla;
-   hold on;
-   plot(logEliteNumNodes);
-   plot(logMeanNumNodes);
-   xlabel('Generationen');
-   ylabel('Knotenzahl');
-   legend('Elite','Durschnittliche Population');
-   hold off;
-   
-   figure(3);
-   cla;
-   hold on;
-   plot(logEliteNumConnections);
-   plot(logMeanNumConnections);
-   xlabel('Generationen');
-   ylabel('Kantenzahl');
-   legend('Elite','Durschnittliche Population');
-   hold off;
-end
+
+% if(isVisualization)
+%    figure(1);
+%    cla;
+%    hold on;
+%    plot(logEliteFitness);
+%    line([0,length(logMeanFitness)],[4096,4096],'Color','r');
+%    xlabel('Generationen');
+%    ylabel('Fitness');
+%    legend('Elite','Level geschafft');
+%    
+%    hold off;
+%    
+%    figure(2);
+%    cla;
+%    hold on;
+%    plot(logEliteNumNodes);
+%    plot(logMeanNumNodes);
+%    xlabel('Generationen');
+%    ylabel('Knotenzahl');
+%    legend('Elite');
+%    hold off;
+%    
+%    figure(3);
+%    cla;
+%    hold on;
+%    plot(logEliteNumConnections);
+%    xlabel('Generationen');
+%    ylabel('Kantenzahl');
+%    legend('Elite');
+%    hold off;
+% end
 
 %end
 
@@ -84,7 +80,7 @@ params.standardDeviationInit = 0.2;
 params.genomeRemovalRate = 0.3;
 
 %network structure
-params.num_input = 99;
+params.num_input = 121;
 params.num_output = 4;
 params.num_networks = 32;
 
@@ -152,8 +148,8 @@ for i=1:params.num_networks
 end
 
 %display matrix example
-array2table(params.nodes{1}, 'VariableNames', params.node_columnNames)
-array2table(params.connections{1}, 'VariableNames', params.connection_columnNames)
+%array2table(params.nodes{1}, 'VariableNames', params.node_columnNames)
+%array2table(params.connections{1}, 'VariableNames', params.connection_columnNames)
 
 end
 

@@ -3,6 +3,7 @@ package ch.idsia.agents.controllers.examples;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Random;
+
 import org.apache.commons.lang3.ArrayUtils;
 import org.nd4j.linalg.api.ndarray.INDArray;
 import org.nd4j.linalg.api.ops.impl.accum.MatchCondition;
@@ -91,6 +92,7 @@ public class Agent_NEAT extends MarioHijackAIBase implements IAgent {
 			control.runRight();
 		}*/
 
+
 		for (int i = 0; i < netOut.length(); i++) {
 			if (netOut.getDouble(1) > 0.2) {
 				control.jump();
@@ -110,18 +112,50 @@ public class Agent_NEAT extends MarioHijackAIBase implements IAgent {
 
 	public static void main(String[] args) throws Exception {
 		eng = MatlabEngine.connectMatlab(MatlabEngine.findMatlab()[0]);
-		eng.eval("neat_network()");
-
 		closeMatlabEngineOnManualExit();
 
+		boolean displayGameWindow = false;
+
+		int num_iterations = 5;
+		String experimentType = "learningRates";
+		int num_experiments = 3;
+		int num_runs = 3;
+
+		eng.putVariable("num_iterations", num_iterations);
+		eng.putVariable("experimentType", experimentType);
+		eng.putVariable("num_experiments", num_experiments);
+		eng.putVariable("num_runs", num_runs);
+
+		eng.putVariable("init", true);
+
+		for (int i = 0; i < num_experiments; i++) {
+			eng.putVariable("experiment", i+1);
+			for (int j = 0; j < num_runs; j++) {
+				eng.putVariable("experiment_run", j+1);
+
+				eng.eval("clear params");
+				eng.putVariable("isTraining", false);
+				eng.eval("neat_network()");
+
+				train(num_iterations, displayGameWindow);
+			}
+		}
+
+
+		eng.putVariable("isVisualization", true);
+		eng.eval("neat_network()");
+		System.exit(0);
+
+	}
+
+	private static void train(int iterations, boolean displayGameWindow) throws Exception {
 		IAgent agent = new Agent_NEAT();
 		agent.receiveReward(MarioEnvironment.getInstance().getIntermediateReward());
 
-		String options = FastOpts.LEVEL_04_BLOCKS + FastOpts.L_DIFFICULTY(4) + FastOpts.L_GAPS_ON + FastOpts.AI_RECEPTIVE_FIELD(14, 14);
+		String options = FastOpts.LEVEL_04_BLOCKS + FastOpts.L_DIFFICULTY(4) + FastOpts.L_GAPS_ON + FastOpts.AI_RECEPTIVE_FIELD(15, 15);
 		String visualizeON = FastOpts.VIS_ON_2X;
 		String visualizeOFF = FastOpts.VIS_OFF;
 		MarioSimulator simulator = new MarioSimulator(visualizeOFF + options);
-
 
 		int maxNodeId = 0;
 		eng.putVariable("isTraining", true);
@@ -133,18 +167,17 @@ public class Agent_NEAT extends MarioHijackAIBase implements IAgent {
 		int[] trainingLevelSeeds = generateSeeds(1235, 50);
 		int[] evaluationLevelSeeds = generateSeeds(12341234, 100);
 		int levelSeedIndex = 0;
-
-
-		for (int iteration = 0; iteration < 1000; iteration++) {
+		for (int iteration = 0; iteration < iterations; iteration++) {
 
 			System.out.println("iteration = " + iteration);
+			eng.putVariable("iteration", iteration+1);
 
 			((Agent_NEAT) agent).params = eng.getVariable("params");
 			Object[] nodes = (Object[]) ((Agent_NEAT) agent).params.get("nodes");
 			Object[] connections = (Object[]) ((Agent_NEAT) agent).params.get("connections");
 			int num_networks = connections.length;
 			int[] fitness = new int[connections.length];
-			
+
 
 			if (isMultiLevelTraining) {
 				simulator = new MarioSimulator(visualizeOFF + FastOpts.L_RANDOM_SEED(trainingLevelSeeds[levelSeedIndex]) + options);
@@ -196,11 +229,11 @@ public class Agent_NEAT extends MarioHijackAIBase implements IAgent {
 					weightMatrixGlobalElite = ((Agent_NEAT) agent).weightMatrix;
 				}
 
-				
+
 				//System.out.println("Fitness Pixel: "+fitness[currentNetworkId]+"\t max: "+ MarioEnvironment.getInstance().getLevelLength()*16 + "\t|\t Fitness Bloecke: " + MarioEnvironment.getInstance().getMario().sprite.mapX+"\t max: "+MarioEnvironment.getInstance().getLevelLength()+"\t| time left: "+MarioEnvironment.getInstance().getTimeLeft()+"\t\t| win?: "+ ((int) MarioEnvironment.getInstance().getMario().sprite.mapX ==(int) MarioEnvironment.getInstance().getLevelLength()?"True":"False"));
 
 			}
-			
+
 			int avgFitness =0;
 			for(int element:fitness){
 				avgFitness += element;
@@ -212,14 +245,14 @@ public class Agent_NEAT extends MarioHijackAIBase implements IAgent {
 			System.out.println("Fitness Elite: "+ max);
 			System.out.println("-----------------------------------------------------------------------------------------------------------------------");
 
-			if (iteration == 0 || iteration % 500 == 0) {
+			if (displayGameWindow && (iteration == 0 || iteration % 500 == 0)) {
 				simulator = new MarioSimulator(visualizeON + options + " " + MarioOptions.IntOption.SIMULATION_TIME_LIMIT.getParam() + " 100");
 				((Agent_NEAT) agent).activation = Nd4j.zeros(1, weightMatrixGlobalElite.shape()[0]);
 				((Agent_NEAT) agent).weightMatrix = weightMatrixGlobalElite;
 				simulator.run(agent);
 				simulator = new MarioSimulator(visualizeOFF + options);
 			}
-			
+
 			eng.putVariable("marioFitness", fitness);
 			eng.eval("neat_network()");
 
@@ -241,11 +274,6 @@ public class Agent_NEAT extends MarioHijackAIBase implements IAgent {
 			}
 			eng.putVariable("validationFitness", validationFitness);
 		}
-
-		eng.putVariable("isVisualization", true);
-		eng.eval("neat_network()");
-		System.exit(0);
-
 	}
 
 	public static int[] generateSeeds(int randomSeed, int count) {
