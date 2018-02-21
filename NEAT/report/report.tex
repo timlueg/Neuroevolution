@@ -91,33 +91,50 @@ Als Trainingsdaten konnten Level generiert werden, die einen gewünschten Schwie
 \FloatBarrier
 \section{Approach}
 
-We extend NEAT by including the evolution of the activation function, hoping to produce \textit{leaner} networks that generalize well and take less training\footnote{This would be something you need to show in your results!}. 
+Das Herzstück von NEAT ist nahe des Papers implementiert worden. Der rudimentäre Ablauf ist auch in dem folgenden Pseudocode zu betrachten.
 
-\begin{algorithm}[ht!]
-\caption{HeteroNEAT}
+\begin{algorithm}[h!]
+\caption{NEAT}
 \label{alg:heteroneat}
 \begin{algorithmic}[1]
-\State  $c$: $\leftarrow$ mutRate, crossRate, numSpecies, actFcns /* Configuration */
-\Statex Input: evalFcn
-%\Statex Output:
-\Function{HeteroNEAT}{Parameters, Input}
-\State $P$: $\leftarrow$ \textbf{\textit{initPop($n$)}} minimal networks
-\For{generation $g$}
-	\State $N$: $\leftarrow$ expressNetwork($P$)
-	\State $F$: $\leftarrow$ evalFcn($N$)
-	\State $P$: $\leftarrow$ $(P,N,F)$	/* Assign fitness /*
-	\State $S$: $\leftarrow$ speciate($P$,$c$)
+
+\Function{train}{Parameters}
+	\State $Parameter$: $\leftarrow$ defineSpecies($Parameter$)
+	\State sort($fitness$)
+	\State $Parameter$: $\leftarrow$ sharedFitness($Parameter$)
+	\State $Parameter$: $\leftarrow$ defineBigSpecies($Parameter$)
+	\State elitismInBigSpecies($Parameter$)
+	\State $Parameter$: $\leftarrow$ defineOffspringFromSpecies($Parameter$)
+
 	\For{species $s$ in $S$)
-		\State $s'(1)$ $\leftarrow$ getElite($s$)
-		\State cull($s$,$c$) /* If species is large enough */
-		\State $p$: $\leftarrow$ tournamentSelect($s$)
-		\State crossover($p$,$c$) /* Combine matching connections */
-		\State \textbf{\textit{mutate($p$,$c$)}}
+		\State $Parameter$: $\leftarrow$ crossover($s$,$randomSpecies$)
+		\State $Parameter$: $\leftarrow$ mutate($s$) 
+		
+		/* mutateWeihts,add Node/Connection or Disable Connection*/
+		\State $Parameter$: $\leftarrow$ appendRandomGenomes() 
+		
+			/* Until the population is full*/
+		
 	\EndFor
-\EndFor
+
 \EndFunction
 \end{algorithmic}
 \end{algorithm}
+
+Im Gegensatz zum Original Paper habe wir noch implementiert, dass Kanten wieder Disabled werden können, damit die Topologien minimal bleiben können.
+
+Eine besondere Herausforderung bestand darin, die Kommunikation zwischen dem Simulator (der in Java implementiert war) und unserem NEAT Algorithmus (der in Mathlab implementiert war) herzustellen. Dazu haben wir uns einer Bibliothek bedient, mit Hilfe deren man aus Java heraus Variablen in den Matlab Workspace schreiben kann. Der Simulator holt sich dann die verschiedenen Netze aus dem Workspace und berechnet an Hand des aktuellen Spielfeldes den Output bzw. den daraus resultierenden Tastendruck. Um die Kommunikation zwischen Matlab und Java möglichst gering zu halten (da diese immer sehr viel Zeit gekostet hat) ist die Berechnung der Gewichtsmatrixen, als auch der Output in Java implementiert. Hat der Simulator das Spiel soweit gebracht bis es entweder gewonnen ist, die Zeit abgelaufen ist oder der Mario gestorben ist bestimmt er eine Fitness für jede Topologie. Diese wird zurück in den Matlabworkspace geschrieben und das oben angedeutete Training ausgeführt. Danach beginnt der Prozess von neuem. In der folgenden Abbildung (Figure \ref{fig:sequenzdiagramm}) ist der Ablauf nochmals veranschaulicht.
+
+\begin{figure}[h!]
+	\centering
+	\includegraphics[width=\linewidth]{img/JavaMatlab.png}
+	\caption{Kommunikation und Ablauf zwischen Java und Matlab}
+	\label{fig:sequenzdiagramm} 
+\end{figure}
+
+Um die Trainingszeit noch schneller zu machen, haben wir ein kleineres Sichtfeld um den Mario genommen, welches lediglich 10 x 10 groß ist. Somit werden die Netze wesentlich kleiner. Des Weiteren haben wir das Sichtfeld auf den Teil rechts vom Mario beschränkt, da in unseren Level keine Rückwärtsbewegung notwendig war.
+
+Zusätzlich um das lernen der Blöcke zu erleichtern, haben wir den Blockids einen Verlauf gegeben. So haben ähnliche Blöcke, wie z.B. welche, die  Hindernisse darstellen, ähnliche Blockids. So haben Blöcke die von großer Bedeutung für das erreichen des Ziels sind eine große Blockid (z.B. der Boden) und Blöcke die nicht so wichtig sind eine niedrige (wie z.B. Münzen).
 
 \FloatBarrier
 \section{Experiments}
