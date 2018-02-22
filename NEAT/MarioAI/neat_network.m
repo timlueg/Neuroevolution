@@ -6,6 +6,10 @@ if(~exist('params', 'var'))
     if(init)
         isTraining = false;
         experimentType = "learningRates";
+        if(experimentType == 'learningRates')
+            experiment_learingRates = [0.0002, 0.002, 0.02, 0.0002, 0.002, 0.02];
+            experiment_weightResetRates = [0.98, 0.98, 0.98, 0.90, 0.90, 0.90];
+        end
         
         logEliteFitness = cell(num_experiments, 1);
         for i=1:num_experiments
@@ -17,6 +21,11 @@ if(~exist('params', 'var'))
         
         isVisualization = false;
         init = false;
+    end
+    
+    if(experimentType == 'learningRates')
+        params.standardDeviation = experiment_learingRates(experiment);
+        params.singleWeightMutationRate = experiment_weightResetRates(experiment);
     end
     
 end
@@ -34,18 +43,20 @@ if(isTraining)
     params = train(params);
 end
 
-% if(isVisualization)
-%    figure(1);
-%    cla;
-%    hold on;
-%    plot(logEliteFitness);
-%    line([0,length(logMeanFitness)],[4096,4096],'Color','r');
-%    xlabel('Generationen');
-%    ylabel('Fitness');
-%    legend('Elite','Level geschafft');
-%    
-%    hold off;
-%    
+if(isVisualization)
+   figure(1);
+   cla;
+   hold on;
+   legend();
+   for i=1:num_experiments
+       plot(mean(logEliteFitness{i}, 2));
+   end
+   line([1,size(logEliteFitness{1},1)],[4096,4096],'Color','k');
+   xlabel('Iteration');
+   ylabel('Fitness');
+   
+   hold off;
+   
 %    figure(2);
 %    cla;
 %    hold on;
@@ -64,7 +75,7 @@ end
 %    ylabel('Kantenzahl');
 %    legend('Elite');
 %    hold off;
-% end
+end
 
 %end
 

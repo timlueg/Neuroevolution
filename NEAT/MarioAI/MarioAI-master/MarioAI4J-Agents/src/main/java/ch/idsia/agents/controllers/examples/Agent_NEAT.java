@@ -115,10 +115,10 @@ public class Agent_NEAT extends MarioHijackAIBase implements IAgent {
 		closeMatlabEngineOnManualExit();
 
 		boolean displayGameWindow = false;
+		int num_iterations = 500;
 
-		int num_iterations = 5;
 		String experimentType = "learningRates";
-		int num_experiments = 3;
+		int num_experiments = 6;
 		int num_runs = 3;
 
 		eng.putVariable("num_iterations", num_iterations);
