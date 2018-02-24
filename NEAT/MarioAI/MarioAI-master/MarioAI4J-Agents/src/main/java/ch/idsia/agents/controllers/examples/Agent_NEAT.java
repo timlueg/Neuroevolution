@@ -42,6 +42,8 @@ public class Agent_NEAT extends MarioHijackAIBase implements IAgent {
 	private INDArray weightMatrix;
 	private INDArray activation;
 
+	private static final String EXPERIMENT_TYPE_LEARNINGRATE = "learningRates";
+
 	@Override
 	public void reset(AgentOptions options) {
 		super.reset(options);
@@ -117,7 +119,7 @@ public class Agent_NEAT extends MarioHijackAIBase implements IAgent {
 		boolean displayGameWindow = false;
 		int num_iterations = 500;
 
-		String experimentType = "learningRates";
+		String experimentType = EXPERIMENT_TYPE_LEARNINGRATE;
 		int num_experiments = 6;
 		int num_runs = 3;
 

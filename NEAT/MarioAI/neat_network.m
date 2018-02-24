@@ -5,7 +5,6 @@ if(~exist('params', 'var'))
     
     if(init)
         isTraining = false;
-        experimentType = "learningRates";
         if(experimentType == 'learningRates')
             experiment_learingRates = [0.0002, 0.002, 0.02, 0.0002, 0.002, 0.02];
             experiment_weightResetRates = [0.98, 0.98, 0.98, 0.90, 0.90, 0.90];
