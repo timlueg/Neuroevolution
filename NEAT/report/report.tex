@@ -75,55 +75,37 @@ Develop an actual strategy, preferably on a reduced but similar problem. You can
 \newpage
 \newpage
 \section{Assignment}
-Aufgabe war es den für die HeartRate Prediction implementierten NEAT Algorithmus, der sich an dem Originalpaper \cite{Stanley2002a} orientiert, so zu verändern und anzupassen, dass er ein Problem eines Projektes löst, das sich ausgesucht werden konnte. 
+Aufgabe war es den für die HeartRate Prediction implementierten NEAT Algorithmus\cite{Stanley2002a} anzupassen, dass er ein Problem eines ausgesuchten Projektes löst.
 
-In unserem Fall hieß das, eine Mario Figur durch ein Level zu bringen. Dafür muss eine neue Parametrisierung gefunden werden.
+In diesem Projekt wurde ein Simulator verwendet, der dem Jump\&Run Spiel Super Mario Bros. nachempfunden ist.
+%todo cite simulator lib
+Ziel diese Spieles ist eine Figur in einer 2D-Welt zu steuern und möglichst das Ende des Levels zu erreichen. Dabei existieren Hindernisse wie Schluchten oder Monster die es zu überwinden gilt. 
 
-Als Trainingsdaten konnten Level generiert werden, die einen gewünschten Schwierigkeitsgrad besaßen. Die Daten, die man aus dieser Map ziehen konnte, sind die Blöcke zentriert um den Mario herum (siehe Figure \ref{fig:MarioInput}). Dabei ist jedem Blocktyp eine eigene Id zugewiesen. Aufgrund von diesen Daten soll NEAT eine Tastenkombination wählen, um den Mario zu steuern.
+Zielsetzung war es zu ergründen, ob es NEAT erlaubt ein Netzwerk zu trainieren, welches basierend auf den Informationen aus dem aktuellen Sichtfeld die Spielfigur zu steuern, um ans Ende des (statischen) Levels zu gelangen.
+
+Als Trainingsdaten sich zunächst auf ein generiertes Level beschränkt, welches nur Blöcke, Schluchten oder erhöhte Ebenen enthielt, die es zu überspringen galt.
+
+Das Sichtfeld beseht aus einem Gitter, zentriert um die Spielfigur herum (siehe Figure \ref{fig:MarioInput}). Die Objekte/Kacheln im Level unterscheiden sich anhand ihrem Typ (z.B Boden, Wand) und ihrer Position.
 
 \begin{figure}[h!]
 	\centering
 	\includegraphics[width=\linewidth]{img/MarioInput.jpg}
-	\caption{Umgebungsblöcke des Marios für den Input}
+	\caption{Umgebungsblöcke der Spielfigur für den Input}
 	\label{fig:MarioInput} 
 \end{figure}
 
 \FloatBarrier
 \section{Approach}
+Im Gegensatz zum NEAT Paper \cite{Stanley2002a} wird eine Mutation verwendet, die Kanten wieder deaktivieren kann, damit die Topologien minimiert werden, falls nicht alle Eingaben aus dem Sichtfeld benötigt werden. 
+Des weiteren wurde auf Fitnesssharing verzichtet.
 
-Das Herzstück von NEAT ist nahe des Papers implementiert worden. Der rudimentäre Ablauf ist auch in dem folgenden Pseudocode zu betrachten.
 
-\begin{algorithm}[h!]
-\caption{NEAT}
-\label{alg:heteroneat}
-\begin{algorithmic}[1]
-
-\Function{train}{Parameters}
-	\State $Parameter$: $\leftarrow$ defineSpecies($Parameter$)
-	\State sort($fitness$)
-	\State $Parameter$: $\leftarrow$ sharedFitness($Parameter$)
-	\State $Parameter$: $\leftarrow$ defineBigSpecies($Parameter$)
-	\State elitismInBigSpecies($Parameter$)
-	\State $Parameter$: $\leftarrow$ defineOffspringFromSpecies($Parameter$)
-
-	\For{species $s$ in $S$)
-		\State $Parameter$: $\leftarrow$ crossover($s$,$randomSpecies$)
-		\State $Parameter$: $\leftarrow$ mutate($s$) 
-		
-		/* mutateWeihts,add Node/Connection or Disable Connection*/
-		\State $Parameter$: $\leftarrow$ appendRandomGenomes() 
-		
-			/* Until the population is full*/
-		
-	\EndFor
-
-\EndFunction
-\end{algorithmic}
-\end{algorithm}
-
-Im Gegensatz zum Original Paper habe wir noch implementiert, dass Kanten wieder Disabled werden können, damit die Topologien minimal bleiben können.
-
-Eine besondere Herausforderung bestand darin, die Kommunikation zwischen dem Simulator (der in Java implementiert war) und unserem NEAT Algorithmus (der in Mathlab implementiert war) herzustellen. Dazu haben wir uns einer Bibliothek bedient, mit Hilfe deren man aus Java heraus Variablen in den Matlab Workspace schreiben kann. Der Simulator holt sich dann die verschiedenen Netze aus dem Workspace und berechnet an Hand des aktuellen Spielfeldes den Output bzw. den daraus resultierenden Tastendruck. Um die Kommunikation zwischen Matlab und Java möglichst gering zu halten (da diese immer sehr viel Zeit gekostet hat) ist die Berechnung der Gewichtsmatrixen, als auch der Output in Java implementiert. Hat der Simulator das Spiel soweit gebracht bis es entweder gewonnen ist, die Zeit abgelaufen ist oder der Mario gestorben ist bestimmt er eine Fitness für jede Topologie. Diese wird zurück in den Matlabworkspace geschrieben und das oben angedeutete Training ausgeführt. Danach beginnt der Prozess von neuem. In der folgenden Abbildung (Figure \ref{fig:sequenzdiagramm}) ist der Ablauf nochmals veranschaulicht.
+Um die Kommunikation zwischen dem Simulator und Matlab herzustellen wurde die MATLAB API for Java verwendet. Diese erlaubt es aus Java heraus mit der Matlab Seesion zu interagieren.
+In jeder Iteration wird die aktuelle Population aus dem Workspace geladen und bei der Ausführung des Simulators anhand des aktuellen Sichtfelds der Spielfigur der Output bzw. den daraus resultierenden Tastendruck. 
+Um die Kommunikation zwischen Matlab und Java möglichst gering zu halten ist die Berechnung der Netze in Java mittels der Matrizen Bibliothek NDJ4 %todo cite
+implementiert. 
+Hat der die Spielfigur das Ende des Levels erreicht, ist die Spielzeit abgelaufen oder die Spielfigur in eine Schlucht gefallen wird die fitness auf den erreichten Levelfortschirtt gesetzt (x-Position). Außerdem wird bei Topologien, die das Ende des Levels erreichen, die restliche Spielzeit addiert um die Geschwindigkeit in der das Level abgeschlossen wird zu belohnen. Die Fitnesswerte werden zurück in den Matlab Workspace geschrieben und die Mutation mittels NEAT durchzuführen. Danach beginnt der Prozess von neuem. 
+In der folgenden Abbildung (Figure \ref{fig:sequenzdiagramm}) ist der Ablauf nochmals veranschaulicht.
 
 \begin{figure}[h!]
 	\centering
@@ -132,9 +114,9 @@ Eine besondere Herausforderung bestand darin, die Kommunikation zwischen dem Sim
 	\label{fig:sequenzdiagramm} 
 \end{figure}
 
-Um die Trainingszeit noch schneller zu machen, haben wir ein kleineres Sichtfeld um den Mario genommen, welches lediglich 10 x 10 groß ist. Somit werden die Netze wesentlich kleiner. Des Weiteren haben wir das Sichtfeld auf den Teil rechts vom Mario beschränkt, da in unseren Level keine Rückwärtsbewegung notwendig war.
+Das Sichtfeld der Spielfigur ist auf 15x15 (Breite x Höhe) Felder begrenzt bzw. auf 7x15 also nur die rechte Hälfte des Sichtfeldes, da im ausgewählten Level keine Rückwertsbewegung notwendig ist.
 
-Zusätzlich um das lernen der Blöcke zu erleichtern, haben wir den Blockids einen Verlauf gegeben. So haben ähnliche Blöcke, wie z.B. welche, die  Hindernisse darstellen, ähnliche Blockids. So haben Blöcke die von großer Bedeutung für das erreichen des Ziels sind eine große Blockid (z.B. der Boden) und Blöcke die nicht so wichtig sind eine niedrige (wie z.B. Münzen).
+Um die Eingabemenge gering zu halten wurden ähnliche Kacheln mit dem selben Eingabewert versehen (z.b Boden, Fels) sowie unwichtigeren Kacheln geringere Eingabegrößen vergeben.
 
 \FloatBarrier
 \section{Experiments}
