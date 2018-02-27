@@ -120,11 +120,24 @@ Um die Eingabemenge gering zu halten wurden ähnliche Kacheln mit dem selben Ein
 
 \FloatBarrier
 \section{Experiments}
-Experiments are repeated 10 times. By the way, this is not enough for a description.
+Unsere Experimente sind jeweils 5 mal durchgeführt worden. Dabei wurden pro Experiment 1-2 Parameter verändert und getestet. Uns ist bewusst, dass 5 Wiederholungen eigentlich zu wenig sind, aber ein Experiment mit 5 Wiederholungen und jeweils 6 verschiedenen Parametrisierungen hat schon ca. 9h benötigt, was bei noch mehr Wiederholungen den Rahmen gesprengt hätte.
 
 \subsection{Parameterization}
-This would include a description of all parameter tuples and a description on how you reduced the problem to provide small and fast runs for this extensive comparison. Results would be shown in boxplots, as these provide you with the median and 25\% and 75\% percentile for every parameter tuple. This makes comparison easy, as you can plot multiple boxplots next to each other, similar as in Figure \ref{fig:4}.
 
+Des weiteren haben wir uns angeschaut,  welcher Treshhold für den Output genommen werden soll, damit eine Taste gedrückt wird oder nicht. Vermutet hatten wir, dass der Treshold 0,5 am besten sein sollte, da dort der Anstieg der Aktivierungsunktion am größten ist. In Figure \ref{fig:treshold} lässt sich aber erkennen, dass der Durchschnitt über die Elite bei 10 Versuchen bei unterschiedlichen Lernraten immer schlechter ist, als wenn man den treshold auf 0,2 setzt und dort die unterschiedlichen Lernraten testet. 
+\begin{figure}[ht!]
+	\centering
+	\includegraphics[width=\linewidth]{img/Mario_Treshold.png}
+	\caption{Durschnitt der Elite bei 10 Wiederholungen beim Vergleich von unterschiedlichen Tresholds im Zusammenspiel mit unterschiedlichen Lernraten}
+	\label{fig:treshold} 
+\end{figure}
+
+\begin{figure}[ht!]
+	\centering
+	\includegraphics[width=\linewidth]{img/Mario_Treshold_boxplot.png}
+	\caption{Boxplot der Elite nach 500 Iterationen von den unterschiedlichen Setups}
+	\label{fig:treshold_boxplot} 
+\end{figure}
 \subsection{NEAT vs ESP}
 
 \begin{figure}[ht!]
