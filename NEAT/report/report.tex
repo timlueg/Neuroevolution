@@ -124,7 +124,7 @@ Unsere Experimente sind jeweils 5 mal durchgeführt worden. Dabei wurden pro Exp
 
 \subsection{Parameterization}
 
-Des weiteren haben wir uns angeschaut,  welcher Treshhold für den Output genommen werden soll, damit eine Taste gedrückt wird oder nicht. Vermutet hatten wir, dass der Treshold 0,5 am besten sein sollte, da dort der Anstieg der Aktivierungsunktion am größten ist. In Figure \ref{fig:treshold} lässt sich aber erkennen, dass der Durchschnitt über die Elite bei 10 Versuchen bei unterschiedlichen Lernraten immer schlechter ist, als wenn man den treshold auf 0,2 setzt und dort die unterschiedlichen Lernraten testet. 
+Des Weiteren haben wir uns angeschaut,  welcher Treshhold für den Output genommen werden soll, damit eine Taste gedrückt wird oder nicht. Vermutet hatten wir, dass der Treshold 0,5 am besten sein sollte, da dort der Anstieg der Aktivierungsunktion am größten ist. In Figure \ref{fig:treshold} lässt sich aber erkennen, dass der Durchschnitt über die Elite bei 10 Versuchen bei unterschiedlichen Lernraten immer schlechter ist, als wenn man den Treshold auf 0,2 setzt und dort die unterschiedlichen Lernraten testet. 
 \begin{figure}[ht!]
 	\centering
 	\includegraphics[width=\linewidth]{img/Mario_Treshold.png}
@@ -138,52 +138,30 @@ Des weiteren haben wir uns angeschaut,  welcher Treshhold für den Output genomm
 	\caption{Boxplot der Elite nach 500 Iterationen von den unterschiedlichen Setups}
 	\label{fig:treshold_boxplot} 
 \end{figure}
-\subsection{NEAT vs ESP}
 
+
+\subsection{Experiment Verhältniss Spezienziel \& Populationsgröße}
+In einem Experiment haben wir uns angeschaut, wie sich die Elite bei verschieden starker Spezienbildung entwickelt. Dazu haben wir eine feste Populationsgröße gewählt und Messungen mit unterschiedlichen Spezientargets durchgeführt. In Figure \ref{fig:Spezien} ist genau dies zu sehen bei einer Populationsgröße von 80 und Spezientargets von 2/ 8 und 15. D.h. durchschnittlich waren 40/ 10 oder 5 Topologien in einer Spezie. Dabei kann man sehen, dass wenn zu viele Topologien in einer Spezie sind, sich die Elite nicht gut entwickelt (siehe grüne Kurve in Figure \ref{fig:Spezien}), da sich Spezien kreuzen die sehr unterschiedlich sind. \\
 \begin{figure}[ht!]
 \centering
-\includegraphics[width=\linewidth]{img/1.png}
-\caption{Development of average mean square error, comparing NEAT and ESP}
-\label{fig:1} 
+\includegraphics[width=\linewidth]{img/Mario_80_Netze_gesamt.png}
+\caption{Experiment mit fester Populationsgröße aber unterschiedlichen Spezientargets}
+\label{fig:Spezien} 
 \end{figure}
+
+Wenn allerdings zu wenig Topologien in einer Spezie sind ist das für die Entwicklung der Elite auch nicht förderlich. In Figure \ref{fig:Verhaeltniss0_5} sind durchschnittlich 2 Topologien in einer Spezies. Dort kann man feststellen, dass einmal kaum neue Lösungen erzeugt werden(erkennbar durch eine relativ gleichbleibende horizontale Linie am Anfang). Wenn durch Zufall eine neue viel bessere Lösung gefunden wird, passiert es relativ oft, dass diese wieder verworfen wird. Das kommt dadurch, dass die Spezien relativ oft aussterben und sich nicht durchsetzten, da im Schnitt nur 2 in einer sind. Dazu kommt, dass das Kopieren der Elite einer Spezie erst ab einer Größe von 5 passiert, wodurch so auch nicht der beste behalten wird.\\
  
 \begin{figure}[ht!]
 \centering
-\includegraphics[width=\linewidth]{img/2.png}
-\caption{Development of min/mean/max number of nodes and edges. \textit{Legend is missing}!}
-\label{fig:2} 
+\includegraphics[width=\linewidth]{img/Mario_80_Netze_target_40.png}
+\caption{Verlauf der Elite bei einem Verhältnis von 0.5, sodass im Durchschnitt 2 Spezien existieren}
+\label{fig:Verhaeltniss0_5} 
 \end{figure}
 
-\begin{figure}[ht!]
-\centering
-\includegraphics[width=\linewidth]{img/3.png}
-\caption{Elite topology. Nodes are assigned their IDs. Green are input nodes, purple are output nodes.}
-\label{fig:3} 
-\end{figure}
-
-\begin{figure}[ht!]
-\centering
-\includegraphics[width=\linewidth]{img/4.png}
-\caption{Comparing MSE of NEAT and ESP}
-\label{fig:4} 
-\end{figure}
-
-\begin{figure}[ht!]
-\centering
-\includegraphics[width=\linewidth]{img/5.png}
-\caption{Approximated heart rates after 300 generations}
-\label{fig:5} 
-\end{figure}
-
-\begin{figure}[ht!]
-\centering
-\includegraphics[width=\linewidth]{img/6.png}
-\caption{Development of species over time, averaged over 10 generations}
-\label{fig:6} 
-\end{figure}
 
 
 \FloatBarrier
+\newpage
 \section{Conclusion}
 
 
