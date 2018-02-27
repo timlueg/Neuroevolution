@@ -6,8 +6,8 @@ if(~exist('params', 'var'))
     if(init)
         isTraining = false;
         if(experimentType == 'learningRates')
-            experiment_learingRates = [0.0002, 0.002, 0.02, 0.0002, 0.002, 0.02];
-            experiment_weightResetRates = [0.98, 0.98, 0.98, 0.90, 0.90, 0.90];
+            experiment_learingRates = [0.0002, 0.002, 0.02, 0.2, 0.1];
+            experiment_weightResetRates = [0.98, 0.98, 0.98, 0.98, 0.98];
         end
         
         logEliteFitness = cell(num_experiments, 1);
@@ -53,8 +53,17 @@ if(isVisualization)
    line([1,size(logEliteFitness{1},1)],[4096,4096],'Color','k');
    xlabel('Iteration');
    ylabel('Fitness');
+      legend('Tr = 0,2 LR = 0,0002','Tr = 0,2 LR = 0,002','Tr = 0,2 LR = 0,02','Tr = 0,2 LR = 0,2''Tr = 0,2 LR = 0,1','Level geschafft')
    
    hold off;
+   figure(2);
+   cla;
+   boxplotdata=[];
+   for i=1:num_experiments
+      boxplotdata=[boxplotdata;logEliteFitness{i}(500,:)];
+       
+   end
+   boxplot(boxplotdata);
    
 %    figure(2);
 %    cla;
