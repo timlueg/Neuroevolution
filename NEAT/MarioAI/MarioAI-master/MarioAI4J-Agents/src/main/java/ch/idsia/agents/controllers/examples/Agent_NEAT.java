@@ -41,6 +41,9 @@ public class Agent_NEAT extends MarioHijackAIBase implements IAgent {
 	
 	private INDArray weightMatrix;
 	private INDArray activation;
+	private static int experimentID;
+	private static int lastPositon = 0;
+	private static int lastPositionCheckTimer = 0;
 
 	private static final String EXPERIMENT_TYPE_LEARNINGRATE = "learningRates";
 
@@ -75,6 +78,17 @@ public class Agent_NEAT extends MarioHijackAIBase implements IAgent {
 		activation = netOut;
 		netOut = netOut.get(NDArrayIndex.interval(inputTiles.length(), inputTiles.length() + ((Double) params.get("num_output")).intValue()));
 
+		//stop simulation when mario stuck
+		if(lastPositionCheckTimer == 0) {
+			if(lastPositon != 0 && lastPositon == (int) MarioEnvironment.getInstance().getMario().sprite.x){
+				MarioEnvironment.getInstance().levelScene.mario.die("Stuck");
+			}
+			lastPositon = (int) MarioEnvironment.getInstance().getMario().sprite.x;
+			lastPositionCheckTimer = 10;
+		} else {
+			lastPositionCheckTimer--;
+		}
+
 		/*Double maxValue = Double.NEGATIVE_INFINITY;
 		int keyId = 0;
 		for (int i = 0; i < netOut.length(); i++) {
@@ -94,17 +108,14 @@ public class Agent_NEAT extends MarioHijackAIBase implements IAgent {
 			control.runRight();
 		}*/
 
-
-		for (int i = 0; i < netOut.length(); i++) {
-			if (netOut.getDouble(1) > 0.2) {
-				control.jump();
-			}
-			if (netOut.getDouble(2) > 0.2) {
-				control.runRight();
-			}
-			if (netOut.getDouble(3) > 0.2) {
-				control.sprint();
-			}
+		if (netOut.getDouble(1) > 0.2) {
+			control.jump();
+		}
+		if (netOut.getDouble(2) > 0.2) {
+			control.runRight();
+		}
+		if (netOut.getDouble(3) > 0.2) {
+			control.sprint();
 		}
 
 

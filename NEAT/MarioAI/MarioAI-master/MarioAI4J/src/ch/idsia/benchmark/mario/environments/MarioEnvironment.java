@@ -96,7 +96,7 @@ public final class MarioEnvironment implements IEnvironment {
 	
 	public List<Entity> entities;
 
-	private final LevelScene levelScene;
+	public LevelScene levelScene;
 	// private int frame = 0;
 	private VisualizationComponent marioVisualComponent;
 	private IAgent agent;
