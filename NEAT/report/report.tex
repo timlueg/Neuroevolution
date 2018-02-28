@@ -123,7 +123,7 @@ Um die Eingabemenge gering zu halten wurden ähnliche Kacheln mit dem selben Ein
 Unsere Experimente sind jeweils 5 mal durchgeführt worden. Dabei wurden pro Experiment 1-2 Parameter verändert und getestet. Uns ist bewusst, dass 5 Wiederholungen eigentlich zu wenig sind, aber ein Experiment mit 5 Wiederholungen und jeweils 6 verschiedenen Parametrisierungen hat schon ca. 9h benötigt, was bei noch mehr Wiederholungen den Rahmen gesprengt hätte.
 
 \subsection{Lernraten}
-Mit dem Folgenden Experiment wurde ausgewertet, welche Einfluss die Lernrate bzw. die Wahl der Standardabweichung bei der Normalverteilung der Gewichtsmutation hat. Sowie die Auswirkungen des zufällige Zurücksetzen von Gewichten. 
+Mit dem Folgenden Experiment (Figure \ref{fig:learningRates}) wurde ausgewertet, welche Einfluss die Lernrate bzw. die Wahl der Standardabweichung bei der Normalverteilung der Gewichtsmutation hat. Sowie die Auswirkungen des zufällige Zurücksetzen von Gewichten.
 Beispielsweise werden bei einer Gewichtsmutationsrate (wm) von 0.9, 90\% der zu mutierenden Gewichte mit einer normalverteilten Zufallszahl mit der angegebenen Standardabweichung (std) addiert. Die anderen 10\% werden zufällig neu gesetzt.
 
 \begin{figure}[ht!]
@@ -133,7 +133,7 @@ Beispielsweise werden bei einer Gewichtsmutationsrate (wm) von 0.9, 90\% der zu 
 	\label{fig:learningRates} 
 \end{figure}
 
-Man erkennt, dass wenn weniger Gewichte neu gewählt wurden, wesentlich früher Netze gefunden werden, welches das Level erfolgreich beenden.
+Man erkennt (siehe Figure \ref{fig:learningRates2}), dass wenn weniger Gewichte neu gewählt wurden, wesentlich früher Netze gefunden werden, welches das Level erfolgreich beenden.
 Die Überschneidung der beiden Durchläufe std=0.0002, std=0.002 mit wm=0.98 deuten daraufhin, dass es sinnvoll gewesen wäre mit einer nicht zu geringen Standardabweichung zu starten diese dann aber ab ca. 100 Iterationen zu reduzieren.
 
 \begin{figure}[h!]
@@ -146,7 +146,7 @@ Die Überschneidung der beiden Durchläufe std=0.0002, std=0.002 mit wm=0.98 deu
 Das zufällige neu Wählen der Gewichte ist essenziell für den Lernerfolg. Die Spielfigur schafft ansonsten im Level nur knapp über 500 Pixel weit. Werden zu viele Gewichte neu gewählt, variieren die Topologien zu stark, sodass sich kein großer Lerneffekt einstellt.
 
 \subsection{Controls}
-Im folgenden wurden verschiedene Varianten der Steuerung (Tastatureingaben) verglichen.
+Im folgenden (Figure \ref{fig:control}) wurden verschiedene Varianten der Steuerung (Tastatureingaben) verglichen.
 Mit der Predefined Methode wurde den Ausgabeneuronen Tastenkombinationen zugeordnet. In jedem Zeitschritt wird dann die, mit der aktuell höchsten Aktivierung, ausgeführt.
 Bei der Threshold Methode wird jedem Ausgabeneuronen genau eine Taste zugeordnet. Wenn ein Neuron den gewählten Threshold überschreitet wir sie gedrückt. \newline
 Es wurden die Tasten 'Jump', 'Run Right', und 'Sprint' benutzt. Das es für die Level nicht erforderlich ist, die Spielfigur nach links zu bewegen, wurde auf 'Run Left' verzichtet. \newline
