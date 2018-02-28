@@ -2,9 +2,9 @@
 
 \usepackage{float}
 \usepackage{placeins}
-\usepackage{algorithm}
-\usepackage{algorithmicx}
-\usepackage{algpseudocode}
+\usepackage[utf8]{inputenc}
+\usepackage{fontenc}
+\usepackage{ngerman}
 
 \begin{document}
 
@@ -81,9 +81,9 @@ In diesem Projekt wurde ein Simulator verwendet, der dem Jump\&Run Spiel Super M
 %todo cite simulator lib
 Ziel diese Spieles ist eine Figur in einer 2D-Welt zu steuern und möglichst das Ende des Levels zu erreichen. Dabei existieren Hindernisse wie Schluchten oder Monster die es zu überwinden gilt. 
 
-Zielsetzung war es zu ergründen, ob es NEAT erlaubt ein Netzwerk zu trainieren, welches basierend auf den Informationen aus dem aktuellen Sichtfeld die Spielfigur zu steuern, um ans Ende des (statischen) Levels zu gelangen.
+Zielsetzung war es zu ergründen, ob es NEAT erlaubt ein Netzwerk zu trainieren, welches basierend auf den Informationen aus dem aktuellen Sichtfeld die Spielfigur steuert, um ans Ende des (statischen) Levels zu gelangen.
 
-Als Trainingsdaten sich zunächst auf ein generiertes Level beschränkt, welches nur Blöcke, Schluchten oder erhöhte Ebenen enthielt, die es zu überspringen galt.
+Als Trainingsdaten wurde sich zunächst auf ein generiertes Level beschränkt, welches nur Blöcke, Schluchten oder erhöhte Ebenen enthielt, die es zu überspringen galt.
 
 Das Sichtfeld beseht aus einem Gitter, zentriert um die Spielfigur herum (siehe Figure \ref{fig:MarioInput}). Die Objekte/Kacheln im Level unterscheiden sich anhand ihrem Typ (z.B Boden, Wand) und ihrer Position.
 
@@ -104,7 +104,7 @@ Um die Kommunikation zwischen dem Simulator und Matlab herzustellen wurde die MA
 In jeder Iteration wird die aktuelle Population aus dem Workspace geladen und bei der Ausführung des Simulators anhand des aktuellen Sichtfelds der Spielfigur der Output bzw. den daraus resultierenden Tastendruck. 
 Um die Kommunikation zwischen Matlab und Java möglichst gering zu halten ist die Berechnung der Netze in Java mittels der Matrizen Bibliothek NDJ4 %todo cite
 implementiert. 
-Hat der die Spielfigur das Ende des Levels erreicht, ist die Spielzeit abgelaufen oder die Spielfigur in eine Schlucht gefallen wird die fitness auf den erreichten Levelfortschirtt gesetzt (x-Position). Außerdem wird bei Topologien, die das Ende des Levels erreichen, die restliche Spielzeit addiert um die Geschwindigkeit in der das Level abgeschlossen wird zu belohnen. Die Fitnesswerte werden zurück in den Matlab Workspace geschrieben und die Mutation mittels NEAT durchzuführen. Danach beginnt der Prozess von neuem. 
+Hat der die Spielfigur das Ende des Levels erreicht, ist die Spielzeit abgelaufen, die Spielfigur in eine Schlucht gefallen oder stecken/stehen geblieben wird die fitness auf den erreichten Levelfortschirtt gesetzt (x-Position). Außerdem wird bei Topologien, die das Ende des Levels erreichen, die restliche Spielzeit addiert um die Geschwindigkeit in der das Level abgeschlossen wird zu belohnen. Die Fitnesswerte werden zurück in den Matlab Workspace geschrieben und die Mutation mittels NEAT durchzuführen. Danach beginnt der Prozess von neuem. 
 In der folgenden Abbildung (Figure \ref{fig:sequenzdiagramm}) ist der Ablauf nochmals veranschaulicht.
 
 \begin{figure}[h!]
@@ -122,13 +122,48 @@ Um die Eingabemenge gering zu halten wurden ähnliche Kacheln mit dem selben Ein
 \section{Experiments}
 Unsere Experimente sind jeweils 5 mal durchgeführt worden. Dabei wurden pro Experiment 1-2 Parameter verändert und getestet. Uns ist bewusst, dass 5 Wiederholungen eigentlich zu wenig sind, aber ein Experiment mit 5 Wiederholungen und jeweils 6 verschiedenen Parametrisierungen hat schon ca. 9h benötigt, was bei noch mehr Wiederholungen den Rahmen gesprengt hätte.
 
-\subsection{Parameterization}
+\subsection{Lernraten}
+Mit dem Folgenden Experiment wurde ausgewertet, welche Einfluss die Lernrate bzw. die Wahl der Standardabweichung bei der Normalverteilung der Gewichtsmutation hat. Sowie die Auswirkungen des zufällige Zurücksetzen von Gewichten. 
+Beispielsweise werden bei einer Gewichtsmutationsrate (wm) von 0.9, 90\% der zu mutierenden Gewichte mit einer normalverteilten Zufallszahl mit der angegebenen Standardabweichung (std) addiert. Die anderen 10\% werden zufällig neu gesetzt.
 
-Des Weiteren haben wir uns angeschaut,  welcher Treshhold für den Output genommen werden soll, damit eine Taste gedrückt wird oder nicht. Vermutet hatten wir, dass der Treshold 0,5 am besten sein sollte, da dort der Anstieg der Aktivierungsunktion am größten ist. In Figure \ref{fig:treshold} lässt sich aber erkennen, dass der Durchschnitt über die Elite bei 10 Versuchen bei unterschiedlichen Lernraten immer schlechter ist, als wenn man den Treshold auf 0,2 setzt und dort die unterschiedlichen Lernraten testet. 
+\begin{figure}[ht!]
+	\centering
+	\includegraphics[width=\linewidth]{img/learningRates.png}
+	\caption{Durchschnitt Elite Fitness}
+	\label{fig:learningRates} 
+\end{figure}
+
+Man erkennt, dass wenn weniger Gewichte neu gewählt wurden, wesentlich früher Netze gefunden werden, welches das Level erfolgreich beenden.
+Die Überschneidung der beiden Durchläufe std=0.0002, std=0.002 mit wm=0.98 deuten daraufhin, dass es sinnvoll gewesen wäre mit einer nicht zu geringen Standardabweichung zu starten diese dann aber ab ca. 100 Iterationen zu reduzieren.
+
+\begin{figure}[h!]
+	\centering
+	\includegraphics[width=\linewidth]{img/learningRates2.png}
+	\caption{(Keine) Neuwahl der Gewichte}
+	\label{fig:learningRates2} 
+\end{figure}
+
+Das zufällige neu Wählen der Gewichte ist essenziell für den Lernerfolg. Die Spielfigur schafft ansonsten im Level nur knapp über 500 Pixel weit. Werden zu viele Gewichte neu gewählt, variieren die Topologien zu stark, sodass sich kein großer Lerneffekt einstellt.
+
+\subsection{Controls}
+Im folgenden wurden verschiedene Varianten der Steuerung (Tastatureingaben) verglichen.
+Mit der Predefined Methode wurde den Ausgabeneuronen Tastenkombinationen zugeordnet. In jedem Zeitschritt wird dann die, mit der aktuell höchsten Aktivierung, ausgeführt.
+Bei der Threshold Methode wird jedem Ausgabeneuronen genau eine Taste zugeordnet. Wenn ein Neuron den gewählten Threshold überschreitet wir sie gedrückt. \newline
+Es wurden die Tasten 'Jump', 'Run Right', und 'Sprint' benutzt. Das es für die Level nicht erforderlich ist, die Spielfigur nach links zu bewegen, wurde auf 'Run Left' verzichtet. \newline
+
+Wie erwartet funktioniert die Predefined Methode (schon von beginn an) am besten. Für bestimmte Schluchten ist es für die Spielfigur notwendig möglichst weit zu springen, daher muss 'jump' + 'run Right' gleichzeitig gedrückt werden. Das gleichzeitige drücken der beiden Tasten muss aber bei der Threshold Methode erst erlernt werden wo hingegen bei der Predefinde Methode dieses Verhalten schon vordefiniert ist.
+\begin{figure}[h!]
+	\centering
+	\includegraphics[width=\linewidth]{img/controls.png}
+	\caption{Steuervarianten Predefined vs Threshold}
+	\label{fig:control} 
+\end{figure}
+
+Des Weiteren haben wir uns angeschaut,  welcher Threshold für den Output genommen werden soll, damit eine Taste gedrückt wird oder nicht. Vermutet hatten wir, dass der Threshold 0,5 am besten sein sollte, da dort der Anstieg der Aktivierungsunktion am größten ist. In Figure \ref{fig:treshold} lässt sich aber erkennen, dass der Durchschnitt über die Elite bei 10 Versuchen bei unterschiedlichen Lernraten immer schlechter ist, als wenn man den Treshold auf 0,2 setzt und dort die unterschiedlichen Lernraten testet. 
 \begin{figure}[ht!]
 	\centering
 	\includegraphics[width=\linewidth]{img/Mario_Treshold.png}
-	\caption{Durschnitt der Elite bei 10 Wiederholungen beim Vergleich von unterschiedlichen Tresholds im Zusammenspiel mit unterschiedlichen Lernraten}
+	\caption{Durchschnitt der Elite bei 10 Wiederholungen beim Vergleich von unterschiedlichen Tresholds im Zusammenspiel mit unterschiedlichen Lernraten}
 	\label{fig:treshold} 
 \end{figure}
 
