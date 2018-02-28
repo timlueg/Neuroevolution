@@ -202,7 +202,15 @@ Wenn allerdings zu wenig Topologien in einer Spezie sind ist das für die Entwic
 \FloatBarrier
 \newpage
 \section{Conclusion}
+Abschließend hat sich herausgestellt, dass NEAT auf einem speziellen Level sehr gut funktioniert. Dort wird eine Lösung gefunden, die auch maximal gut optimiert wird, sodass Mario das Level in kürzester Zeit schafft. Bei dem Versuch auf mehreren Level hat sich NEAT als nicht ganz so gut erwiesen (zumindest bei der Anzahl an Iterationen, die in unserem Bereich des möglichen waren). Dort war kein großer Lerneffekt feststellbar. Zudem kam dazu, das der Simulator nicht gut parallelisierbar ist, wodurch wir auch nicht mehr Iterationen in kürzerer Zeit herbeiführen konnten. \\
+Durch diesen ''gescheiterten Verusch'' konnten wir nicht feststellen, dass sich Mario auf Grund seiner Umgebung fortbewegt.\\
 
+Außerdem zeigte sich deutlich, dass die Spezienbildung für den Algorithmus sehr wichtig ist und man bei dieser auf die Granularität achten muss. Die Spezien dürfen nicht zu speziell aber auch nicht zu allgemein sein.
+Genauso zeigte sich, dass für das finden besserer Lösungen das Setzen von neuen zufälligen Gewichten unabdingbar ist.\\
+
+Was die Steuerung angeht waren vordefinierte Tastenkombinationen die beste Wahl, was aber auch daran lag, dass dadurch extra Wissen mit in den Algorithmus hineingegeben worden ist.\\
+
+Insgesamt lässt sich sagen, dass der Algorithmus sehr viele Stellschrauben hat, die man bei einem konkreten Problem genau einstellen muss und das man Laufzeiten verkürzen kann, in dem man sich bei dem Input und der Interpretation des Outputs Gedanken macht, um dem Spiel zusätzlich Wissen zu geben.
 
 \bibliographystyle{abbrv}
 \bibliography{HeteroNEAT} 
