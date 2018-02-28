@@ -111,7 +111,7 @@ Das zufällige neu Wählen der Gewichte ist essenziell für den Lernerfolg. Die 
 \newpage
 
 \subsection{Controls}
-Des Weiteren haben wir uns angeschaut, welcher Threshold für den Output genommen werden sollte, damit eine Taste gedrückt wird oder nicht. Vermutet hatten wir, dass der Threshold 0,5 am besten sein sollte, da dort der Anstieg der Aktivierungsunktion am größten ist. In Figure \ref{fig:treshold} lässt sich aber erkennen, dass der Durchschnitt über die Elite bei 5 Versuchen bei unterschiedlichen Lernraten immer schlechter ist, als wenn man den Treshold auf 0,2 setzt und dort die unterschiedlichen Lernraten testet. 
+Im folgenden Experiment wurde betrachtet, welcher Threshold für den Output gewählt werden soll, damit eine Taste gedrückt wird oder nicht. Vermutet hatten wir, dass der Threshold 0,5 am besten sein sollte, da dort der Anstieg der Aktivierungsunktion am größten ist. In Figure \ref{fig:treshold} lässt sich aber erkennen, dass der Durchschnitt über die Elite bei 5 Versuchen bei unterschiedlichen Lernraten immer schlechter ist, als wenn man den Treshold auf 0,2 setzt und dort die unterschiedlichen Lernraten testet. 
 
 \begin{figure}[h!]
 	\centering
@@ -131,7 +131,7 @@ Der Boxplot zu dem Experiment zeigt, dass nicht nur die Elite schlechter ist mit
 
 \FloatBarrier
 
-Im folgenden (Figure \ref{fig:control}) wurden verschiedene Varianten der Steuerung (Tastatureingaben) verglichen.
+Des Weiteren wurden verschiedene Varianten der Steuerung (Tastatureingaben) verglichen (siehe Figure \ref{fig:control}).
 Mit der Predefined Methode wurde den Ausgabeneuronen Tastenkombinationen zugeordnet. In jedem Zeitschritt wird dann die, mit der aktuell höchsten Aktivierung, ausgeführt.
 Bei der Threshold Methode wird jedem Ausgabeneuronen genau eine Taste zugeordnet. Wenn ein Neuron den gewählten Threshold überschreitet wir sie gedrückt. \newline
 Es wurden die Tasten 'Jump', 'Run Right', und 'Sprint' benutzt. Das es für die Level nicht erforderlich ist, die Spielfigur nach links zu bewegen, wurde auf 'Run Left' verzichtet. \newline
@@ -192,8 +192,8 @@ Um ein Aussagefähigeres Ergebnis zu erzielen, müsste zum einen Trainingsmenge 
 \FloatBarrier
 \newpage
 \section{Conclusion}
-Abschließend hat sich herausgestellt, dass NEAT auf einem speziellen Level sehr gut funktioniert. Dort wird eine Lösung gefunden, die auch maximal gut optimiert wird, sodass Mario das Level in kürzester Zeit schafft. Bei dem Versuch auf mehreren Level hat sich NEAT als nicht ganz so gut erwiesen (zumindest bei der Anzahl an Iterationen, die in unserem Bereich des Möglichen waren). Dort war kein großer Lerneffekt feststellbar. Zudem kam dazu, das der Simulator nicht gut parallelisierbar ist, wodurch wir auch nicht mehr Iterationen in kürzerer Zeit herbeiführen konnten. \\
-Durch diesen ''gescheiterten Verusch'' konnten wir nicht feststellen, dass sich Mario auf Grund seiner Umgebung fortbewegt.\\
+Abschließend hat sich herausgestellt, dass NEAT auf einem speziellen Level sehr gut funktioniert. Dort wird eine Lösung gefunden, die auch maximal gut optimiert wird, sodass Mario das Level in kürzester Zeit schafft. Bei dem Versuch auf mehreren Level hat sich NEAT als nicht ganz so gut erwiesen (zumindest bei der Anzahl an Iterationen, die in unserem Bereich des Möglichen waren). Dort war kein großer Lerneffekt feststellbar. Zudem kam dazu, das der Simulator nicht gut parallelisierbar ist, wodurch wir auch nicht mehr Iterationen in kürzerer Zeit durchführen konnten. \\
+Durch dieses Experiment konnte nicht ausreichend ergründet werden, ob sich Mario Aufgrund seiner Umgebung fortbewegt oder nur Bewegungsabläufe speichert.\\
 
 Außerdem zeigte sich deutlich, dass die Spezienbildung für den Algorithmus sehr wichtig ist und man bei dieser auf die Granularität achten muss. Die Spezien dürfen nicht zu speziell aber auch nicht zu allgemein sein.
 Genauso zeigte sich, dass für das finden besserer Lösungen das Setzen von neuen zufälligen Gewichten unabdingbar ist.\\
