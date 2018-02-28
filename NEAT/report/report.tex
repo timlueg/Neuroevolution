@@ -33,51 +33,10 @@ Jan Urfei\\
 Ziel war es eine Mario Spielfigur mit bestimmten Szenarien zu trainieren, sodass diese dann das/die Level best möglichst lösen kann.
 \end{abstract}
 
-%% ------------------------------ GENERAL NOTES ------------------------------ %%
-\section{General Notes}
-\label{sec:generalnotes}
-\begin{itemize}
-\item Do not state things you cannot confirm either by literature or experiment. This is science, not black magic.
-\item Normalize your data and resulting statistical descriptors (like RMSE, $\mu$)
-\item Save your experimental results to disk \textbf{before you visualize}. You \textbf{will} change your plots quite a lot after gathering the data.
-\item Don't submit reports with many pages containing just a single figure. Scrolling is terrible for our health.
-\item \textbf{Separate} training and test data. Don't use test data in your algorithm to learn or make decisions, they are only allowed to test the end result. If you need a separate sample set to make decisions during training or optimization, create a third (validation) set. Only your test data will really tell you how good your algorithm is. 
-\end{itemize}
-
-\subsection{Algorithm Parametrization}
-Develop an actual strategy, preferably on a reduced but similar problem. You can reduce the number of samples, the targetted number of time steps your controller runs in a simulation, or any other non-destructive problem reduction method. If your algorithm has two paramers you need to adjust, it should be no problem to take 5 \textit{sensible} values per parameter and compare all combinations. For stochastic algorithms, like evolutionary approaches, make sure you \textbf{repeat your experiments} at least 5-10 times, depending on the amount of randomness. Since your algorithm makes "random" changes, just comparing single runs does not give you a good estimation on its performance. Do \textbf{not} pick your values such that they only confirm the values you \textbf{want} to use.
-
-%% ------------------------------ STRUCTURE ------------------------------ %%
-\subsection{Structure}
-\label{sec:structure}
-\begin{enumerate}
-\item \textbf{Assignment Description}: first provide a brief description of the assignment that was handed out to you. This includes a description of the data.
-\item \textbf{Approach}: describe the algorithm
-\item \textbf{Experiments}: describe your experimental setup, algorithm parameters, data preprocessing first. Then include the results and a discussion thereof.
-\item \textbf{Conclusion}: any conclusions about the algorithm, bugs, future work.
-\end{enumerate}
-%% ------------------------------ VISUALIZATION ------------------------------ %%
-\subsection{Visualization}
-\label{sec:visualization}
-
-\begin{itemize}
-\item Label your axes
-\item Use logarithmic scale when appropriate
-\item Use descriptive captions below your figures
-\item Add legends if necessary
-\item Make fontsizes large enough, linewidths thick enough to be readible in the final report.
-\item When making comparisons, make sure the results are either in the \textbf{same} graph or graphs are plotted next to (or close to) each other.
-\item \textbf{In short: make sure people can read your figures}
-\end{itemize}
-
-%% ------------------------------ REPORT STRUCTURE ------------------------------ %%
-\FloatBarrier
-\newpage
-\newpage
 \section{Assignment}
 Aufgabe war es den für die HeartRate Prediction implementierten NEAT Algorithmus\cite{Stanley2002a} anzupassen, dass er ein Problem eines ausgesuchten Projektes löst.
 
-In diesem Projekt wurde ein Simulator verwendet, der dem Jump\&Run Spiel Super Mario Bros. nachempfunden ist.
+In diesem Projekt wurde ein Simulator verwendet, der dem Jump \& Run Spiel Super Mario Bros. nachempfunden ist.
 %todo cite simulator lib
 Ziel diese Spieles ist eine Figur in einer 2D-Welt zu steuern und möglichst das Ende des Levels zu erreichen. Dabei existieren Hindernisse wie Schluchten oder Monster die es zu überwinden gilt. 
 
@@ -95,6 +54,8 @@ Das Sichtfeld beseht aus einem Gitter, zentriert um die Spielfigur herum (siehe 
 \end{figure}
 
 \FloatBarrier
+
+
 \section{Approach}
 Im Gegensatz zum NEAT Paper \cite{Stanley2002a} wird eine Mutation verwendet, die Kanten wieder deaktivieren kann, damit die Topologien minimiert werden, falls nicht alle Eingaben aus dem Sichtfeld benötigt werden. 
 Des weiteren wurde auf Fitnesssharing verzichtet.
@@ -118,13 +79,15 @@ Das Sichtfeld der Spielfigur ist auf 15x15 (Breite x Höhe) Felder begrenzt bzw.
 
 Um die Eingabemenge gering zu halten wurden ähnliche Kacheln mit dem selben Eingabewert versehen (z.b Boden, Fels) sowie unwichtigeren Kacheln geringere Eingabegrößen vergeben.
 
-\FloatBarrier
 \section{Experiments}
-Unsere Experimente sind jeweils 5 mal durchgeführt worden. Dabei wurden pro Experiment 1-2 Parameter verändert und getestet. Uns ist bewusst, dass 5 Wiederholungen eigentlich zu wenig sind, aber ein Experiment mit 5 Wiederholungen und jeweils 6 verschiedenen Parametrisierungen hat schon ca. 9h benötigt, was bei noch mehr Wiederholungen den Rahmen gesprengt hätte.
+Unsere Experimente sind jeweils 5 mal durchgeführt worden. Dabei wurden pro Experiment 1-2 Parameter verändert und getestet. Mehr als 5 Wiederholungen wären für ein aussagekräftigere Auswertung sinnvoll gewesen, aber Aufgrund der Dauer der Simulation, bei den zusätzlich 6 verschiedenen Parametrierungen, nicht realisierbar im Rahmen des Projektes.
 
 \subsection{Lernraten}
 Mit dem Folgenden Experiment (Figure \ref{fig:learningRates}) wurde ausgewertet, welche Einfluss die Lernrate bzw. die Wahl der Standardabweichung bei der Normalverteilung der Gewichtsmutation hat. Sowie die Auswirkungen des zufällige Zurücksetzen von Gewichten.
-Beispielsweise werden bei einer Gewichtsmutationsrate (wm) von 0.9, 90\% der zu mutierenden Gewichte mit einer normalverteilten Zufallszahl mit der angegebenen Standardabweichung (std) addiert. Die anderen 10\% werden zufällig neu gesetzt.
+Beispielsweise werden bei einer Gewichtsmutationsrate (wm) von 0.9, 90\% der zu mutierenden Gewichte mit einer normalverteilten Zufallszahl mit der angegebenen Standardabweichung (std) addiert. Die anderen 10\% werden zufällig neu gesetzt. \newline
+Aus Figure \ref{fig:learningRates} lässt sich ablesen, dass es effektiver ist nur einen geringen Prozentsatz von Gewichten zufällig neu zu Wählen z.B 2\% anstatt 10\%.
+
+
 
 \begin{figure}[ht!]
 	\centering
@@ -145,23 +108,11 @@ Die Überschneidung der beiden Durchläufe std=0.0002, std=0.002 mit wm=0.98 deu
 
 Das zufällige neu Wählen der Gewichte ist essenziell für den Lernerfolg. Die Spielfigur schafft ansonsten im Level nur knapp über 500 Pixel weit. Werden zu viele Gewichte neu gewählt, variieren die Topologien zu stark, sodass sich kein großer Lerneffekt einstellt.
 
-\subsection{Controls}
-Im folgenden (Figure \ref{fig:control}) wurden verschiedene Varianten der Steuerung (Tastatureingaben) verglichen.
-Mit der Predefined Methode wurde den Ausgabeneuronen Tastenkombinationen zugeordnet. In jedem Zeitschritt wird dann die, mit der aktuell höchsten Aktivierung, ausgeführt.
-Bei der Threshold Methode wird jedem Ausgabeneuronen genau eine Taste zugeordnet. Wenn ein Neuron den gewählten Threshold überschreitet wir sie gedrückt. \newline
-Es wurden die Tasten 'Jump', 'Run Right', und 'Sprint' benutzt. Das es für die Level nicht erforderlich ist, die Spielfigur nach links zu bewegen, wurde auf 'Run Left' verzichtet. \newline
-
-Wie erwartet funktioniert die Predefined Methode (schon von beginn an) am besten. Für bestimmte Schluchten ist es für die Spielfigur notwendig möglichst weit zu springen, daher muss 'jump' + 'run Right' gleichzeitig gedrückt werden. Das gleichzeitige drücken der beiden Tasten muss aber bei der Threshold Methode erst erlernt werden wo hingegen bei der Predefinde Methode dieses Verhalten schon vordefiniert ist.
-\begin{figure}[h!]
-	\centering
-	\includegraphics[width=\linewidth]{img/controls.png}
-	\caption{Steuervarianten Predefined vs Threshold}
-	\label{fig:control}
-\end{figure}
-
 \newpage
 
-Des Weiteren haben wir uns angeschaut,  welcher Threshold für den Output genommen werden soll, damit eine Taste gedrückt wird oder nicht. Vermutet hatten wir, dass der Threshold 0,5 am besten sein sollte, da dort der Anstieg der Aktivierungsunktion am größten ist. In Figure \ref{fig:treshold} lässt sich aber erkennen, dass der Durchschnitt über die Elite bei 10 Versuchen bei unterschiedlichen Lernraten immer schlechter ist, als wenn man den Treshold auf 0,2 setzt und dort die unterschiedlichen Lernraten testet. 
+\subsection{Controls}
+Des Weiteren haben wir uns angeschaut, welcher Threshold für den Output genommen werden sollte, damit eine Taste gedrückt wird oder nicht. Vermutet hatten wir, dass der Threshold 0,5 am besten sein sollte, da dort der Anstieg der Aktivierungsunktion am größten ist. In Figure \ref{fig:treshold} lässt sich aber erkennen, dass der Durchschnitt über die Elite bei 5 Versuchen bei unterschiedlichen Lernraten immer schlechter ist, als wenn man den Treshold auf 0,2 setzt und dort die unterschiedlichen Lernraten testet. 
+
 \begin{figure}[h!]
 	\centering
 	\includegraphics[width=\linewidth]{img/Mario_Treshold.png}
@@ -178,8 +129,24 @@ Der Boxplot zu dem Experiment zeigt, dass nicht nur die Elite schlechter ist mit
 	\label{fig:treshold_boxplot} 
 \end{figure}
 
+\FloatBarrier
 
-\subsection{Experiment Verhältniss Spezienziel \& Populationsgröße}
+Im folgenden (Figure \ref{fig:control}) wurden verschiedene Varianten der Steuerung (Tastatureingaben) verglichen.
+Mit der Predefined Methode wurde den Ausgabeneuronen Tastenkombinationen zugeordnet. In jedem Zeitschritt wird dann die, mit der aktuell höchsten Aktivierung, ausgeführt.
+Bei der Threshold Methode wird jedem Ausgabeneuronen genau eine Taste zugeordnet. Wenn ein Neuron den gewählten Threshold überschreitet wir sie gedrückt. \newline
+Es wurden die Tasten 'Jump', 'Run Right', und 'Sprint' benutzt. Das es für die Level nicht erforderlich ist, die Spielfigur nach links zu bewegen, wurde auf 'Run Left' verzichtet. \newline
+
+Wie erwartet funktioniert die Predefined Methode (schon von beginn an) am besten. Für bestimmte Schluchten ist es für die Spielfigur notwendig möglichst weit zu springen, daher muss 'jump' + 'run Right' gleichzeitig gedrückt werden. Das gleichzeitige drücken der beiden Tasten muss aber bei der Threshold Methode erst erlernt werden wo hingegen bei der Predefinde Methode dieses Verhalten schon vordefiniert ist.
+\begin{figure}[h!]
+	\centering
+	\includegraphics[width=0.93\linewidth]{img/controls.png}
+	\caption{Steuervarianten Predefined vs Threshold}
+	\label{fig:control}
+\end{figure}
+
+\newpage
+
+\subsection{Experiment Verhältnis Spezienziel \& Populationsgröße}
 In einem Experiment haben wir uns angeschaut, wie sich die Elite bei verschieden starker Spezienbildung entwickelt. Dazu haben wir eine feste Populationsgröße gewählt und Messungen mit unterschiedlichen Spezientargets durchgeführt. In Figure \ref{fig:Spezien} ist genau dies zu sehen bei einer Populationsgröße von 80 und Spezientargets von 2/ 8 und 15. D.h. durchschnittlich waren 40/ 10 oder 5 Topologien in einer Spezie. Dabei kann man sehen, dass wenn zu viele Topologien in einer Spezie sind, sich die Elite nicht gut entwickelt (siehe grüne Kurve in Figure \ref{fig:Spezien}), da sich Spezien kreuzen die sehr unterschiedlich sind. \\
 \begin{figure}[h!]
 \centering
@@ -197,11 +164,11 @@ Wenn allerdings zu wenig Topologien in einer Spezie sind ist das für die Entwic
 \label{fig:Verhaeltniss0_5} 
 \end{figure}
 
-\newpage
+\FloatBarrier
 
 \subsection{Multilevel Training (Generalisierung)}
 Um die Generalisierbarkeit des Verfahrens zu testen, wurden 100 Trainings und 100 Testlevel generiert.
-Aufgrund der Dauer der Simulation wurden 10 Level aus den 100 Trainingsleven ausgesucht. In jeder Iteration wurde die Simulation auf den 10 Leveln ausgeführt und die Fitnesswerte aufaddiert. \newline In Figure \ref{fig:MultilevelTrain} ist dazu die durchschnittliche elite fitness über 10 Level dargestellt.
+Aufgrund der Dauer der Simulation wurden 10 Level aus den 100 Trainingsleveln ausgesucht. In jeder Iteration wurde die Simulation auf den 10 Leveln ausgeführt und die Fitnesswerte aufaddiert. \newline In Figure \ref{fig:MultilevelTrain} ist dazu die durchschnittliche Elite Fitness über 10 Level dargestellt.
 Da sich schon nach wenigen Iterationen die Fitnesswerte stabilisiert haben und sich die Fitness auf den Testdaten auch nicht verbessert hat, wurde ab ca. der  1200 Iteration, in jeder Iteration, ein zufälliges Level mit einem aus den generierten Traningslevel ausgetauscht (Erkennbar an dem sofortigen Abfall der durchschnittlichen Fitness). \newline
 
 \begin{figure}[h!]
@@ -225,15 +192,15 @@ Um ein Aussagefähigeres Ergebnis zu erzielen, müsste zum einen Trainingsmenge 
 \FloatBarrier
 \newpage
 \section{Conclusion}
-Abschließend hat sich herausgestellt, dass NEAT auf einem speziellen Level sehr gut funktioniert. Dort wird eine Lösung gefunden, die auch maximal gut optimiert wird, sodass Mario das Level in kürzester Zeit schafft. Bei dem Versuch auf mehreren Level hat sich NEAT als nicht ganz so gut erwiesen (zumindest bei der Anzahl an Iterationen, die in unserem Bereich des möglichen waren). Dort war kein großer Lerneffekt feststellbar. Zudem kam dazu, das der Simulator nicht gut parallelisierbar ist, wodurch wir auch nicht mehr Iterationen in kürzerer Zeit herbeiführen konnten. \\
+Abschließend hat sich herausgestellt, dass NEAT auf einem speziellen Level sehr gut funktioniert. Dort wird eine Lösung gefunden, die auch maximal gut optimiert wird, sodass Mario das Level in kürzester Zeit schafft. Bei dem Versuch auf mehreren Level hat sich NEAT als nicht ganz so gut erwiesen (zumindest bei der Anzahl an Iterationen, die in unserem Bereich des Möglichen waren). Dort war kein großer Lerneffekt feststellbar. Zudem kam dazu, das der Simulator nicht gut parallelisierbar ist, wodurch wir auch nicht mehr Iterationen in kürzerer Zeit herbeiführen konnten. \\
 Durch diesen ''gescheiterten Verusch'' konnten wir nicht feststellen, dass sich Mario auf Grund seiner Umgebung fortbewegt.\\
 
 Außerdem zeigte sich deutlich, dass die Spezienbildung für den Algorithmus sehr wichtig ist und man bei dieser auf die Granularität achten muss. Die Spezien dürfen nicht zu speziell aber auch nicht zu allgemein sein.
 Genauso zeigte sich, dass für das finden besserer Lösungen das Setzen von neuen zufälligen Gewichten unabdingbar ist.\\
 
-Was die Steuerung angeht waren vordefinierte Tastenkombinationen die beste Wahl, was aber auch daran lag, dass dadurch extra Wissen mit in den Algorithmus hineingegeben worden ist.\\
+Was die Steuerung angeht waren vordefinierte Tastenkombinationen die beste Wahl, was aber auch daran lag, dass dadurch zusätzliches Wissen mit in den Algorithmus eingeflossen ist.\\
 
-Insgesamt lässt sich sagen, dass der Algorithmus sehr viele Stellschrauben hat, die man bei einem konkreten Problem genau einstellen muss und das man Laufzeiten verkürzen kann, in dem man sich bei dem Input und der Interpretation des Outputs Gedanken macht, um dem Spiel zusätzlich Wissen zu geben.
+Insgesamt lässt sich sagen, dass der Algorithmus sehr viele Stellschrauben hat, die man bei einem konkreten Problem genau einstellen muss und das man Laufzeiten verkürzen kann, in dem man sich bei dem Input und der Interpretation des Outputs Gedanken macht, um dem Algorithmus über das Spiel zusätzlich Wissen zu geben.
 
 \bibliographystyle{abbrv}
 \bibliography{HeteroNEAT} 
