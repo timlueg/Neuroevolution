@@ -197,7 +197,30 @@ Wenn allerdings zu wenig Topologien in einer Spezie sind ist das für die Entwic
 \label{fig:Verhaeltniss0_5} 
 \end{figure}
 
+\newpage
 
+\subsection{Multilevel Training (Generalisierung)}
+Um die Generalisierbarkeit des Verfahrens zu testen, wurden 100 Trainings und 100 Testlevel generiert.
+Aufgrund der Dauer der Simulation wurden 10 Level aus den 100 Trainingsleven ausgesucht. In jeder Iteration wurde die Simulation auf den 10 Leveln ausgeführt und die Fitnesswerte aufaddiert. \newline In Figure \ref{fig:MultilevelTrain} ist dazu die durchschnittliche elite fitness über 10 Level dargestellt.
+Da sich schon nach wenigen Iterationen die Fitnesswerte stabilisiert haben und sich die Fitness auf den Testdaten auch nicht verbessert hat, wurde ab ca. der  1200 Iteration, in jeder Iteration, ein zufälliges Level mit einem aus den generierten Traningslevel ausgetauscht (Erkennbar an dem sofortigen Abfall der durchschnittlichen Fitness). \newline
+
+\begin{figure}[h!]
+	\centering
+	\includegraphics[width=\linewidth]{img/multilevelTrainFitness.png}
+	\caption{Fitness der Elite beim Training (Durchschnitt über 10 Level)}
+	\label{fig:MultilevelTrain} 
+\end{figure}
+
+Bei Betrachtung der Fitnesswerte der 100 Testlevel in Figure \ref{fig:multilevelTest} erkennt man zwar, dass ein paar wenige Level gute Ergebnisse erzielen, aber insgesamt die Generalisierung in diesem Experiment nicht ausreichend erkennbar ist. \newline
+
+Um ein Aussagefähigeres Ergebnis zu erzielen, müsste zum einen Trainingsmenge als auch die Anzahl der Trainingsiterationen wesentlich erhöht werden. Diese Anforderung war aber nicht erfüllbar, da es nicht praktikabel war den Simulator umzuschreiben um ihn parallelisierbar zu machen. 
+
+\begin{figure}[h!]
+	\centering
+	\includegraphics[width=\linewidth]{img/multilevelTestFitness.png}
+	\caption{Fitness der Elite auf 100 zufälligen Testleveln}
+	\label{fig:multilevelTest} 
+\end{figure}
 
 \FloatBarrier
 \newpage
