@@ -1,20 +1,5 @@
 package ch.idsia.agents.controllers.examples;
 
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.Random;
-
-import org.apache.commons.lang3.ArrayUtils;
-import org.nd4j.linalg.api.ndarray.INDArray;
-import org.nd4j.linalg.api.ops.impl.accum.MatchCondition;
-import org.nd4j.linalg.factory.Nd4j;
-import org.nd4j.linalg.indexing.NDArrayIndex;
-import org.nd4j.linalg.indexing.conditions.Conditions;
-
-import com.mathworks.engine.EngineException;
-import com.mathworks.engine.MatlabEngine;
-import com.mathworks.matlab.types.Struct;
-
 import ch.idsia.agents.AgentOptions;
 import ch.idsia.agents.IAgent;
 import ch.idsia.agents.controllers.MarioHijackAIBase;
@@ -23,7 +8,21 @@ import ch.idsia.benchmark.mario.engine.input.MarioInput;
 import ch.idsia.benchmark.mario.environments.MarioEnvironment;
 import ch.idsia.benchmark.mario.options.FastOpts;
 import ch.idsia.benchmark.mario.options.MarioOptions;
+import com.mathworks.engine.EngineException;
+import com.mathworks.engine.MatlabEngine;
+import com.mathworks.matlab.types.Struct;
+import org.apache.commons.lang3.ArrayUtils;
+import org.nd4j.linalg.api.ndarray.INDArray;
+import org.nd4j.linalg.api.ops.impl.accum.MatchCondition;
+import org.nd4j.linalg.factory.Nd4j;
+import org.nd4j.linalg.indexing.NDArrayIndex;
+import org.nd4j.linalg.indexing.conditions.Conditions;
 import org.nd4j.linalg.ops.transforms.Transforms;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.Random;
 
 /**
  * Usage:
@@ -46,6 +45,7 @@ public class Agent_NEAT extends MarioHijackAIBase implements IAgent {
 	private static int lastPositionCheckTimer = 0;
 
 	private static final String EXPERIMENT_TYPE_LEARNINGRATE = "learningRates";
+	private static final String EXPERIMENT_TYPE_CONTROL = "controls";
 
 	@Override
 	public void reset(AgentOptions options) {
@@ -127,12 +127,12 @@ public class Agent_NEAT extends MarioHijackAIBase implements IAgent {
 		eng = MatlabEngine.connectMatlab(MatlabEngine.findMatlab()[0]);
 		closeMatlabEngineOnManualExit();
 
-		boolean displayGameWindow = false;
-		int num_iterations = 500;
+		boolean displayGameWindow = true;
+		int num_iterations = 100000;
 
-		String experimentType = EXPERIMENT_TYPE_LEARNINGRATE;
-		int num_experiments = 6;
-		int num_runs = 3;
+		String experimentType = "";
+		int num_experiments = 1;
+		int num_runs = 1;
 
 		eng.putVariable("num_iterations", num_iterations);
 		eng.putVariable("experimentType", experimentType);
@@ -141,7 +141,7 @@ public class Agent_NEAT extends MarioHijackAIBase implements IAgent {
 
 		eng.putVariable("init", true);
 
-		for (int i = 0; i < num_experiments; i++) {
+		/*for (int i = 0; i < num_experiments; i++) {
 			eng.putVariable("experiment", i+1);
 			for (int j = 0; j < num_runs; j++) {
 				eng.putVariable("experiment_run", j+1);
@@ -150,9 +150,9 @@ public class Agent_NEAT extends MarioHijackAIBase implements IAgent {
 				eng.putVariable("isTraining", false);
 				eng.eval("neat_network()");
 
-				train(num_iterations, displayGameWindow);
 			}
-		}
+		}*/
+				train(num_iterations, displayGameWindow);
 
 
 		eng.putVariable("isVisualization", true);
@@ -176,11 +176,19 @@ public class Agent_NEAT extends MarioHijackAIBase implements IAgent {
 		INDArray weightMatrixGlobalElite = null;
 		int fitnessGlobalElite = 0;
 
-		boolean isMultiLevelTraining = false;
-		int[] trainingLevelSeeds = generateSeeds(1235, 50);
+		boolean isMultiLevelTraining = true;
+		int[] trainingLevelSeeds = generateSeeds(1235, 100);
 		int[] evaluationLevelSeeds = generateSeeds(12341234, 100);
 		int levelSeedIndex = 0;
-		for (int iteration = 0; iteration < iterations; iteration++) {
+
+		int num_eval_level = 10;
+		ArrayList<MarioSimulator> simulators = new ArrayList<>();
+
+		for (int i = 0; i < num_eval_level; i++) {
+			simulators.add(new MarioSimulator(visualizeOFF + FastOpts.L_RANDOM_SEED(trainingLevelSeeds[i]) + options));
+		}
+
+		for (int iteration = 1356; iteration < iterations; iteration++) {
 
 			System.out.println("iteration = " + iteration);
 			eng.putVariable("iteration", iteration+1);
@@ -192,9 +200,9 @@ public class Agent_NEAT extends MarioHijackAIBase implements IAgent {
 			int[] fitness = new int[connections.length];
 
 
-			if (isMultiLevelTraining) {
+			/*if (isMultiLevelTraining) {
 				simulator = new MarioSimulator(visualizeOFF + FastOpts.L_RANDOM_SEED(trainingLevelSeeds[levelSeedIndex]) + options);
-				if(iteration % 15 == 0) {
+				if(iteration % 1 == 0) {
 					if(levelSeedIndex < trainingLevelSeeds.length-1){
 						//levelSeedIndex = ThreadLocalRandom.current().nextInt(0, trainingLevelSeeds.length-1);
 						levelSeedIndex++;
@@ -203,62 +211,69 @@ public class Agent_NEAT extends MarioHijackAIBase implements IAgent {
 					}
 				}
 			}
+*/
+			//insert random new level
+			simulators.set(new Random().nextInt(simulators.size()), new MarioSimulator(visualizeOFF + FastOpts.L_RANDOM_SEED(trainingLevelSeeds[new Random().nextInt(trainingLevelSeeds.length)]) + options));
 
-			for (int currentNetworkId = 0; currentNetworkId < num_networks; currentNetworkId++) {
+			for (int j = 0; j < num_eval_level; j++) {
+				//simulator = new MarioSimulator(visualizeOFF + FastOpts.L_RANDOM_SEED(trainingLevelSeeds[new Random().nextInt(trainingLevelSeeds.length)]) + options);
+				simulator = simulators.get(j);
 
-				INDArray nodesCurrent = Nd4j.create((double[][]) nodes[currentNetworkId]);
-				INDArray connectionsCurrent = Nd4j.create((double[][]) connections[currentNetworkId]);
+				for (int currentNetworkId = 0; currentNetworkId < num_networks; currentNetworkId++) {
 
-				maxNodeId = nodesCurrent.getColumn(0).maxNumber().intValue();
+					INDArray nodesCurrent = Nd4j.create((double[][]) nodes[currentNetworkId]);
+					INDArray connectionsCurrent = Nd4j.create((double[][]) connections[currentNetworkId]);
 
-				//remove disabled connections
-				INDArray enabledSelector = connectionsCurrent.getColumn(3).eq(1d);
-				int[] enabledIndex = new int[Nd4j.getExecutioner().exec(new MatchCondition(enabledSelector, Conditions.equals(1)), Integer.MAX_VALUE).getInt(0)];
-				int indexCounter = 0;
-				for (int i = 0; i < enabledSelector.length(); i++) {
-					if (enabledSelector.getInt(i) == 1) {
-						enabledIndex[indexCounter++] = i;
+					maxNodeId = nodesCurrent.getColumn(0).maxNumber().intValue();
+
+					//remove disabled connections
+					INDArray enabledSelector = connectionsCurrent.getColumn(3).eq(1d);
+					int[] enabledIndex = new int[Nd4j.getExecutioner().exec(new MatchCondition(enabledSelector, Conditions.equals(1)), Integer.MAX_VALUE).getInt(0)];
+					int indexCounter = 0;
+					for (int i = 0; i < enabledSelector.length(); i++) {
+						if (enabledSelector.getInt(i) == 1) {
+							enabledIndex[indexCounter++] = i;
+						}
 					}
+					connectionsCurrent = connectionsCurrent.getRows(enabledIndex).getColumns(0, 1, 2);
+
+					((Agent_NEAT) agent).activation = Nd4j.zeros(1, maxNodeId);
+					((Agent_NEAT) agent).weightMatrix = Nd4j.zeros(maxNodeId, maxNodeId);
+					for (int i = 0; i < connectionsCurrent.getColumn(0).size(0); i++) {
+						((Agent_NEAT) agent).weightMatrix.put(connectionsCurrent.getColumn(0).getInt(i) - 1, connectionsCurrent.getColumn(1).getInt(i) - 1, connectionsCurrent.getColumn(2).getDouble(i));
+					}
+
+					simulator.run(agent);
+
+					boolean levelWon = MarioEnvironment.getInstance().getMario().sprite.mapX == MarioEnvironment.getInstance().getLevelLength();
+					if (levelWon) {
+						fitness[currentNetworkId] += (int) MarioEnvironment.getInstance().getMario().sprite.x + MarioEnvironment.getInstance().getTimeLeft();
+					} else {
+						fitness[currentNetworkId] += (int) MarioEnvironment.getInstance().getMario().sprite.x;
+					}
+					if (fitness[currentNetworkId] >= fitnessGlobalElite) {
+						fitnessGlobalElite = fitness[currentNetworkId];
+						weightMatrixGlobalElite = ((Agent_NEAT) agent).weightMatrix;
+					}
+
+
+					//System.out.println("Fitness Pixel: "+fitness[currentNetworkId]+"\t max: "+ MarioEnvironment.getInstance().getLevelLength()*16 + "\t|\t Fitness Bloecke: " + MarioEnvironment.getInstance().getMario().sprite.mapX+"\t max: "+MarioEnvironment.getInstance().getLevelLength()+"\t| time left: "+MarioEnvironment.getInstance().getTimeLeft()+"\t\t| win?: "+ ((int) MarioEnvironment.getInstance().getMario().sprite.mapX ==(int) MarioEnvironment.getInstance().getLevelLength()?"True":"False"));
+
 				}
-				connectionsCurrent = connectionsCurrent.getRows(enabledIndex).getColumns(0, 1, 2);
-
-				((Agent_NEAT) agent).activation = Nd4j.zeros(1, maxNodeId);
-				((Agent_NEAT) agent).weightMatrix = Nd4j.zeros(maxNodeId, maxNodeId);
-				for (int i = 0; i < connectionsCurrent.getColumn(0).size(0); i++) {
-					((Agent_NEAT) agent).weightMatrix.put(connectionsCurrent.getColumn(0).getInt(i) - 1, connectionsCurrent.getColumn(1).getInt(i) - 1, connectionsCurrent.getColumn(2).getDouble(i));
-				}
-
-				simulator.run(agent);
-
-				boolean levelWon = MarioEnvironment.getInstance().getMario().sprite.mapX ==MarioEnvironment.getInstance().getLevelLength();
-				if(levelWon)
-				{
-					fitness[currentNetworkId] = (int) MarioEnvironment.getInstance().getMario().sprite.x + MarioEnvironment.getInstance().getTimeLeft();
-				} else {
-					fitness[currentNetworkId] = (int) MarioEnvironment.getInstance().getMario().sprite.x;
-				}
-				if(fitness[currentNetworkId] >= fitnessGlobalElite) {
-					fitnessGlobalElite = fitness[currentNetworkId];
-					weightMatrixGlobalElite = ((Agent_NEAT) agent).weightMatrix;
-				}
-
-
-				//System.out.println("Fitness Pixel: "+fitness[currentNetworkId]+"\t max: "+ MarioEnvironment.getInstance().getLevelLength()*16 + "\t|\t Fitness Bloecke: " + MarioEnvironment.getInstance().getMario().sprite.mapX+"\t max: "+MarioEnvironment.getInstance().getLevelLength()+"\t| time left: "+MarioEnvironment.getInstance().getTimeLeft()+"\t\t| win?: "+ ((int) MarioEnvironment.getInstance().getMario().sprite.mapX ==(int) MarioEnvironment.getInstance().getLevelLength()?"True":"False"));
-
 			}
 
-			int avgFitness =0;
+			/*int avgFitness =0;
 			for(int element:fitness){
 				avgFitness += element;
 			}
 			avgFitness = avgFitness / fitness.length;
-			System.out.println("Durschnitts Fitness der Iteration: " + avgFitness);
+			System.out.println("Durschnitts Fitness der Iteration: " + avgFitness);*/
 			int max=0;
 			max = Collections.max(Arrays.asList(ArrayUtils.toObject(fitness)));
 			System.out.println("Fitness Elite: "+ max);
 			System.out.println("-----------------------------------------------------------------------------------------------------------------------");
 
-			if (displayGameWindow && (iteration == 0 || iteration % 500 == 0)) {
+			if (displayGameWindow && (iteration == 0 || iteration % 200 == 0)) {
 				simulator = new MarioSimulator(visualizeON + options + " " + MarioOptions.IntOption.SIMULATION_TIME_LIMIT.getParam() + " 100");
 				((Agent_NEAT) agent).activation = Nd4j.zeros(1, weightMatrixGlobalElite.shape()[0]);
 				((Agent_NEAT) agent).weightMatrix = weightMatrixGlobalElite;
@@ -269,23 +284,24 @@ public class Agent_NEAT extends MarioHijackAIBase implements IAgent {
 			eng.putVariable("marioFitness", fitness);
 			eng.eval("neat_network()");
 
-		}
 
-		if (isMultiLevelTraining) {
-			int[] validationFitness = new int[trainingLevelSeeds.length];
-			for (int i = 0; i < trainingLevelSeeds.length; i++) {
-				simulator = new MarioSimulator(visualizeOFF + FastOpts.L_RANDOM_SEED(trainingLevelSeeds[i]) + options);
-				((Agent_NEAT) agent).activation = Nd4j.zeros(1, weightMatrixGlobalElite.shape()[0]);
-				((Agent_NEAT) agent).weightMatrix = weightMatrixGlobalElite;
-				simulator.run(agent);
-				boolean levelWon = MarioEnvironment.getInstance().getMario().sprite.mapX ==MarioEnvironment.getInstance().getLevelLength();
-				if(levelWon) {
-					validationFitness[i] = (int) MarioEnvironment.getInstance().getMario().sprite.x + MarioEnvironment.getInstance().getTimeLeft();
-				} else {
-					validationFitness[i] = (int) MarioEnvironment.getInstance().getMario().sprite.x;
+			if (isMultiLevelTraining && (iteration % 100 == 0)) {
+				int[] validationFitness = new int[evaluationLevelSeeds.length];
+				for (int i = 0; i < evaluationLevelSeeds.length; i++) {
+					simulator = new MarioSimulator(visualizeOFF + FastOpts.L_RANDOM_SEED(evaluationLevelSeeds[i]) + options);
+					((Agent_NEAT) agent).activation = Nd4j.zeros(1, weightMatrixGlobalElite.shape()[0]);
+					((Agent_NEAT) agent).weightMatrix = weightMatrixGlobalElite;
+					simulator.run(agent);
+					boolean levelWon = MarioEnvironment.getInstance().getMario().sprite.mapX == MarioEnvironment.getInstance().getLevelLength();
+					if (levelWon) {
+						validationFitness[i] = (int) MarioEnvironment.getInstance().getMario().sprite.x + MarioEnvironment.getInstance().getTimeLeft();
+					} else {
+						validationFitness[i] = (int) MarioEnvironment.getInstance().getMario().sprite.x;
+					}
 				}
+				eng.putVariable("validationFitness", validationFitness);
 			}
-			eng.putVariable("validationFitness", validationFitness);
+
 		}
 	}
 

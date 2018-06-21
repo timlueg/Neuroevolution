@@ -11,12 +11,10 @@ if(~exist('params', 'var'))
         end
         
         logEliteFitness = cell(num_experiments, 1);
+        logEliteAverageWeight = cell(num_experiments, 1);
         for i=1:num_experiments
             logEliteFitness{i} = zeros(num_iterations, num_runs);
         end
-        logEliteFitnessCurrent = [];
-        logEliteNumNodes = [];
-        logEliteNumConnections = [];
         
         isVisualization = false;
         init = false;
@@ -32,23 +30,22 @@ end
 if(isTraining)
     params.fitness = marioFitness;
     [maxfitness,indexMaxFitness] = max(params.fitness);
-    %logEliteFitnessCurrent = [logEliteFitnessCurrent, maxfitness ];
-    
-    %logEliteNumNodes = [logEliteNumNodes,length(params.nodes{indexMaxFitness})];
-    %logEliteNumConnections = [logEliteNumConnections, size(params.connections{indexMaxFitness}(params.connections{indexMaxFitness}(:,params.connCol_state)== params.conn_state_enabled,:),1)];
-    
+
     logEliteFitness{experiment}(iteration, experiment_run) = maxfitness;
+    
+    %logEliteAverageWeight{experiment}(iteration, experiment_run) = mean(abs(params.connections{indexMaxFitness}(:, params.connCol_weight)));
+    
     
     params = train(params);
 end
 
 if(isVisualization)
-   figure(1);
+   figure(3);
    cla;
    hold on;
    legend();
    for i=1:num_experiments
-       plot(mean(logEliteFitness{i}, 2));
+       plot(smooth(mean(logEliteFitness{i}, 2)));
    end
    line([1,size(logEliteFitness{1},1)],[4096,4096],'Color','k');
    xlabel('Iteration');
@@ -56,14 +53,14 @@ if(isVisualization)
       legend('Tr = 0,2 LR = 0,0002','Tr = 0,2 LR = 0,002','Tr = 0,2 LR = 0,02','Tr = 0,2 LR = 0,2''Tr = 0,2 LR = 0,1','Level geschafft')
    
    hold off;
-   figure(2);
-   cla;
-   boxplotdata=[];
-   for i=1:num_experiments
-      boxplotdata=[boxplotdata;logEliteFitness{i}(500,:)];
-       
-   end
-   boxplot(boxplotdata);
+%    figure(2);
+%    cla;
+%    boxplotdata=[];
+%    for i=1:num_experiments
+%       boxplotdata=[boxplotdata;logEliteFitness{i}(500,:)];
+%        
+%    end
+%    boxplot(boxplotdata);
    
 %    figure(2);
 %    cla;
